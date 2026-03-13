@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,60 +11,64 @@
 
 body{
 font-family:Arial;
-background:#f1f5f9;
+background:#eef2f7;
 margin:0;
 padding:10px;
 }
 
-h2{
+.container{
+max-width:500px;
+margin:auto;
+}
+
+.logo{
 text-align:center;
+margin-bottom:10px;
 }
 
-#reader{
-width:100%;
-}
-
-input{
-width:100%;
-padding:16px;
-font-size:18px;
-margin-top:8px;
+.logo img{
+max-width:200px;
 }
 
 button{
 width:100%;
 padding:16px;
 font-size:18px;
-margin-top:10px;
-background:#2563eb;
-color:white;
 border:none;
-border-radius:6px;
+border-radius:8px;
+background:#0f4c81;
+color:white;
+margin-top:8px;
 }
 
-canvas{
-border:2px solid black;
+input{
 width:100%;
-height:150px;
+padding:14px;
+font-size:18px;
+margin-top:6px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+#reader{
+width:100%;
 margin-top:10px;
 }
 
 #notas{
-font-size:20px;
 background:white;
 padding:10px;
 margin-top:10px;
+font-size:18px;
+border-radius:6px;
 }
 
-.mira{
-border:3px solid #00ff00;
-position:absolute;
-width:250px;
-height:250px;
-top:30%;
-left:50%;
-transform:translate(-50%,-50%);
-pointer-events:none;
+canvas{
+border:2px solid #333;
+width:100%;
+height:160px;
+background:white;
+touch-action:none;
 }
 
 </style>
@@ -72,75 +77,119 @@ pointer-events:none;
 
 <body>
 
-<h2>Canhoto Digital</h2>
+<div class="container">
 
-<div style="position:relative">
-<div id="reader"></div>
-<div class="mira"></div>
+<div class="logo">
+<img src="https://drive.google.com/uc?export=view&id=1vKNP9rNp9fDg58y0RkZWIyi_h_xj1f_m">
 </div>
 
-<div id="notas">Notas:</div>
+<button onclick="abrirCamera()">Abrir câmera</button>
+
+<button onclick="fecharCamera()">Fechar câmera</button>
+
+<button onclick="notaManual()">Adicionar NFe manualmente</button>
+
+<div id="reader"></div>
+
+<div id="notas">Notas lidas:</div>
 
 <input id="empresa" placeholder="Empresa">
 
 <input id="cnpj" placeholder="CNPJ">
 
-<input id="recebedor" placeholder="Recebedor">
+<input id="recebedor" placeholder="Recebedor (obrigatório)">
 
-<input id="documento" placeholder="CPF ou RG">
+<input id="documento" placeholder="CPF ou RG (obrigatório)">
 
-<input id="expedidor" placeholder="Expedidor">
+<p>Assinatura</p>
 
 <canvas id="assinatura"></canvas>
 
-<button onclick="limpar()">Limpar Assinatura</button>
+<input id="expedidor" placeholder="Expedidor (obrigatório)">
+
+<button onclick="limpar()">Limpar assinatura</button>
 
 <button onclick="salvar()">Salvar</button>
 
+</div>
+
 <script>
 
-var notas=[]
+let scanner
+let notas=[]
 
 function extrairNota(codigo){
-return codigo.slice(-9)
+
+return codigo.substring(25,34)
+
 }
 
-function extrairCNPJ(codigo){
-return codigo.substring(6,20)
+function atualizarNotas(){
+
+document.getElementById("notas").innerHTML="Notas lidas: "+notas.join(", ")
+
 }
 
-function onScanSuccess(decodedText){
+function abrirCamera(){
 
-var nota = extrairNota(decodedText)
-var cnpj = extrairCNPJ(decodedText)
+scanner = new Html5Qrcode("reader")
+
+scanner.start(
+{ facingMode:"environment"},
+{ fps:10, qrbox:300 },
+
+(codigo)=>{
+
+let nota = extrairNota(codigo)
 
 if(!notas.includes(nota)){
 
 notas.push(nota)
 
-document.getElementById("notas").innerHTML="Notas: "+notas.join(", ")
-
-document.getElementById("cnpj").value = cnpj
+atualizarNotas()
 
 navigator.vibrate(200)
 
-var audio = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg")
-audio.play()
+let beep=new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg")
+beep.play()
 
 }
 
 }
 
-var scanner = new Html5QrcodeScanner("reader",{fps:10,qrbox:250})
-scanner.render(onScanSuccess)
+)
 
-var canvas=document.getElementById("assinatura")
-var ctx=canvas.getContext("2d")
+}
 
-canvas.width=window.innerWidth-20
-canvas.height=150
+function fecharCamera(){
 
-var desenhando=false
+if(scanner){
+scanner.stop()
+}
+
+}
+
+function notaManual(){
+
+let nota=prompt("Digite o número da Nota Fiscal")
+
+if(nota){
+
+notas.push(nota)
+
+atualizarNotas()
+
+}
+
+}
+
+let canvas=document.getElementById("assinatura")
+let ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth-40
+canvas.height=160
+
+let desenhando=false
 
 canvas.addEventListener("pointerdown",e=>{
 desenhando=true
@@ -149,12 +198,12 @@ ctx.beginPath()
 
 canvas.addEventListener("pointermove",e=>{
 
-if(!desenhando) return
+if(!desenhando)return
 
-var rect=canvas.getBoundingClientRect()
+let rect=canvas.getBoundingClientRect()
 
-var x=e.clientX-rect.left
-var y=e.clientY-rect.top
+let x=e.clientX-rect.left
+let y=e.clientY-rect.top
 
 ctx.lineWidth=2
 ctx.lineTo(x,y)
@@ -170,7 +219,25 @@ ctx.clearRect(0,0,canvas.width,canvas.height)
 
 function salvar(){
 
-var assinatura=canvas.toDataURL()
+let recebedor=document.getElementById("recebedor").value
+let documento=document.getElementById("documento").value
+let expedidor=document.getElementById("expedidor").value
+
+if(recebedor==""||documento==""||expedidor==""){
+
+alert("Preencha Recebedor, Documento e Expedidor")
+return
+
+}
+
+if(notas.length==0){
+
+alert("Nenhuma nota foi adicionada")
+return
+
+}
+
+let assinatura=canvas.toDataURL()
 
 fetch("https://script.google.com/macros/s/AKfycbyom4lgFJTQXijV4MTRwgIZOWa0pksXUSi0XSKBN3yciuQF0LfARKY8IiKq0_7BHXB5wg/exec",{
 
@@ -179,18 +246,30 @@ method:"POST",
 body:JSON.stringify({
 
 notas:notas,
-empresa:document.getElementById("empresa").value,
-cnpj:document.getElementById("cnpj").value,
-recebedor:document.getElementById("recebedor").value,
-documento:document.getElementById("documento").value,
-expedidor:document.getElementById("expedidor").value,
+empresa:empresa.value,
+cnpj:cnpj.value,
+recebedor:recebedor,
+documento:documento,
+expedidor:expedidor,
 assinatura:assinatura
 
 })
 
 })
 
-alert("Dados enviados para planilha")
+alert("Salvo com sucesso!")
+
+notas=[]
+
+empresa.value=""
+cnpj.value=""
+recebedor.value=""
+documento.value=""
+expedidor.value=""
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+atualizarNotas()
 
 }
 
