@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scanner de Notas</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -13,41 +12,48 @@ body{
 font-family:Arial;
 background:#0f172a;
 color:white;
+text-align:center;
 margin:0;
-padding:20px;
 }
 
 #reader{
 width:100%;
+max-width:500px;
+margin:auto;
+}
+
+#mira{
+position:absolute;
+left:50%;
+top:50%;
+width:220px;
+height:3px;
+background:#00ff88;
+transform:translate(-50%,-50%);
+}
+
+#lista{
+margin-top:20px;
+background:#1e293b;
+padding:15px;
+border-radius:10px;
+}
+
+.nota{
+padding:8px;
+margin:5px;
+background:#334155;
+border-radius:6px;
 }
 
 button{
-width:100%;
 padding:15px;
-margin-top:10px;
+font-size:18px;
 border:none;
 border-radius:10px;
-font-size:16px;
-}
-
-.scan{background:#2563eb;color:white}
-.salvar{background:#22c55e;color:white}
-.limpar{background:#ef4444;color:white}
-
-input{
-width:100%;
-padding:12px;
-margin-top:8px;
-border-radius:6px;
-border:none;
-}
-
-canvas{
-width:100%;
-height:200px;
-background:white;
+background:#22c55e;
+color:white;
 margin-top:10px;
-border-radius:10px;
 }
 
 </style>
@@ -56,107 +62,87 @@ border-radius:10px;
 
 <body>
 
-<h2>Canhoto Digital</h2>
+<h2>📦 Scanner de DANFE</h2>
 
-<button class="scan" onclick="iniciarScanner()">Escanear Notas</button>
+<div style="position:relative">
 
 <div id="reader"></div>
+<div id="mira"></div>
 
+</div>
+
+<button onclick="iniciar()">Abrir Câmera</button>
+
+<div id="lista">
 <h3>Notas escaneadas</h3>
+<div id="notas"></div>
+</div>
 
-<div id="lista"></div>
-
-<input id="empresa" placeholder="Empresa">
-<input id="cnpj" placeholder="CNPJ">
-
-<input id="recebedor" placeholder="Nome Recebedor">
-<input id="documento" placeholder="CPF ou RG">
-
-<input id="expedidor" placeholder="Nome Expedidor">
-
-<h3>Assinatura</h3>
-
-<canvas id="assinatura"></canvas>
-
-<button class="limpar" onclick="limparAss()">Limpar assinatura</button>
-
-<button class="salvar" onclick="salvar()">Salvar</button>
+<audio id="beep">
+<source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg">
+</audio>
 
 <script>
 
-let notas=[]
+let notas=[];
 
-let beep=new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg")
+function iniciar(){
 
-function iniciarScanner(){
-
-const scanner=new Html5Qrcode("reader")
+const scanner=new Html5Qrcode("reader");
 
 scanner.start(
 {facingMode:"environment"},
-{fps:10,qrbox:{width:250,height:120}},
+{fps:10,qrbox:250},
 
-codigo=>{
+(codigo)=>{
 
-beep.play()
+if(!notas.includes(codigo)){
 
-if(codigo.length>=44){
+notas.push(codigo);
 
-let numero=codigo.substring(25,34)
+document.getElementById("beep").play();
 
-if(!notas.includes(numero)){
+if(navigator.vibrate){
+navigator.vibrate(200);
+}
 
-notas.push(numero)
-
-document.getElementById("lista").innerHTML=notas.join("<br>")
-
-navigator.vibrate(200)
+mostrarNotas();
 
 }
 
 }
 
-}
-
-)
+);
 
 }
 
-let canvas=document.getElementById("assinatura")
-let ctx=canvas.getContext("2d")
+function mostrarNotas(){
 
-let desenhando=false
+let html="";
 
-canvas.addEventListener("pointerdown",e=>{
-desenhando=true
-ctx.beginPath()
-ctx.moveTo(e.offsetX,e.offsetY)
-})
+notas.forEach((n,i)=>{
 
-canvas.addEventListener("pointermove",e=>{
-if(!desenhando)return
-ctx.lineTo(e.offsetX,e.offsetY)
-ctx.stroke()
-})
+html+=`
+<div class="nota">
+Nota: ${n}
+<button onclick="remover(${i})">❌</button>
+</div>
+`;
 
-canvas.addEventListener("pointerup",()=>desenhando=false)
+});
 
-function limparAss(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height)
+document.getElementById("notas").innerHTML=html;
 
 }
 
-function salvar(){
+function remover(i){
 
-alert("Aqui depois conectaremos com sua planilha")
+notas.splice(i,1);
+mostrarNotas();
 
 }
 
 </script>
 
-
 </body>
-
 </html>
-
