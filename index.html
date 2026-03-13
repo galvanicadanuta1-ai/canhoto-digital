@@ -102,21 +102,16 @@ pointer-events:none;
 var notas=[]
 
 function extrairNota(codigo){
-
 return codigo.slice(-9)
-
 }
 
 function extrairCNPJ(codigo){
-
 return codigo.substring(6,20)
-
 }
 
 function onScanSuccess(decodedText){
 
 var nota = extrairNota(decodedText)
-
 var cnpj = extrairCNPJ(decodedText)
 
 if(!notas.includes(nota)){
@@ -130,7 +125,6 @@ document.getElementById("cnpj").value = cnpj
 navigator.vibrate(200)
 
 var audio = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg")
-
 audio.play()
 
 }
@@ -138,7 +132,6 @@ audio.play()
 }
 
 var scanner = new Html5QrcodeScanner("reader",{fps:10,qrbox:250})
-
 scanner.render(onScanSuccess)
 
 var canvas=document.getElementById("assinatura")
@@ -179,7 +172,7 @@ function salvar(){
 
 var assinatura=canvas.toDataURL()
 
-fetch("COLE_AQUI_SEU_LINK_DO_APPS_SCRIPT",{
+fetch("https://script.google.com/macros/s/AKfycbyom4lgFJTQXijV4MTRwgIZOWa0pksXUSi0XSKBN3yciuQF0LfARKY8IiKq0_7BHXB5wg/exec",{
 
 method:"POST",
 
