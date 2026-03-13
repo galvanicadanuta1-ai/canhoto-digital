@@ -13,7 +13,7 @@ body{
 font-family:Arial;
 background:#eef2f7;
 margin:0;
-padding:10px;
+padding:12px;
 }
 
 .container{
@@ -55,12 +55,24 @@ width:100%;
 margin-top:10px;
 }
 
+#mira{
+border:4px solid #00ff00;
+border-radius:10px;
+padding:4px;
+}
+
 #notas{
 background:white;
 padding:10px;
 margin-top:10px;
 font-size:18px;
 border-radius:6px;
+}
+
+#contador{
+font-size:22px;
+font-weight:bold;
+margin-top:10px;
 }
 
 canvas{
@@ -83,15 +95,19 @@ touch-action:none;
 <img src="https://drive.google.com/uc?export=view&id=1vKNP9rNp9fDg58y0RkZWIyi_h_xj1f_m">
 </div>
 
-<button onclick="abrirCamera()">Abrir câmera</button>
+<button onclick="abrirCamera()">📷 Abrir câmera</button>
 
-<button onclick="fecharCamera()">Fechar câmera</button>
+<button onclick="fecharCamera()">❌ Fechar câmera</button>
 
-<button onclick="notaManual()">Adicionar NFe manualmente</button>
+<button onclick="notaManual()">✏ Adicionar NFe manualmente</button>
 
+<div id="mira">
 <div id="reader"></div>
+</div>
 
-<div id="notas">Notas lidas:</div>
+<div id="contador">Notas lidas: 0</div>
+
+<div id="notas"></div>
 
 <input id="empresa" placeholder="Empresa">
 
@@ -124,9 +140,17 @@ return codigo.substring(25,34)
 
 }
 
+function extrairCNPJ(codigo){
+
+return codigo.substring(6,20)
+
+}
+
 function atualizarNotas(){
 
-document.getElementById("notas").innerHTML="Notas lidas: "+notas.join(", ")
+document.getElementById("contador").innerHTML="Notas lidas: "+notas.length
+
+document.getElementById("notas").innerHTML=notas.join("<br>")
 
 }
 
@@ -136,15 +160,19 @@ scanner = new Html5Qrcode("reader")
 
 scanner.start(
 { facingMode:"environment"},
-{ fps:10, qrbox:300 },
+{ fps:15, qrbox:280 },
 
 (codigo)=>{
 
 let nota = extrairNota(codigo)
 
+let cnpj = extrairCNPJ(codigo)
+
 if(!notas.includes(nota)){
 
 notas.push(nota)
+
+document.getElementById("cnpj").value = cnpj
 
 atualizarNotas()
 
@@ -171,7 +199,7 @@ scanner.stop()
 
 function notaManual(){
 
-let nota=prompt("Digite o número da Nota Fiscal")
+let nota=prompt("Digite o número da Nota")
 
 if(nota){
 
@@ -226,6 +254,7 @@ let expedidor=document.getElementById("expedidor").value
 if(recebedor==""||documento==""||expedidor==""){
 
 alert("Preencha Recebedor, Documento e Expedidor")
+
 return
 
 }
@@ -233,6 +262,7 @@ return
 if(notas.length==0){
 
 alert("Nenhuma nota foi adicionada")
+
 return
 
 }
