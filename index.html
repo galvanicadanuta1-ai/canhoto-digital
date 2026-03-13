@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Scanner de Notas</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -10,50 +10,60 @@
 
 body{
 font-family:Arial;
-background:#0f172a;
-color:white;
-text-align:center;
+background:#f1f5f9;
 margin:0;
+padding:10px;
+}
+
+h2{
+text-align:center;
 }
 
 #reader{
 width:100%;
-max-width:500px;
-margin:auto;
 }
 
-#mira{
-position:absolute;
-left:50%;
-top:50%;
-width:220px;
-height:3px;
-background:#00ff88;
-transform:translate(-50%,-50%);
-}
-
-#lista{
-margin-top:20px;
-background:#1e293b;
-padding:15px;
-border-radius:10px;
-}
-
-.nota{
-padding:8px;
-margin:5px;
-background:#334155;
-border-radius:6px;
+input{
+width:100%;
+padding:16px;
+font-size:18px;
+margin-top:8px;
 }
 
 button{
-padding:15px;
+width:100%;
+padding:16px;
 font-size:18px;
-border:none;
-border-radius:10px;
-background:#22c55e;
-color:white;
 margin-top:10px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:6px;
+}
+
+canvas{
+border:2px solid black;
+width:100%;
+height:150px;
+margin-top:10px;
+}
+
+#notas{
+font-size:20px;
+background:white;
+padding:10px;
+margin-top:10px;
+}
+
+.mira{
+border:3px solid #00ff00;
+position:absolute;
+width:250px;
+height:250px;
+top:30%;
+left:50%;
+transform:translate(-50%,-50%);
+pointer-events:none;
 }
 
 </style>
@@ -62,83 +72,132 @@ margin-top:10px;
 
 <body>
 
-<h2>📦 Scanner de DANFE</h2>
+<h2>Canhoto Digital</h2>
 
 <div style="position:relative">
-
 <div id="reader"></div>
-<div id="mira"></div>
-
+<div class="mira"></div>
 </div>
 
-<button onclick="iniciar()">Abrir Câmera</button>
+<div id="notas">Notas:</div>
 
-<div id="lista">
-<h3>Notas escaneadas</h3>
-<div id="notas"></div>
-</div>
+<input id="empresa" placeholder="Empresa">
 
-<audio id="beep">
-<source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg">
-</audio>
+<input id="cnpj" placeholder="CNPJ">
+
+<input id="recebedor" placeholder="Recebedor">
+
+<input id="documento" placeholder="CPF ou RG">
+
+<input id="expedidor" placeholder="Expedidor">
+
+<canvas id="assinatura"></canvas>
+
+<button onclick="limpar()">Limpar Assinatura</button>
+
+<button onclick="salvar()">Salvar</button>
 
 <script>
 
-let notas=[];
+var notas=[]
 
-function iniciar(){
+function extrairNota(codigo){
 
-const scanner=new Html5Qrcode("reader");
-
-scanner.start(
-{facingMode:"environment"},
-{fps:10,qrbox:250},
-
-(codigo)=>{
-
-if(!notas.includes(codigo)){
-
-notas.push(codigo);
-
-document.getElementById("beep").play();
-
-if(navigator.vibrate){
-navigator.vibrate(200);
-}
-
-mostrarNotas();
+return codigo.slice(-9)
 
 }
 
-}
+function extrairCNPJ(codigo){
 
-);
-
-}
-
-function mostrarNotas(){
-
-let html="";
-
-notas.forEach((n,i)=>{
-
-html+=`
-<div class="nota">
-Nota: ${n}
-<button onclick="remover(${i})">❌</button>
-</div>
-`;
-
-});
-
-document.getElementById("notas").innerHTML=html;
+return codigo.substring(6,20)
 
 }
 
-function remover(i){
+function onScanSuccess(decodedText){
 
-notas.splice(i,1);
-mostrarNotas();
+var nota = extrairNota(decodedText)
+
+var cnpj = extrairCNPJ(decodedText)
+
+if(!notas.includes(nota)){
+
+notas.push(nota)
+
+document.getElementById("notas").innerHTML="Notas: "+notas.join(", ")
+
+document.getElementById("cnpj").value = cnpj
+
+navigator.vibrate(200)
+
+var audio = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg")
+
+audio.play()
+
+}
+
+}
+
+var scanner = new Html5QrcodeScanner("reader",{fps:10,qrbox:250})
+
+scanner.render(onScanSuccess)
+
+var canvas=document.getElementById("assinatura")
+var ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth-20
+canvas.height=150
+
+var desenhando=false
+
+canvas.addEventListener("pointerdown",e=>{
+desenhando=true
+ctx.beginPath()
+})
+
+canvas.addEventListener("pointermove",e=>{
+
+if(!desenhando) return
+
+var rect=canvas.getBoundingClientRect()
+
+var x=e.clientX-rect.left
+var y=e.clientY-rect.top
+
+ctx.lineWidth=2
+ctx.lineTo(x,y)
+ctx.stroke()
+
+})
+
+canvas.addEventListener("pointerup",()=>desenhando=false)
+
+function limpar(){
+ctx.clearRect(0,0,canvas.width,canvas.height)
+}
+
+function salvar(){
+
+var assinatura=canvas.toDataURL()
+
+fetch("COLE_AQUI_SEU_LINK_DO_APPS_SCRIPT",{
+
+method:"POST",
+
+body:JSON.stringify({
+
+notas:notas,
+empresa:document.getElementById("empresa").value,
+cnpj:document.getElementById("cnpj").value,
+recebedor:document.getElementById("recebedor").value,
+documento:document.getElementById("documento").value,
+expedidor:document.getElementById("expedidor").value,
+assinatura:assinatura
+
+})
+
+})
+
+alert("Dados enviados para planilha")
 
 }
 
