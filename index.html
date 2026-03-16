@@ -83,19 +83,18 @@ touch-action:none;
 <img src="https://drive.google.com/uc?export=view&id=1vKNP9rNp9fDg58y0RkZWIyi_h_xj1f_m">
 </div>
 
-<button onclick="abrirCamera()">📷 Abrir câmera</button>
+<button onclick="abrirCamera()">Abrir câmera</button>
+<button onclick="fecharCamera()">Fechar câmera</button>
 
-<button onclick="fecharCamera()">❌ Fechar câmera</button>
-
-<button onclick="notaManual()">✏ Adicionar NFe manual</button>
+<button onclick="notaManual()">Adicionar NFe manual</button>
 
 <div id="reader"></div>
 
 <div id="notas"></div>
 
-<input id="empresa" placeholder="Empresa">
+<input id="empresa" placeholder="Empresa Destinatária">
 
-<input id="cnpj" placeholder="CNPJ">
+<input id="cnpj" placeholder="CNPJ Destinatário">
 
 <input id="recebedor" placeholder="Recebedor (obrigatório)">
 
@@ -120,31 +119,35 @@ touch-action:none;
 let scanner
 let notas=[]
 
-async function buscarEmpresa(cnpj){
+async function buscarDestinatario(chave){
 
 try{
 
-let url="https://brasilapi.com.br/api/cnpj/v1/"+cnpj
+let url="https://brasilapi.com.br/api/nfe/v1/"+chave
 
 let r = await fetch(url)
 
 let j = await r.json()
 
-empresa.value=j.razao_social
+document.getElementById("empresa").value = j.destinatario.razao_social
 
-}catch{}
+document.getElementById("cnpj").value = j.destinatario.cnpj
+
+}catch{
+
+console.log("NF não encontrada")
+
+}
 
 }
 
 function extrairNota(codigo){
 
+let chave = codigo.substring(0,44)
+
+buscarDestinatario(chave)
+
 return codigo.substring(25,34)
-
-}
-
-function extrairCNPJ(codigo){
-
-return codigo.substring(6,20)
 
 }
 
@@ -160,17 +163,11 @@ scanner.start(
 
 let nota = extrairNota(codigo)
 
-let cnpj = extrairCNPJ(codigo)
-
 if(!notas.includes(nota)){
 
 notas.push(nota)
 
 document.getElementById("notas").innerHTML=notas.join("<br>")
-
-document.getElementById("cnpj").value=cnpj
-
-buscarEmpresa(cnpj)
 
 navigator.vibrate(200)
 
@@ -245,7 +242,6 @@ let ordem=document.getElementById("ordem").value
 if(recebedor==""||rgcpf==""||expedidor==""||ordem==""){
 
 alert("Preencha todos os campos obrigatórios")
-
 return
 
 }
@@ -253,7 +249,6 @@ return
 if(notas.length==0){
 
 alert("Nenhuma nota foi adicionada")
-
 return
 
 }
