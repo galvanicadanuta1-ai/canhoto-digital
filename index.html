@@ -61,48 +61,86 @@ background:red;
 color:white;
 }
 
+/* SCANNER TELA CHEIA */
+
+#scannerTela{
+
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+z-index:9999;
+display:none;
+
+}
+
 #reader{
 width:100%;
-height:320px;
-margin-top:10px;
-border:2px solid #333;
-border-radius:8px;
-overflow:hidden;
+height:100%;
 position:relative;
 }
 
+/* LINHA DE LEITURA */
+
 .scan-line{
+
 position:absolute;
 top:50%;
 left:0;
 width:100%;
 height:3px;
 background:red;
+
 }
 
+/* BOTÃO FECHAR */
+
+.fecharScanner{
+
+position:absolute;
+top:20px;
+right:20px;
+background:red;
+color:white;
+padding:10px 14px;
+border-radius:6px;
+font-size:18px;
+z-index:10000;
+}
+
+/* NOTAS */
+
 #notas{
+
 background:white;
 padding:10px;
 margin-top:10px;
 border-radius:6px;
 font-size:18px;
+
 }
 
 input{
+
 width:100%;
 padding:12px;
 margin-top:6px;
 border-radius:6px;
 border:1px solid #ccc;
 font-size:17px;
+
 }
 
 canvas{
+
 border:2px solid #333;
 width:100%;
 height:160px;
 background:white;
 touch-action:none;
+
 }
 
 </style>
@@ -123,15 +161,9 @@ touch-action:none;
 
 </div>
 
-<button class="camera" onclick="abrirCamera()">Abrir câmera</button>
-
-<button class="camera" onclick="fecharCamera()">Fechar câmera</button>
+<button class="camera" onclick="abrirScanner()">Abrir Scanner</button>
 
 <button class="camera" onclick="notaManual()">Adicionar NF manual</button>
-
-<div id="reader">
-<div class="scan-line"></div>
-</div>
 
 <div id="notas"></div>
 
@@ -157,6 +189,19 @@ touch-action:none;
 
 </div>
 
+
+<!-- SCANNER FULL SCREEN -->
+
+<div id="scannerTela">
+
+<div class="fecharScanner" onclick="fecharScanner()">FECHAR</div>
+
+<div id="reader">
+<div class="scan-line"></div>
+</div>
+
+</div>
+
 <script>
 
 let scanner
@@ -176,7 +221,9 @@ return numeros
 
 }
 
-function abrirCamera(){
+function abrirScanner(){
+
+document.getElementById("scannerTela").style.display="block"
 
 scanner = new Html5Qrcode("reader")
 
@@ -185,7 +232,7 @@ scanner.start(
 
 {
 fps:30,
-qrbox:350
+qrbox:400
 },
 
 (codigo)=>{
@@ -211,13 +258,15 @@ beep.play()
 
 }
 
-function fecharCamera(){
+function fecharScanner(){
 
 if(scanner){
 
 scanner.stop()
 
 }
+
+document.getElementById("scannerTela").style.display="none"
 
 }
 
@@ -331,7 +380,6 @@ alert("Salvo com sucesso!")
 location.reload()
 
 })
-
 .catch(err=>{
 
 alert("Erro ao salvar")
