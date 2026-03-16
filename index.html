@@ -12,7 +12,7 @@
 body{
 font-family:Arial;
 margin:0;
-background:#f4f4f4;
+background:#f2f2f2;
 }
 
 .container{
@@ -21,29 +21,33 @@ margin:auto;
 padding:10px;
 }
 
-.topo{
-display:flex;
-align-items:center;
-justify-content:space-between;
-}
+.titulo{
 
-.logo img{
-height:60px;
+text-align:center;
+font-size:26px;
+font-weight:bold;
+margin-bottom:15px;
+
 }
 
 .limpar{
+position:absolute;
+left:15px;
+top:15px;
 font-size:28px;
 color:red;
 cursor:pointer;
 }
 
 button{
+
 width:100%;
 padding:15px;
 margin-top:10px;
 border:none;
 border-radius:8px;
 font-size:18px;
+
 }
 
 .btnCamera{
@@ -62,28 +66,34 @@ color:white;
 }
 
 #notas{
+
 background:white;
 padding:10px;
 margin-top:10px;
 border-radius:6px;
 font-size:18px;
+
 }
 
 input{
+
 width:100%;
 padding:12px;
 margin-top:8px;
 border-radius:6px;
 border:1px solid #ccc;
 font-size:17px;
+
 }
 
 canvas{
+
 border:2px solid #333;
 width:100%;
 height:160px;
 background:white;
 touch-action:none;
+
 }
 
 #scannerTela{
@@ -94,8 +104,8 @@ left:0;
 width:100%;
 height:100%;
 background:black;
-z-index:9999;
 display:none;
+z-index:9999;
 
 }
 
@@ -137,18 +147,12 @@ z-index:10000;
 
 <body>
 
-<div class="container">
-
-<div class="topo">
-
 <div class="limpar" onclick="limparTudo()">✖</div>
 
-<div class="logo">
+<div class="container">
 
-<img src="https://drive.google.com/uc?export=view&id=18XS6nKJjY2yAJazHg_Iju67e17Bvr0hn">
-
-</div>
-
+<div class="titulo">
+Canhoto Digital Danuta
 </div>
 
 <button class="btnCamera" onclick="abrirScanner()">Abrir Scanner</button>
