@@ -61,10 +61,7 @@ background:red;
 color:white;
 }
 
-/* SCANNER TELA CHEIA */
-
 #scannerTela{
-
 position:fixed;
 top:0;
 left:0;
@@ -73,7 +70,6 @@ height:100%;
 background:black;
 z-index:9999;
 display:none;
-
 }
 
 #reader{
@@ -82,23 +78,16 @@ height:100%;
 position:relative;
 }
 
-/* LINHA DE LEITURA */
-
 .scan-line{
-
 position:absolute;
 top:50%;
 left:0;
 width:100%;
 height:3px;
 background:red;
-
 }
 
-/* BOTÃO FECHAR */
-
 .fecharScanner{
-
 position:absolute;
 top:20px;
 right:20px;
@@ -110,37 +99,29 @@ font-size:18px;
 z-index:10000;
 }
 
-/* NOTAS */
-
 #notas{
-
 background:white;
 padding:10px;
 margin-top:10px;
 border-radius:6px;
 font-size:18px;
-
 }
 
 input{
-
 width:100%;
 padding:12px;
 margin-top:6px;
 border-radius:6px;
 border:1px solid #ccc;
 font-size:17px;
-
 }
 
 canvas{
-
 border:2px solid #333;
 width:100%;
 height:160px;
 background:white;
 touch-action:none;
-
 }
 
 </style>
@@ -167,10 +148,6 @@ touch-action:none;
 
 <div id="notas"></div>
 
-<input id="empresa" placeholder="Empresa">
-
-<input id="cnpj" placeholder="CNPJ">
-
 <input id="recebedor" placeholder="Recebedor">
 
 <input id="rgcpf" placeholder="RG ou CPF">
@@ -189,8 +166,6 @@ touch-action:none;
 
 </div>
 
-
-<!-- SCANNER FULL SCREEN -->
 
 <div id="scannerTela">
 
@@ -331,8 +306,6 @@ let recebedor=document.getElementById("recebedor").value
 let rgcpf=document.getElementById("rgcpf").value
 let ordem=document.getElementById("ordem").value
 let expedidor=document.getElementById("expedidor").value
-let empresa=document.getElementById("empresa").value
-let cnpj=document.getElementById("cnpj").value
 
 if(recebedor==""||rgcpf==""||ordem==""||expedidor==""){
 
@@ -361,8 +334,6 @@ headers:{
 body:JSON.stringify({
 
 notas:notas,
-empresa:empresa,
-cnpj:cnpj,
 recebedor:recebedor,
 documento:rgcpf,
 ordem:ordem,
@@ -380,16 +351,10 @@ alert("Salvo com sucesso!")
 location.reload()
 
 })
-.catch(err=>{
-
-alert("Erro ao salvar")
-
-})
 
 }
 
 </script>
 
 </body>
-
 </html>
