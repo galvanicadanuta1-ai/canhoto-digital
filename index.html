@@ -30,15 +30,41 @@ margin-bottom:10px;
 max-width:200px;
 }
 
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.limparTudo{
+font-size:22px;
+font-weight:bold;
+color:red;
+cursor:pointer;
+}
+
 button{
 width:100%;
 padding:16px;
 font-size:18px;
 border:none;
 border-radius:8px;
+margin-top:8px;
+}
+
+.btnCamera{
 background:#0f4c81;
 color:white;
-margin-top:8px;
+}
+
+.btnLimpar{
+background:red;
+color:white;
+}
+
+.btnSalvar{
+background:green;
+color:white;
 }
 
 input{
@@ -79,14 +105,21 @@ touch-action:none;
 
 <div class="container">
 
+<div class="topbar">
+
+<div class="limparTudo" onclick="limparTudo()">✖</div>
+
 <div class="logo">
 <img src="https://drive.google.com/uc?export=view&id=1vKNP9rNp9fDg58y0RkZWIyi_h_xj1f_m">
 </div>
 
-<button onclick="abrirCamera()">Abrir câmera</button>
-<button onclick="fecharCamera()">Fechar câmera</button>
+</div>
 
-<button onclick="notaManual()">Adicionar NFe manual</button>
+<button class="btnCamera" onclick="abrirCamera()">Abrir câmera</button>
+
+<button class="btnCamera" onclick="fecharCamera()">Fechar câmera</button>
+
+<button class="btnCamera" onclick="notaManual()">Adicionar NFe manual</button>
 
 <div id="reader"></div>
 
@@ -104,13 +137,13 @@ touch-action:none;
 
 <canvas id="assinatura"></canvas>
 
-<input id="ordem" placeholder="Nº da Ordem de Serviço (obrigatório)">
+<input id="ordem" placeholder="Nº Ordem de Serviço (obrigatório)">
 
 <input id="expedidor" placeholder="Expedidor (obrigatório)">
 
-<button onclick="limpar()">Limpar assinatura</button>
+<button class="btnLimpar" onclick="limpar()">Limpar assinatura</button>
 
-<button onclick="salvar()">Salvar</button>
+<button class="btnSalvar" onclick="salvar()">Salvar</button>
 
 </div>
 
@@ -129,15 +162,15 @@ let r = await fetch(url)
 
 let j = await r.json()
 
+if(j.destinatario){
+
 document.getElementById("empresa").value = j.destinatario.razao_social
 
 document.getElementById("cnpj").value = j.destinatario.cnpj
 
-}catch{
-
-console.log("NF não encontrada")
-
 }
+
+}catch{}
 
 }
 
@@ -204,6 +237,12 @@ document.getElementById("notas").innerHTML=notas.join("<br>")
 
 }
 
+function limparTudo(){
+
+location.reload()
+
+}
+
 let canvas=document.getElementById("assinatura")
 let ctx=canvas.getContext("2d")
 
@@ -229,7 +268,9 @@ ctx.stroke()
 canvas.addEventListener("pointerup",()=>desenhando=false)
 
 function limpar(){
+
 ctx.clearRect(0,0,canvas.width,canvas.height)
+
 }
 
 function salvar(){
