@@ -63,7 +63,21 @@ color:white;
 
 #reader{
 width:100%;
+height:320px;
 margin-top:10px;
+border:2px solid #333;
+border-radius:8px;
+overflow:hidden;
+position:relative;
+}
+
+.scan-line{
+position:absolute;
+top:50%;
+left:0;
+width:100%;
+height:3px;
+background:red;
 }
 
 #notas{
@@ -115,7 +129,9 @@ touch-action:none;
 
 <button class="camera" onclick="notaManual()">Adicionar NF manual</button>
 
-<div id="reader"></div>
+<div id="reader">
+<div class="scan-line"></div>
+</div>
 
 <div id="notas"></div>
 
@@ -165,8 +181,12 @@ function abrirCamera(){
 scanner = new Html5Qrcode("reader")
 
 scanner.start(
-{ facingMode:"environment"},
-{ fps:20, qrbox:300 },
+{ facingMode: { exact: "environment" } },
+
+{
+fps:30,
+qrbox:350
+},
 
 (codigo)=>{
 
@@ -194,7 +214,9 @@ beep.play()
 function fecharCamera(){
 
 if(scanner){
+
 scanner.stop()
+
 }
 
 }
@@ -227,7 +249,12 @@ canvas.height=160
 
 let desenhando=false
 
-canvas.addEventListener("pointerdown",()=>{desenhando=true;ctx.beginPath()})
+canvas.addEventListener("pointerdown",()=>{
+
+desenhando=true
+ctx.beginPath()
+
+})
 
 canvas.addEventListener("pointermove",(e)=>{
 
@@ -251,10 +278,12 @@ ctx.clearRect(0,0,canvas.width,canvas.height)
 
 function salvar(){
 
-let recebedor=recebedor.value
+let recebedor=document.getElementById("recebedor").value
 let rgcpf=document.getElementById("rgcpf").value
 let ordem=document.getElementById("ordem").value
 let expedidor=document.getElementById("expedidor").value
+let empresa=document.getElementById("empresa").value
+let cnpj=document.getElementById("cnpj").value
 
 if(recebedor==""||rgcpf==""||ordem==""||expedidor==""){
 
@@ -276,11 +305,15 @@ fetch("https://script.google.com/macros/s/AKfycbyom4lgFJTQXijV4MTRwgIZOWa0pksXUS
 
 method:"POST",
 
+headers:{
+"Content-Type":"application/json"
+},
+
 body:JSON.stringify({
 
 notas:notas,
-empresa:empresa.value,
-cnpj:cnpj.value,
+empresa:empresa,
+cnpj:cnpj,
 recebedor:recebedor,
 documento:rgcpf,
 ordem:ordem,
@@ -290,14 +323,25 @@ assinatura:assinatura
 })
 
 })
+.then(response=>response.text())
+.then(data=>{
 
 alert("Salvo com sucesso!")
 
 location.reload()
+
+})
+
+.catch(err=>{
+
+alert("Erro ao salvar")
+
+})
 
 }
 
 </script>
 
 </body>
+
 </html>
