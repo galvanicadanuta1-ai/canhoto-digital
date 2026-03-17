@@ -1,177 +1,305 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Canhoto Digital Danuta</title>
+<script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-body {
-  font-family: Arial;
-  margin: 10px;
+body{
+font-family:Arial;
+margin:0;
+background:#f2f2f2;
 }
 
-h2 {
-  text-align: center;
-  font-weight: bold;
+.container{
+max-width:520px;
+margin:auto;
+padding:15px;
 }
 
-.topo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.topo{
+display:flex;
+justify-content:center;
+align-items:center;
+position:relative;
 }
 
-.limparTudo {
-  background: red;
-  color: white;
-  border: none;
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 5px;
+.titulo{
+font-size:22px;
+font-weight:bold;
+text-align:center;
 }
 
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 5px;
-  font-size: 16px;
+.limparTudo{
+position:absolute;
+right:0;
+font-size:26px;
+color:red;
+cursor:pointer;
 }
 
-video {
-  width: 100%;
-  margin-top: 10px;
+button{
+width:100%;
+padding:15px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+font-size:18px;
 }
 
-canvas {
-  border: 1px solid black;
-  width: 100%;
-  height: 150px;
+.btnCamera{
+background:#0f4c81;
+color:white;
 }
 
-#listaNotas {
-  margin-top: 10px;
-  font-weight: bold;
+.btnSalvar{
+background:green;
+color:white;
+}
+
+.btnLimpar{
+background:red;
+color:white;
+}
+
+#notas{
+background:white;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+font-size:18px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-top:8px;
+border-radius:6px;
+border:1px solid #ccc;
+font-size:17px;
+}
+
+canvas{
+border:2px solid #333;
+width:100%;
+height:160px;
+background:white;
+touch-action:none;
+}
+
+#scannerTela{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+display:none;
+z-index:9999;
+}
+
+#reader{
+width:100%;
+height:100%;
+}
+
+.scanline{
+position:absolute;
+top:50%;
+width:100%;
+height:3px;
+background:#00ff00;
+}
+
+.btnFechar{
+position:absolute;
+top:20px;
+right:20px;
+background:red;
+color:white;
+padding:12px;
+font-size:18px;
+border-radius:8px;
+z-index:10000;
 }
 </style>
 </head>
 
 <body>
 
+<div class="container">
+
 <div class="topo">
-  <div></div>
-  <button class="limparTudo" onclick="limparTudo()">X</button>
+<div class="titulo">Canhoto Digital Danuta</div>
+<div class="limparTudo" onclick="limparTudo()">✖</div>
 </div>
 
-<h2>Canhoto Digital Danuta</h2>
+<button class="btnCamera" onclick="abrirScanner()">Abrir Scanner</button>
 
-<button onclick="abrirCamera()">📷 Abrir Câmera</button>
-<button onclick="adicionarManual()">➕ Adicionar Nota Manual</button>
+<button class="btnCamera" onclick="notaManual()">Adicionar NF manual</button>
 
-<video id="video" autoplay></video>
-<button onclick="fecharCamera()">❌ Fechar Câmera</button>
+<div id="notas"></div>
 
-<div id="listaNotas"></div>
+<input id="recebedor" placeholder="Recebedor">
 
-<input type="text" id="recebedor" placeholder="Recebedor">
-<input type="text" id="documento" placeholder="RG / CPF">
+<input id="rgcpf" placeholder="RG ou CPF">
+
+<p><b>Assinatura</b></p>
 
 <canvas id="assinatura"></canvas>
-<button onclick="limparAssinatura()" style="background:red;color:white;">Limpar Assinatura</button>
 
-<input type="text" id="ordem" placeholder="Ordem de Serviço">
-<input type="text" id="expedidor" placeholder="Expedidor">
+<button class="btnLimpar" onclick="limparAss()">Limpar assinatura</button>
 
-<button onclick="salvar()" style="background:green;color:white;">Salvar</button>
+<input id="ordem" placeholder="Ordem de Serviço">
+
+<input id="expedidor" placeholder="Expedidor">
+
+<button class="btnSalvar" onclick="salvar()">Salvar</button>
+
+</div>
+
+<div id="scannerTela">
+<div class="btnFechar" onclick="fecharScanner()">FECHAR</div>
+<div id="reader"></div>
+<div class="scanline"></div>
+</div>
 
 <script>
 
-let notas = [];
-let stream;
-let canvas = document.getElementById("assinatura");
-let ctx = canvas.getContext("2d");
-let desenhando = false;
+let scanner
+let notas=[]
 
-canvas.addEventListener("mousedown", () => desenhando = true);
-canvas.addEventListener("mouseup", () => desenhando = false);
-canvas.addEventListener("mousemove", desenhar);
-
-function desenhar(e) {
-  if (!desenhando) return;
-  ctx.lineWidth = 2;
-  ctx.lineTo(e.offsetX, e.offsetY);
-  ctx.stroke();
+// EXTRAIR NOTA
+function extrairNumeroNF(codigo){
+let numeros=codigo.replace(/\D/g,'')
+if(numeros.length>=34){
+return numeros.substring(25,34)
+}
+return numeros
 }
 
-function limparAssinatura() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+// SCANNER
+function abrirScanner(){
+document.getElementById("scannerTela").style.display="block"
+
+scanner = new Html5Qrcode("reader")
+
+scanner.start(
+{ facingMode: "environment" },
+{
+fps:30,
+qrbox:{width:350,height:180}
+},
+(codigo)=>{
+let nota=extrairNumeroNF(codigo)
+
+if(!notas.includes(nota)){
+notas.push(nota)
+
+document.getElementById("notas").innerHTML =
+"<b>Notas:</b><br>"+notas.join("<br>")
+
+navigator.vibrate(200)
+
+let beep=new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg")
+beep.play()
+}
+})
 }
 
-function limparTudo() {
-  notas = [];
-  document.getElementById("listaNotas").innerHTML = "";
-  document.getElementById("recebedor").value = "";
-  document.getElementById("documento").value = "";
-  document.getElementById("ordem").value = "";
-  document.getElementById("expedidor").value = "";
-  limparAssinatura();
+// FECHAR SCANNER
+function fecharScanner(){
+if(scanner){scanner.stop()}
+document.getElementById("scannerTela").style.display="none"
 }
 
-function abrirCamera() {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-    .then(s => {
-      stream = s;
-      document.getElementById("video").srcObject = stream;
-    });
+// NF MANUAL
+function notaManual(){
+let nota=prompt("Digite número da nota")
+if(nota){
+notas.push(nota)
+document.getElementById("notas").innerHTML =
+"<b>Notas:</b><br>"+notas.join("<br>")
+}
 }
 
-function fecharCamera() {
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-  }
+// LIMPAR TUDO
+function limparTudo(){
+location.reload()
 }
 
-function adicionarManual() {
-  let nota = prompt("Digite o número da nota:");
-  if (nota) {
-    notas.push(nota);
-    atualizarLista();
-  }
+// ASSINATURA
+let canvas=document.getElementById("assinatura")
+let ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth-40
+canvas.height=160
+
+let desenhando=false
+
+canvas.addEventListener("pointerdown",()=>{
+desenhando=true
+ctx.beginPath()
+})
+
+canvas.addEventListener("pointermove",(e)=>{
+if(!desenhando)return
+let r=canvas.getBoundingClientRect()
+ctx.lineWidth=2
+ctx.lineTo(e.clientX-r.left,e.clientY-r.top)
+ctx.stroke()
+})
+
+canvas.addEventListener("pointerup",()=>desenhando=false)
+
+function limparAss(){
+ctx.clearRect(0,0,canvas.width,canvas.height)
 }
 
-function atualizarLista() {
-  document.getElementById("listaNotas").innerHTML = notas.join(", ");
+// SALVAR
+function salvar(){
+
+let recebedor=document.getElementById("recebedor").value
+let rgcpf=document.getElementById("rgcpf").value
+let ordem=document.getElementById("ordem").value
+let expedidor=document.getElementById("expedidor").value
+
+if(recebedor==""||rgcpf==""||ordem==""||expedidor==""){
+alert("Preencha todos os campos obrigatórios")
+return
 }
 
-function salvar() {
+if(notas.length==0){
+alert("Nenhuma nota adicionada")
+return
+}
 
-  let recebedor = document.getElementById("recebedor").value;
-  let documento = document.getElementById("documento").value;
-  let ordem = document.getElementById("ordem").value;
-  let expedidor = document.getElementById("expedidor").value;
+let assinatura=canvas.toDataURL()
 
-  if (!recebedor || !documento || !ordem || !expedidor || notas.length == 0) {
-    alert("Preencha todos os campos!");
-    return;
-  }
+fetch("https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec",{
 
-  let assinatura = canvas.toDataURL();
+method:"POST",
+mode:"no-cors",
 
-  fetch("https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec", {
-    method: "POST",
-    body: JSON.stringify({
-      notas,
-      recebedor,
-      documento,
-      ordem,
-      expedidor,
-      assinatura
-    })
-  })
-  .then(() => {
-    alert("Salvo com sucesso!");
-    limparTudo();
-  });
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+notas:notas,
+recebedor:recebedor,
+documento:rgcpf,
+ordem:ordem,
+expedidor:expedidor,
+assinatura:assinatura
+})
+
+})
+.then(()=>{
+alert("Salvo com sucesso!")
+location.reload()
+})
 
 }
 
