@@ -3,11 +3,9 @@
 
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-
 body{
 font-family:Arial;
 margin:0;
@@ -125,9 +123,7 @@ font-size:18px;
 border-radius:8px;
 z-index:10000;
 }
-
 </style>
-
 </head>
 
 <body>
@@ -164,13 +160,9 @@ z-index:10000;
 </div>
 
 <div id="scannerTela">
-
 <div class="btnFechar" onclick="fecharScanner()">FECHAR</div>
-
 <div id="reader"></div>
-
 <div class="scanline"></div>
-
 </div>
 
 <script>
@@ -178,21 +170,17 @@ z-index:10000;
 let scanner
 let notas=[]
 
-// ===== EXTRAIR NUMERO DA NOTA =====
+// EXTRAIR NOTA
 function extrairNumeroNF(codigo){
-
 let numeros=codigo.replace(/\D/g,'')
-
 if(numeros.length>=34){
 return numeros.substring(25,34)
 }
-
 return numeros
 }
 
-// ===== ABRIR SCANNER =====
+// SCANNER
 function abrirScanner(){
-
 document.getElementById("scannerTela").style.display="block"
 
 scanner = new Html5Qrcode("reader")
@@ -204,11 +192,9 @@ fps:30,
 qrbox:{width:350,height:180}
 },
 (codigo)=>{
-
 let nota=extrairNumeroNF(codigo)
 
 if(!notas.includes(nota)){
-
 notas.push(nota)
 
 document.getElementById("notas").innerHTML =
@@ -218,47 +204,32 @@ navigator.vibrate(200)
 
 let beep=new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg")
 beep.play()
-
+}
+})
 }
 
-}
-)
-
-}
-
-// ===== FECHAR SCANNER =====
+// FECHAR SCANNER
 function fecharScanner(){
-
-if(scanner){
-scanner.stop()
-}
-
+if(scanner){scanner.stop()}
 document.getElementById("scannerTela").style.display="none"
-
 }
 
-// ===== NF MANUAL =====
+// NF MANUAL
 function notaManual(){
-
 let nota=prompt("Digite número da nota")
-
 if(nota){
-
 notas.push(nota)
-
 document.getElementById("notas").innerHTML =
 "<b>Notas:</b><br>"+notas.join("<br>")
-
+}
 }
 
-}
-
-// ===== LIMPAR TUDO =====
+// LIMPAR TUDO
 function limparTudo(){
 location.reload()
 }
 
-// ===== ASSINATURA =====
+// ASSINATURA
 let canvas=document.getElementById("assinatura")
 let ctx=canvas.getContext("2d")
 
@@ -274,9 +245,7 @@ ctx.beginPath()
 
 canvas.addEventListener("pointermove",(e)=>{
 if(!desenhando)return
-
 let r=canvas.getBoundingClientRect()
-
 ctx.lineWidth=2
 ctx.lineTo(e.clientX-r.left,e.clientY-r.top)
 ctx.stroke()
@@ -288,7 +257,7 @@ function limparAss(){
 ctx.clearRect(0,0,canvas.width,canvas.height)
 }
 
-// ===== SALVAR =====
+// SALVAR
 function salvar(){
 
 let recebedor=document.getElementById("recebedor").value
@@ -308,7 +277,7 @@ return
 
 let assinatura=canvas.toDataURL()
 
-fetch("https://script.google.com/macros/s/AKfycbyfSONdXcCtv31qON-2_kmHioM3GO1L-hXHIl3-TiTcA_-twUWfH8VvQMCWzzaw1dWlRA/exec",{
+fetch("https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec",{
 
 method:"POST",
 mode:"no-cors",
@@ -328,11 +297,8 @@ assinatura:assinatura
 
 })
 .then(()=>{
-
 alert("Salvo com sucesso!")
-
 location.reload()
-
 })
 
 }
