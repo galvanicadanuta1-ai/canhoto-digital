@@ -1,185 +1,182 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: Arial; margin: 0; background: #f2f2f2; }
-        .container { max-width: 520px; margin: auto; padding: 15px; }
-        .topo { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #0f4c81; }
-        .logo-topo { height: 40px; width: auto; }
-        .titulo { font-size: 16px; font-weight: bold; color: #333; }
-        .limparTudo { font-size: 24px; color: red; cursor: pointer; padding: 0 10px; }
-        button { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'Segoe UI', Arial; margin: 0; background: #f0f2f5; color: #333; }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+        
+        /* Topo */
+        .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .logo-topo { height: 35px; }
+        .titulo { font-size: 16px; font-weight: bold; color: #0f4c81; }
+        
+        /* Scanner FullScreen */
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; z-index: 9999; }
+        #reader { width: 100% !important; height: 100% !important; }
+        #reader video { object-fit: cover !important; }
+        
+        .controles-scanner { position: absolute; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 10001; }
+        .btn-circular { background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 50%; width: 60px; height: 60px; font-size: 12px; cursor: pointer; }
+
+        /* Estilos Gerais */
+        button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; }
         .btnCamera { background: #0f4c81; color: white; }
-        .btnSalvar { background: #28a745; color: white; margin-top: 20px; }
-        .btnLimpar { background: #dc3545; color: white; font-size: 14px; padding: 8px; width: auto; display: block; margin: 5px 0 15px 0; }
-        #listaNotas { background: #fff; padding: 12px; margin-top: 10px; border-radius: 6px; border: 1px solid #ddd; }
-        .nota-item { background: #e2eaf1; color: #0f4c81; padding: 5px 12px; margin: 4px; border-radius: 20px; display: inline-block; font-size: 14px; border: 1px solid #0f4c81; }
-        input { width: 100%; padding: 14px; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-        canvas { border: 2px dashed #999; width: 100%; height: 160px; background: white; touch-action: none; border-radius: 8px; }
-        #scannerTela { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 9999; }
-        #reader { width: 100%; height: 100%; }
-        .scanline { position: absolute; top: 50%; width: 100%; height: 2px; background: red; box-shadow: 0 0 8px red; }
-        .btnFechar { position: absolute; top: 20px; right: 20px; background: rgba(255,0,0,0.7); color: white; padding: 10px 20px; font-size: 16px; border-radius: 5px; z-index: 10000; }
+        .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; box-shadow: 0 4px 10px rgba(46,204,113,0.3); }
+        .btnLimpar { background: transparent; color: #e74c3c; font-size: 14px; padding: 5px; width: auto; text-decoration: underline; margin-bottom: 10px;}
+
+        #listaNotas { background: #fff; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; }
+        .nota-item { background: #d1d8e0; color: #2d3436; padding: 6px 12px; margin: 4px; border-radius: 6px; display: inline-block; font-size: 13px; font-weight: bold; }
+        
+        input { width: 100%; padding: 14px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; background: white; }
+        canvas { border: 2px solid #bdc3c7; width: 100%; height: 180px; background: white; touch-action: none; border-radius: 10px; margin-top: 5px; }
+        
+        .scan-region-highlight { border: 2px solid #00ff00 !important; box-shadow: 0 0 0 4000px rgba(0,0,0,0.5) !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="topo">
-        <img src="logo.png" alt="Logo" class="logo-topo" onerror="this.style.display='none'">
-        <div class="titulo">CANHOTO DIGITAL DANUTA</div>
-        <div class="limparTudo" onclick="limparTudo()">×</div>
+        <img src="logo.png" class="logo-topo" onerror="this.src='https://drive.google.com/uc?export=view&id=18XS6nKJjY2yAJazHg_Iju67e17Bvr0hn'">
+        <div class="titulo">CANHOTO DIGITAL</div>
+        <div onclick="location.reload()" style="color:red; font-weight:bold; cursor:pointer">RESET</div>
     </div>
 
-    <button class="btnCamera" onclick="abrirScanner()">📷 ABRIR SCANNER</button>
-    <button class="btnCamera" style="background:#6c757d; font-size: 15px;" onclick="notaManual()">+ Adicionar Nota Manual</button>
-
-    <div id="listaNotas">
-        <small style="color:#666; font-weight: bold;">Notas selecionadas:</small>
-        <div id="notasContiner" style="margin-top:8px;"></div>
-    </div>
-
-    <input id="recebedor" placeholder="Nome do Recebedor">
-    <input id="rgcpf" placeholder="RG ou CPF">
+    <button class="btnCamera" onclick="abrirScanner()">📷 LER CÓDIGO DE BARRAS</button>
     
-    <p style="margin: 15px 0 5px 0;"><b>Assinatura Digital:</b></p>
+    <div id="listaNotas">
+        <small style="color:#7f8c8d;">Notas na fila:</small>
+        <div id="notasContiner"></div>
+        <button onclick="notaManual()" style="padding:5px; font-size:12px; background:#f1f2f6; color:#555; margin-top:8px;">+ Digitar Nota Manual</button>
+    </div>
+
+    <input id="recebedor" placeholder="Nome de quem recebeu">
+    <input id="rgcpf" placeholder="Documento (RG/CPF)">
+    
+    <p style="margin: 20px 0 5px 0; font-size: 14px;"><b>Assine abaixo:</b></p>
     <canvas id="assinatura"></canvas>
     <button class="btnLimpar" onclick="limparAss()">Limpar Assinatura</button>
 
-    <input id="ordem" placeholder="Ordem de Serviço">
+    <input id="ordem" placeholder="Ordem de Serviço (Opcional)">
     <input id="expedidor" placeholder="Nome do Expedidor">
 
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">GRAVAR E ENVIAR</button>
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">FINALIZAR E ENVIAR</button>
 </div>
 
 <div id="scannerTela">
-    <div class="btnFechar" onclick="fecharScanner()">FECHAR</div>
     <div id="reader"></div>
-    <div class="scanline"></div>
+    <div class="controles-scanner">
+        <button class="btn-circular" onclick="fecharScanner()">FECHAR</button>
+        <button class="btn-circular" onclick="alternarCamera()">VIRAR</button>
+    </div>
 </div>
 
 <script>
 let scanner;
 let notas = [];
+let currentCameraId = "environment";
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
 function extrairNumeroNF(codigo) {
     let numeros = codigo.replace(/\D/g, '');
-    if (numeros.length >= 34) {
-        return numeros.substring(25, 34); // Posição exata do número da nota na chave de 44 dígitos
-    }
-    return numeros;
-}
-
-function atualizarLista() {
-    const container = document.getElementById("notasContiner");
-    if(notas.length === 0) {
-        container.innerHTML = "<span style='color:gray; font-size:12px;'>Nenhuma nota lida</span>";
-        return;
-    }
-    container.innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
+    return numeros.length >= 34 ? numeros.substring(25, 34) : numeros;
 }
 
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
+    
+    if (scanner) { scanner.clear(); }
+    
     scanner = new Html5Qrcode("reader");
+    
+    const config = {
+        fps: 60, // Aumentado para leitura instantânea
+        qrbox: { width: 320, height: 150 }, // Formato ideal para DANFE
+        aspectRatio: 1.777778 // 16:9 para mobile
+    };
+
     scanner.start(
-        { facingMode: "environment" },
-        { fps: 25, qrbox: { width: 300, height: 150 } },
+        { facingMode: currentCameraId },
+        config,
         (codigo) => {
             let nota = extrairNumeroNF(codigo);
             if (!notas.includes(nota)) {
                 notas.push(nota);
-                atualizarLista();
-                navigator.vibrate(100);
-                let beep = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
-                beep.play();
-                fecharScanner(); // FECHA SOZINHO APÓS LER
+                document.getElementById("notasContiner").innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
+                navigator.vibrate(150);
+                fecharScanner();
             }
         }
-    ).catch(err => console.error(err));
+    ).catch(err => console.error("Erro ao iniciar câmera", err));
+}
+
+function alternarCamera() {
+    currentCameraId = (currentCameraId === "environment") ? "user" : "environment";
+    fecharScanner();
+    abrirScanner();
 }
 
 function fecharScanner() {
     if (scanner) {
         scanner.stop().then(() => {
             document.getElementById("scannerTela").style.display = "none";
-        }).catch(() => {
-            document.getElementById("scannerTela").style.display = "none";
-        });
-    } else {
-        document.getElementById("scannerTela").style.display = "none";
+        }).catch(() => document.getElementById("scannerTela").style.display = "none");
     }
 }
 
 function notaManual() {
-    let nota = prompt("Digite o número da nota:");
-    if (nota) {
-        nota = nota.trim();
-        if(!notas.includes(nota)) {
-            notas.push(nota);
-            atualizarLista();
-        }
+    let n = prompt("Número da Nota:");
+    if (n) {
+        notas.push(n);
+        document.getElementById("notasContiner").innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
     }
 }
 
-function limparTudo() {
-    if(confirm("Deseja limpar todos os campos e notas?")) {
-        location.reload();
-    }
-}
+// LÓGICA DA ASSINATURA (Canvas)
+const canvas = document.getElementById("assinatura");
+const ctx = canvas.getContext("2d");
+canvas.width = canvas.offsetWidth;
+canvas.height = 180;
 
-// LÓGICA DA ASSINATURA
-let canvas = document.getElementById("assinatura");
-let ctx = canvas.getContext("2d");
-function redimensionarCanvas() {
-    canvas.width = canvas.offsetWidth;
-}
-window.addEventListener("resize", redimensionarCanvas);
-redimensionarCanvas();
-
-let desenhando = false;
+let drawing = false;
 canvas.addEventListener("pointerdown", (e) => {
-    desenhando = true;
+    drawing = true;
     ctx.beginPath();
-    let r = canvas.getBoundingClientRect();
+    const r = canvas.getBoundingClientRect();
     ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
 });
 
 canvas.addEventListener("pointermove", (e) => {
-    if (!desenhando) return;
-    let r = canvas.getBoundingClientRect();
-    ctx.lineWidth = 2;
+    if (!drawing) return;
+    const r = canvas.getBoundingClientRect();
+    ctx.lineWidth = 3;
     ctx.lineCap = "round";
     ctx.strokeStyle = "#000";
     ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
     ctx.stroke();
 });
 
-canvas.addEventListener("pointerup", () => desenhando = false);
+canvas.addEventListener("pointerup", () => drawing = false);
 
-function limparAss() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
+function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 function salvar() {
-    let recebedor = document.getElementById("recebedor").value;
-    let rgcpf = document.getElementById("rgcpf").value;
-    let ordem = document.getElementById("ordem").value;
-    let expedidor = document.getElementById("expedidor").value;
-
+    const recebedor = document.getElementById("recebedor").value;
+    const rgcpf = document.getElementById("rgcpf").value;
+    
     if (!recebedor || !rgcpf || notas.length === 0) {
-        alert("Campos Obrigatórios: Notas, Recebedor e RG/CPF");
+        alert("Preencha Notas, Recebedor e Documento!");
         return;
     }
 
-    let assinatura = canvas.toDataURL();
     const btn = document.getElementById("btnSalvar");
     btn.disabled = true;
-    btn.innerText = "ENVIANDO... AGUARDE";
-    btn.style.background = "#666";
+    btn.innerText = "ENVIANDO AGUARDE...";
+
+    // Captura a assinatura como Base64
+    const assinaturaData = canvas.toDataURL("image/png");
 
     fetch(apiUrl, {
         method: "POST",
@@ -189,23 +186,19 @@ function salvar() {
             notas: notas,
             recebedor: recebedor,
             documento: rgcpf,
-            ordem: ordem,
-            expedidor: expedidor,
-            assinatura: assinatura
+            ordem: document.getElementById("ordem").value,
+            expedidor: document.getElementById("expedidor").value,
+            assinatura: assinaturaData
         })
     }).then(() => {
-        alert("Canhoto(s) processado(s) com sucesso!");
+        alert("Sucesso! Os canhotos foram enviados.");
         location.reload();
     }).catch(err => {
-        alert("Erro ao enviar dados.");
+        alert("Erro na conexão.");
         btn.disabled = false;
-        btn.innerText = "GRAVAR E ENVIAR";
-        btn.style.background = "#28a745";
+        btn.innerText = "FINALIZAR E ENVIAR";
     });
 }
-
-// Inicializa lista vazia
-atualizarLista();
 </script>
 </body>
 </html>
