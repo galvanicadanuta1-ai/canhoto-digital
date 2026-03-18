@@ -16,7 +16,7 @@
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .btnCamera { background: #0f4c81; color: white; }
         .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; }
-        .btnManual { padding: 12px; font-size: 14px; background: #444; color: #fff; margin-top: 8px; font-weight: bold; border: 1px solid #222; }
+        .btnManual { padding: 12px; font-size: 14px; background: #444; color: #fff; margin-top: 8px; font-weight: bold; }
         
         #listaNotas { background: #fff; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; min-height: 50px; }
         .nota-item { background: #0f4c81; color: #fff; padding: 6px 12px; margin: 4px; border-radius: 6px; display: inline-block; font-size: 13px; font-weight: bold; }
@@ -29,7 +29,7 @@
 
 <div class="container">
     <div class="topo">
-        <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo-topo" alt="Logo">
+        <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo-topo">
         <div class="titulo">CANHOTO DIGITAL</div>
         <div onclick="location.reload()" style="color:red; font-size:12px; font-weight:bold; cursor:pointer">RESET</div>
     </div>
@@ -41,7 +41,7 @@
         <button class="btnManual" onclick="notaManual()">+ Adicionar N° Nota Manualmente</button>
     </div>
 
-    <input id="recebedor" type="text" placeholder="Nome de Quem Recebeu" oninput="this.value=this.value.replace(/[0-9]/g,'')">
+    <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu" oninput="this.value=this.value.replace(/[0-9]/g,'')">
     <input id="rgcpf" type="tel" inputmode="numeric" placeholder="Documento (RG ou CPF)" oninput="this.value=this.value.replace(/\D/g,'')">
     
     <canvas id="assinatura"></canvas>
@@ -91,7 +91,7 @@ function fecharScanner() {
 function notaManual() {
     let n = prompt("Digite o N° da Nota Fiscal:");
     if (n) {
-        let limpo = n.replace(/\D/g, ''); // Aceita apenas números
+        let limpo = n.replace(/\D/g, '');
         if (limpo && !notas.includes(limpo)) {
             notas.push(limpo);
             atualizarVisualNotas();
@@ -122,9 +122,8 @@ function salvar() {
         exp: document.getElementById("expedidor").value.trim()
     };
 
-    // Validação de obrigatoriedade
     if (!d.recebedor || !d.doc || !d.ordem || !d.exp || notas.length === 0) {
-        alert("Atenção: Todos os campos devem ser preenchidos e pelo menos uma nota deve ser lida.");
+        alert("Preencha todos os campos corretamente.");
         return;
     }
 
@@ -145,10 +144,10 @@ function salvar() {
             assinatura: canvas.toDataURL("image/png")
         })
     }).then(() => {
-        alert("Salvo com sucesso!");
+        alert("Sucesso!");
         location.reload();
     }).catch(() => {
-        alert("Erro ao conectar.");
+        alert("Erro.");
         btn.disabled = false;
         btn.innerText = "SALVAR";
     });
