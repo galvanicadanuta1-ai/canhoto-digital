@@ -18,7 +18,7 @@
         .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; }
         .btnManual { padding: 12px; font-size: 14px; background: #444; color: #fff; margin-top: 8px; font-weight: bold; border: 1px solid #222; }
         
-        #listaNotas { background: #fff; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; }
+        #listaNotas { background: #fff; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; min-height: 50px; }
         .nota-item { background: #0f4c81; color: #fff; padding: 6px 12px; margin: 4px; border-radius: 6px; display: inline-block; font-size: 13px; font-weight: bold; }
         
         input { width: 100%; padding: 16px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; background: #fff; }
@@ -29,7 +29,7 @@
 
 <div class="container">
     <div class="topo">
-        <img src="logo.png" class="logo-topo" onerror="this.src='https://raw.githubusercontent.com/DanutaGalvanica/canhoto-digital/main/logo.png'">
+        <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo-topo" alt="Logo">
         <div class="titulo">CANHOTO DIGITAL</div>
         <div onclick="location.reload()" style="color:red; font-size:12px; font-weight:bold; cursor:pointer">RESET</div>
     </div>
@@ -91,12 +91,10 @@ function fecharScanner() {
 function notaManual() {
     let n = prompt("Digite o N° da Nota Fiscal:");
     if (n) {
-        let limpo = n.replace(/\D/g, '');
+        let limpo = n.replace(/\D/g, ''); // Aceita apenas números
         if (limpo && !notas.includes(limpo)) {
             notas.push(limpo);
             atualizarVisualNotas();
-        } else if (!limpo) {
-            alert("Por favor, digite apenas números.");
         }
     }
 }
@@ -124,6 +122,7 @@ function salvar() {
         exp: document.getElementById("expedidor").value.trim()
     };
 
+    // Validação de obrigatoriedade
     if (!d.recebedor || !d.doc || !d.ordem || !d.exp || notas.length === 0) {
         alert("Atenção: Todos os campos devem ser preenchidos e pelo menos uma nota deve ser lida.");
         return;
