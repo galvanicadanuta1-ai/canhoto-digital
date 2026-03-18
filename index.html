@@ -1,309 +1,196 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://unpkg.com/html5-qrcode"></script>
-
-<style>
-body{
-font-family:Arial;
-margin:0;
-background:#f2f2f2;
-}
-
-.container{
-max-width:520px;
-margin:auto;
-padding:15px;
-}
-
-.topo{
-display:flex;
-justify-content:center;
-align-items:center;
-position:relative;
-}
-
-.titulo{
-font-size:22px;
-font-weight:bold;
-text-align:center;
-}
-
-.limparTudo{
-position:absolute;
-right:0;
-font-size:26px;
-color:red;
-cursor:pointer;
-}
-
-button{
-width:100%;
-padding:15px;
-margin-top:10px;
-border:none;
-border-radius:8px;
-font-size:18px;
-}
-
-.btnCamera{
-background:#0f4c81;
-color:white;
-}
-
-.btnSalvar{
-background:green;
-color:white;
-}
-
-.btnLimpar{
-background:red;
-color:white;
-}
-
-#notas{
-background:white;
-padding:10px;
-margin-top:10px;
-border-radius:6px;
-font-size:18px;
-}
-
-input{
-width:100%;
-padding:12px;
-margin-top:8px;
-border-radius:6px;
-border:1px solid #ccc;
-font-size:17px;
-}
-
-canvas{
-border:2px solid #333;
-width:100%;
-height:160px;
-background:white;
-touch-action:none;
-}
-
-#scannerTela{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:black;
-display:none;
-z-index:9999;
-}
-
-#reader{
-width:100%;
-height:100%;
-}
-
-.scanline{
-position:absolute;
-top:50%;
-width:100%;
-height:3px;
-background:#00ff00;
-}
-
-.btnFechar{
-position:absolute;
-top:20px;
-right:20px;
-background:red;
-color:white;
-padding:12px;
-font-size:18px;
-border-radius:8px;
-z-index:10000;
-}
-</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: Arial; margin: 0; background: #f2f2f2; }
+        .container { max-width: 520px; margin: auto; padding: 15px; }
+        .topo { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .logo-topo { width: 80px; height: auto; }
+        .titulo { font-size: 18px; font-weight: bold; }
+        .limparTudo { font-size: 26px; color: red; cursor: pointer; }
+        button { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; }
+        .btnCamera { background: #0f4c81; color: white; }
+        .btnSalvar { background: green; color: white; }
+        .btnLimpar { background: red; color: white; margin-bottom: 10px;}
+        #listaNotas { background: #fff; padding: 15px; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; min-height: 40px; }
+        .nota-item { background: #e9ecef; padding: 5px 10px; margin: 5px 0; border-radius: 4px; display: inline-block; margin-right: 5px; font-weight: bold; }
+        input { width: 100%; padding: 12px; margin-top: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 17px; box-sizing: border-box; }
+        canvas { border: 2px solid #333; width: 100%; height: 160px; background: white; touch-action: none; margin-top: 5px; }
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; display: none; z-index: 9999; }
+        #reader { width: 100%; height: 100%; }
+        .scanline { position: absolute; top: 50%; width: 100%; height: 3px; background: #00ff00; }
+        .btnFechar { position: absolute; top: 20px; right: 20px; background: red; color: white; padding: 12px; font-size: 18px; border-radius: 8px; z-index: 10000; }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <div class="topo">
+        <img src="logo.png" alt="Logo" class="logo-topo"> <div class="titulo">Canhoto Digital</div>
+        <div class="limparTudo" onclick="limparTudo()">✖</div>
+    </div>
 
-<div class="topo">
-<div class="titulo">Canhoto Digital Danuta</div>
-<div class="limparTudo" onclick="limparTudo()">✖</div>
-</div>
+    <button class="btnCamera" onclick="abrirScanner()">Abrir Scanner</button>
+    <button class="btnCamera" style="background:#555;" onclick="notaManual()">Adicionar NF manual</button>
 
-<button class="btnCamera" onclick="abrirScanner()">Abrir Scanner</button>
+    <div id="listaNotas">
+        <small style="color:gray">Notas lidas:</small>
+        <div id="notasContiner"></div>
+    </div>
 
-<button class="btnCamera" onclick="notaManual()">Adicionar NF manual</button>
+    <input id="recebedor" placeholder="Nome do Recebedor">
+    <input id="rgcpf" placeholder="RG ou CPF">
+    
+    <p style="margin-bottom:5px;"><b>Assinatura</b></p>
+    <canvas id="assinatura"></canvas>
+    <button class="btnLimpar" onclick="limparAss()">Limpar assinatura</button>
 
-<div id="notas"></div>
+    <input id="ordem" placeholder="Ordem de Serviço">
+    <input id="expedidor" placeholder="Expedidor">
 
-<input id="recebedor" placeholder="Recebedor">
-
-<input id="rgcpf" placeholder="RG ou CPF">
-
-<p><b>Assinatura</b></p>
-
-<canvas id="assinatura"></canvas>
-
-<button class="btnLimpar" onclick="limparAss()">Limpar assinatura</button>
-
-<input id="ordem" placeholder="Ordem de Serviço">
-
-<input id="expedidor" placeholder="Expedidor">
-
-<button class="btnSalvar" onclick="salvar()">Salvar</button>
-
+    <button class="btnSalvar" onclick="salvar()">Salvar e Enviar</button>
 </div>
 
 <div id="scannerTela">
-<div class="btnFechar" onclick="fecharScanner()">FECHAR</div>
-<div id="reader"></div>
-<div class="scanline"></div>
+    <div class="btnFechar" onclick="fecharScanner()">FECHAR</div>
+    <div id="reader"></div>
+    <div class="scanline"></div>
 </div>
 
 <script>
+let scanner;
+let notas = [];
 
-let scanner
-let notas=[]
-
-// EXTRAIR NOTA
-function extrairNumeroNF(codigo){
-let numeros=codigo.replace(/\D/g,'')
-if(numeros.length>=34){
-return numeros.substring(25,34)
-}
-return numeros
+function extrairNumeroNF(codigo) {
+    let numeros = codigo.replace(/\D/g, '');
+    if (numeros.length >= 34) {
+        return numeros.substring(25, 34);
+    }
+    return numeros;
 }
 
-// SCANNER
-function abrirScanner(){
-document.getElementById("scannerTela").style.display="block"
-
-scanner = new Html5Qrcode("reader")
-
-scanner.start(
-{ facingMode: "environment" },
-{
-fps:30,
-qrbox:{width:350,height:180}
-},
-(codigo)=>{
-let nota=extrairNumeroNF(codigo)
-
-if(!notas.includes(nota)){
-notas.push(nota)
-
-document.getElementById("notas").innerHTML =
-"<b>Notas:</b><br>"+notas.join("<br>")
-
-navigator.vibrate(200)
-
-let beep=new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg")
-beep.play()
-}
-})
+function atualizarLista() {
+    const container = document.getElementById("notasContiner");
+    container.innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
 }
 
-// FECHAR SCANNER
-function fecharScanner(){
-if(scanner){scanner.stop()}
-document.getElementById("scannerTela").style.display="none"
+function abrirScanner() {
+    document.getElementById("scannerTela").style.display = "block";
+    scanner = new Html5Qrcode("reader");
+    scanner.start(
+        { facingMode: "environment" },
+        { fps: 30, qrbox: { width: 300, height: 150 } },
+        (codigo) => {
+            let nota = extrairNumeroNF(codigo);
+            if (!notas.includes(nota)) {
+                notas.push(nota);
+                atualizarLista();
+                navigator.vibrate(200);
+                let beep = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
+                beep.play();
+                fecharScanner(); // FECHA AUTOMATICAMENTE APÓS LER
+            }
+        }
+    ).catch(err => alert("Erro ao abrir câmera: " + err));
 }
 
-// NF MANUAL
-function notaManual(){
-let nota=prompt("Digite número da nota")
-if(nota){
-notas.push(nota)
-document.getElementById("notas").innerHTML =
-"<b>Notas:</b><br>"+notas.join("<br>")
-}
-}
-
-// LIMPAR TUDO
-function limparTudo(){
-location.reload()
+function fecharScanner() {
+    if (scanner) {
+        scanner.stop().then(() => {
+            document.getElementById("scannerTela").style.display = "none";
+        }).catch(() => {
+            document.getElementById("scannerTela").style.display = "none";
+        });
+    } else {
+        document.getElementById("scannerTela").style.display = "none";
+    }
 }
 
-// ASSINATURA
-let canvas=document.getElementById("assinatura")
-let ctx=canvas.getContext("2d")
-
-canvas.width=window.innerWidth-40
-canvas.height=160
-
-let desenhando=false
-
-canvas.addEventListener("pointerdown",()=>{
-desenhando=true
-ctx.beginPath()
-})
-
-canvas.addEventListener("pointermove",(e)=>{
-if(!desenhando)return
-let r=canvas.getBoundingClientRect()
-ctx.lineWidth=2
-ctx.lineTo(e.clientX-r.left,e.clientY-r.top)
-ctx.stroke()
-})
-
-canvas.addEventListener("pointerup",()=>desenhando=false)
-
-function limparAss(){
-ctx.clearRect(0,0,canvas.width,canvas.height)
+function notaManual() {
+    let nota = prompt("Digite o número da nota:");
+    if (nota) {
+        if(!notas.includes(nota)) {
+            notas.push(nota);
+            atualizarLista();
+        }
+    }
 }
 
-// SALVAR
-function salvar(){
-
-let recebedor=document.getElementById("recebedor").value
-let rgcpf=document.getElementById("rgcpf").value
-let ordem=document.getElementById("ordem").value
-let expedidor=document.getElementById("expedidor").value
-
-if(recebedor==""||rgcpf==""||ordem==""||expedidor==""){
-alert("Preencha todos os campos obrigatórios")
-return
+function limparTudo() {
+    if(confirm("Deseja limpar todos os dados?")) {
+        location.reload();
+    }
 }
 
-if(notas.length==0){
-alert("Nenhuma nota adicionada")
-return
+// LÓGICA DA ASSINATURA
+let canvas = document.getElementById("assinatura");
+let ctx = canvas.getContext("2d");
+canvas.width = canvas.offsetWidth;
+canvas.height = 160;
+
+let desenhando = false;
+canvas.addEventListener("pointerdown", (e) => {
+    desenhando = true;
+    ctx.beginPath();
+    let r = canvas.getBoundingClientRect();
+    ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+});
+
+canvas.addEventListener("pointermove", (e) => {
+    if (!desenhando) return;
+    let r = canvas.getBoundingClientRect();
+    ctx.lineWidth = 2;
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+    ctx.stroke();
+});
+
+canvas.addEventListener("pointerup", () => desenhando = false);
+
+function limparAss() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-let assinatura=canvas.toDataURL()
+function salvar() {
+    let recebedor = document.getElementById("recebedor").value;
+    let rgcpf = document.getElementById("rgcpf").value;
+    let ordem = document.getElementById("ordem").value;
+    let expedidor = document.getElementById("expedidor").value;
 
-fetch("https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec",{
+    if (!recebedor || !rgcpf || !ordem || !expedidor || notas.length === 0) {
+        alert("Preencha todos os campos e adicione ao menos uma nota!");
+        return;
+    }
 
-method:"POST",
-mode:"no-cors",
+    let assinatura = canvas.toDataURL();
+    
+    // Alerta de processamento
+    const btn = document.querySelector(".btnSalvar");
+    btn.disabled = true;
+    btn.innerText = "Enviando...";
 
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-notas:notas,
-recebedor:recebedor,
-documento:rgcpf,
-ordem:ordem,
-expedidor:expedidor,
-assinatura:assinatura
-})
-
-})
-.then(()=>{
-alert("Salvo com sucesso!")
-location.reload()
-})
-
+    fetch("SUA_URL_DO_WEB_APP_AQUI", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            notas: notas,
+            recebedor: recebedor,
+            documento: rgcpf,
+            ordem: ordem,
+            expedidor: expedidor,
+            assinatura: assinatura
+        })
+    }).then(() => {
+        alert("Canhoto(s) salvo(s) e enviado(s) com sucesso!");
+        location.reload();
+    }).catch(err => {
+        alert("Erro ao salvar: " + err);
+        btn.disabled = false;
+        btn.innerText = "Salvar";
+    });
 }
-
 </script>
-
 </body>
 </html>
