@@ -4,31 +4,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial; margin: 0; background: #f0f2f5; color: #333; }
+        body { font-family: 'Segoe UI', Arial; margin: 0; background: #f0f2f5; padding-bottom: 30px; }
         .container { max-width: 500px; margin: auto; padding: 15px; }
         .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
         .logo-topo { height: 35px; }
         
-        /* Container do Input com ícone */
-        .input-wrapper { position: relative; margin-top: 10px; }
-        .input-wrapper input { margin-top: 0; padding-right: 45px; }
-        .icon-cam {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            cursor: pointer; font-size: 20px; background: none; border: none; padding: 5px;
-        }
-
         #scannerTela { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
         
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .btnCamera { background: #0f4c81; color: white; }
         .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; }
-        .btnManual { padding: 12px; font-size: 14px; background: #444; color: #fff; margin-top: 8px; }
+        .btnManual { padding: 10px; font-size: 13px; background: #444; color: #fff; margin-top: 5px; width: auto; display: block; }
         
-        #listaNotas { background: #fff; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; min-height: 40px; }
-        .nota-item { background: #0f4c81; color: #fff; padding: 6px 12px; margin: 4px; border-radius: 6px; display: inline-block; font-size: 13px; font-weight: bold; }
+        .badge-container { background: #fff; padding: 10px; margin-top: 8px; border-radius: 8px; border: 1px solid #ddd; min-height: 40px; }
+        .badge-item { background: #0f4c81; color: #fff; padding: 5px 10px; margin: 3px; border-radius: 4px; display: inline-block; font-size: 12px; font-weight: bold; }
         
-        input { width: 100%; padding: 16px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; background: #fff; }
+        /* Campo OS com ícone à direita */
+        .input-wrapper { position: relative; margin-top: 15px; }
+        .input-wrapper input { width: 100%; padding: 16px 50px 16px 16px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
+        .icon-cam-inline { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px; }
+
+        input { width: 100%; padding: 16px; margin-top: 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
         canvas { border: 2px solid #bdc3c7; width: 100%; height: 180px; background: white; touch-action: none; border-radius: 10px; margin-top: 15px; }
     </style>
 </head>
@@ -40,23 +37,22 @@
         <div onclick="location.reload()" style="color:red; font-size:12px; font-weight:bold; cursor:pointer">RESET</div>
     </div>
 
-    <button class="btnCamera" onclick="abrirScanner('NF')">📷 ABRIR SCANNER NOTA FISCAL</button>
-    
-    <div id="listaNotas">
-        <div id="notasContiner"></div>
-        <button class="btnManual" onclick="notaManual()">+ Adicionar N° Nota Manualmente</button>
-    </div>
+    <button class="btnCamera" onclick="abrirScanner('NF')">📷 SCANNER NOTA FISCAL</button>
+    <div class="badge-container" id="contNF"></div>
+    <button class="btnManual" onclick="addManual('NF')">+ Digitar Nota</button>
 
     <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu" oninput="this.value=this.value.replace(/[0-9]/g,'')">
     <input id="rgcpf" type="tel" inputmode="numeric" placeholder="Documento (RG ou CPF)" oninput="this.value=this.value.replace(/\D/g,'')">
     
     <canvas id="assinatura"></canvas>
-    <button style="background:none; color:red; text-decoration:underline; font-size:12px; width:auto; padding:5px; margin:0;" onclick="limparAss()">Limpar Assinatura</button>
+    <button style="background:none; color:red; text-decoration:underline; font-size:12px; width:auto; padding:0;" onclick="limparAss()">Limpar Assinatura</button>
 
     <div class="input-wrapper">
-        <input id="ordem" type="tel" inputmode="numeric" placeholder="Ordem de Serviço Danuta" oninput="this.value=this.value.replace(/\D/g,'')">
-        <button class="icon-cam" onclick="abrirScanner('OS')">📷</button>
+        <input id="ordem_display" type="text" placeholder="Ordem de Serviço Danuta" readonly onclick="alert('Use o ícone da câmera ou o botão abaixo para adicionar OS')">
+        <button class="icon-cam-inline" onclick="abrirScanner('OS')">📷</button>
     </div>
+    <div class="badge-container" id="contOS"></div>
+    <button class="btnManual" onclick="addManual('OS')">+ Digitar OS</button>
 
     <input id="expedidor" type="text" placeholder="Nome do Expedidor" oninput="this.value=this.value.replace(/[0-9]/g,'')">
 
@@ -72,33 +68,23 @@
 
 <script>
 let scanner;
-let notas = [];
-let destinoScanner = 'NF'; // Pode ser 'NF' ou 'OS'
+let listaNF = [];
+let listaOS = [];
+let destino = 'NF';
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
-function extrairNumero(codigo) {
-    let numeros = codigo.replace(/\D/g, '');
-    // Se for Chave de Acesso (44 digitos), pega a NF. Se for curto (OS), pega tudo.
-    return numeros.length >= 34 ? numeros.substring(25, 34) : numeros;
+function extrairNum(codigo) {
+    let n = codigo.replace(/\D/g, '');
+    return n.length >= 34 ? n.substring(25, 34) : n;
 }
 
-function abrirScanner(destino) {
-    destinoScanner = destino;
+function abrirScanner(tipo) {
+    destino = tipo;
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
-    scanner.start({ facingMode: "environment" }, { fps: 60, qrbox: { width: 300, height: 150 } }, (codigo) => {
-        let num = extrairNumero(codigo);
-        
-        if (destinoScanner === 'NF') {
-            if (!notas.includes(num)) {
-                notas.push(num);
-                atualizarVisualNotas();
-            }
-        } else {
-            // Se for OS, apenas substitui o valor no campo
-            document.getElementById("ordem").value = num;
-        }
-        
+    scanner.start({ facingMode: "environment" }, { fps: 60, qrbox: { width: 280, height: 150 } }, (codigo) => {
+        let num = extrairNum(codigo);
+        adicionarValor(num);
         fecharScanner();
         navigator.vibrate(100);
     }).catch(err => alert("Erro câmera."));
@@ -108,30 +94,35 @@ function fecharScanner() {
     if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); }
 }
 
-function notaManual() {
-    let n = prompt("Digite o N° da Nota Fiscal:");
-    if (n) {
-        let limpo = n.replace(/\D/g, '');
-        if (limpo && !notas.includes(limpo)) {
-            notas.push(limpo);
-            atualizarVisualNotas();
-        }
+function addManual(tipo) {
+    destino = tipo;
+    let n = prompt("Digite o número:");
+    if (n) { adicionarValor(n.replace(/\D/g, '')); }
+}
+
+function adicionarValor(val) {
+    if (!val) return;
+    if (destino === 'NF') {
+        if (!listaNF.includes(val)) listaNF.push(val);
+        renderBadges('contNF', listaNF);
+    } else {
+        if (!listaOS.includes(val)) listaOS.push(val);
+        renderBadges('contOS', listaOS);
+        document.getElementById("ordem_display").value = listaOS.length + " OS selecionada(s)";
     }
 }
 
-function atualizarVisualNotas() {
-    document.getElementById("notasContiner").innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
+function renderBadges(id, lista) {
+    document.getElementById(id).innerHTML = lista.map(item => `<span class="badge-item">${item}</span>`).join('');
 }
 
-// Lógica de Assinatura
+// Canvas Assinatura
 const canvas = document.getElementById("assinatura");
 const ctx = canvas.getContext("2d");
-canvas.width = canvas.offsetWidth;
-canvas.height = 180;
+canvas.width = canvas.offsetWidth; canvas.height = 180;
 let drawing = false;
-
 canvas.addEventListener("pointerdown", (e) => { drawing = true; ctx.beginPath(); const r = canvas.getBoundingClientRect(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top); });
-canvas.addEventListener("pointermove", (e) => { if (!drawing) return; const r = canvas.getBoundingClientRect(); ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle="#000"; ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke(); });
+canvas.addEventListener("pointermove", (e) => { if (!drawing) return; const r = canvas.getBoundingClientRect(); ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke(); });
 canvas.addEventListener("pointerup", () => drawing = false);
 function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
@@ -139,35 +130,34 @@ function salvar() {
     const d = {
         recebedor: document.getElementById("recebedor").value.trim(),
         doc: document.getElementById("rgcpf").value.trim(),
-        ordem: document.getElementById("ordem").value.trim(),
         exp: document.getElementById("expedidor").value.trim()
     };
 
-    if (!d.recebedor || !d.doc || !d.ordem || !d.exp || notas.length === 0) {
-        alert("Preencha todos os campos e leia a Nota Fiscal.");
+    if (!d.recebedor || !d.doc || !d.exp || listaNF.length === 0 || listaOS.length === 0) {
+        alert("Erro: Preencha todos os campos e adicione pelo menos 1 NF e 1 OS.");
         return;
     }
 
     const btn = document.getElementById("btnSalvar");
-    btn.disabled = true; btn.innerText = "SALVANDO...";
+    btn.disabled = true; btn.innerText = "PROCESSANDO...";
 
     fetch(apiUrl, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            notas: notas,
+            notas: listaNF,
+            ordens: listaOS,
             recebedor: d.recebedor,
             documento: d.doc,
-            ordem: d.ordem,
             expedidor: d.exp,
             assinatura: canvas.toDataURL("image/png")
         })
     }).then(() => {
-        alert("Canhoto Salvo!");
+        alert("Enviado com sucesso!");
         location.reload();
     }).catch(() => {
-        alert("Erro.");
+        alert("Erro ao enviar.");
         btn.disabled = false;
         btn.innerText = "SALVAR";
     });
