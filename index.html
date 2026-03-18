@@ -8,21 +8,27 @@
         .container { max-width: 500px; margin: auto; padding: 15px; }
         .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
         .logo-topo { height: 35px; }
-        .titulo { font-size: 15px; font-weight: bold; color: #0f4c81; }
         
+        /* Container do Input com ícone */
+        .input-wrapper { position: relative; margin-top: 10px; }
+        .input-wrapper input { margin-top: 0; padding-right: 45px; }
+        .icon-cam {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; font-size: 20px; background: none; border: none; padding: 5px;
+        }
+
         #scannerTela { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
         
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .btnCamera { background: #0f4c81; color: white; }
         .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; }
-        .btnManual { padding: 12px; font-size: 14px; background: #444; color: #fff; margin-top: 8px; font-weight: bold; }
+        .btnManual { padding: 12px; font-size: 14px; background: #444; color: #fff; margin-top: 8px; }
         
         #listaNotas { background: #fff; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; min-height: 40px; }
         .nota-item { background: #0f4c81; color: #fff; padding: 6px 12px; margin: 4px; border-radius: 6px; display: inline-block; font-size: 13px; font-weight: bold; }
         
-        input { width: 100%; padding: 16px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; background: #fff; outline: none; }
-        input:focus { border-color: #0f4c81; }
+        input { width: 100%; padding: 16px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; background: #fff; }
         canvas { border: 2px solid #bdc3c7; width: 100%; height: 180px; background: white; touch-action: none; border-radius: 10px; margin-top: 15px; }
     </style>
 </head>
@@ -31,11 +37,10 @@
 <div class="container">
     <div class="topo">
         <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo-topo">
-        <div class="titulo">CANHOTO DIGITAL</div>
         <div onclick="location.reload()" style="color:red; font-size:12px; font-weight:bold; cursor:pointer">RESET</div>
     </div>
 
-    <button class="btnCamera" onclick="abrirScanner()">📷 ABRIR SCANNER</button>
+    <button class="btnCamera" onclick="abrirScanner('NF')">📷 ABRIR SCANNER NOTA FISCAL</button>
     
     <div id="listaNotas">
         <div id="notasContiner"></div>
@@ -48,7 +53,11 @@
     <canvas id="assinatura"></canvas>
     <button style="background:none; color:red; text-decoration:underline; font-size:12px; width:auto; padding:5px; margin:0;" onclick="limparAss()">Limpar Assinatura</button>
 
-    <input id="ordem" type="tel" inputmode="numeric" placeholder="Ordem de Serviço Danuta" oninput="this.value=this.value.replace(/\D/g,'')">
+    <div class="input-wrapper">
+        <input id="ordem" type="tel" inputmode="numeric" placeholder="Ordem de Serviço Danuta" oninput="this.value=this.value.replace(/\D/g,'')">
+        <button class="icon-cam" onclick="abrirScanner('OS')">📷</button>
+    </div>
+
     <input id="expedidor" type="text" placeholder="Nome do Expedidor" oninput="this.value=this.value.replace(/[0-9]/g,'')">
 
     <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
@@ -64,24 +73,34 @@
 <script>
 let scanner;
 let notas = [];
+let destinoScanner = 'NF'; // Pode ser 'NF' ou 'OS'
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
-function extrairNumeroNF(codigo) {
+function extrairNumero(codigo) {
     let numeros = codigo.replace(/\D/g, '');
+    // Se for Chave de Acesso (44 digitos), pega a NF. Se for curto (OS), pega tudo.
     return numeros.length >= 34 ? numeros.substring(25, 34) : numeros;
 }
 
-function abrirScanner() {
+function abrirScanner(destino) {
+    destinoScanner = destino;
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
     scanner.start({ facingMode: "environment" }, { fps: 60, qrbox: { width: 300, height: 150 } }, (codigo) => {
-        let nota = extrairNumeroNF(codigo);
-        if (!notas.includes(nota)) {
-            notas.push(nota);
-            atualizarVisualNotas();
-            fecharScanner();
-            navigator.vibrate(100);
+        let num = extrairNumero(codigo);
+        
+        if (destinoScanner === 'NF') {
+            if (!notas.includes(num)) {
+                notas.push(num);
+                atualizarVisualNotas();
+            }
+        } else {
+            // Se for OS, apenas substitui o valor no campo
+            document.getElementById("ordem").value = num;
         }
+        
+        fecharScanner();
+        navigator.vibrate(100);
     }).catch(err => alert("Erro câmera."));
 }
 
@@ -104,6 +123,7 @@ function atualizarVisualNotas() {
     document.getElementById("notasContiner").innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
 }
 
+// Lógica de Assinatura
 const canvas = document.getElementById("assinatura");
 const ctx = canvas.getContext("2d");
 canvas.width = canvas.offsetWidth;
@@ -124,13 +144,12 @@ function salvar() {
     };
 
     if (!d.recebedor || !d.doc || !d.ordem || !d.exp || notas.length === 0) {
-        alert("Preencha todos os campos obrigatórios.");
+        alert("Preencha todos os campos e leia a Nota Fiscal.");
         return;
     }
 
     const btn = document.getElementById("btnSalvar");
-    btn.disabled = true;
-    btn.innerText = "SALVANDO...";
+    btn.disabled = true; btn.innerText = "SALVANDO...";
 
     fetch(apiUrl, {
         method: "POST",
@@ -148,7 +167,7 @@ function salvar() {
         alert("Canhoto Salvo!");
         location.reload();
     }).catch(() => {
-        alert("Erro de conexão.");
+        alert("Erro.");
         btn.disabled = false;
         btn.innerText = "SALVAR";
     });
