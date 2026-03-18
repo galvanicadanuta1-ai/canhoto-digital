@@ -78,31 +78,6 @@ height:160px;
 background:white;
 touch-action:none;
 }
-
-#scannerTela{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:black;
-display:none;
-z-index:9999;
-}
-
-#reader{width:100%;height:100%;}
-
-.btnFechar{
-position:absolute;
-top:20px;
-right:20px;
-background:red;
-color:white;
-padding:12px;
-font-size:18px;
-border-radius:8px;
-z-index:10000;
-}
 </style>
 </head>
 
@@ -113,7 +88,7 @@ z-index:10000;
 <div class="container">
 
 <div class="topo">
-<img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg">
+<img class="logo" src="COLE_AQUI_O_LINK_RAW_DO_SEU_LOGO">
 <div class="titulo">Canhoto Digital Danuta</div>
 </div>
 
@@ -137,53 +112,13 @@ z-index:10000;
 
 </div>
 
-<div id="scannerTela">
-<div class="btnFechar" onclick="fecharScanner()">FECHAR</div>
-<div id="reader"></div>
-</div>
-
 <script>
 
-let scanner
 let notas=[]
-
-function extrairNumeroNF(codigo){
-let numeros=codigo.replace(/\D/g,'')
-if(numeros.length>=34){
-return numeros.substring(25,34)
-}
-return numeros
-}
 
 function atualizarLista(){
 document.getElementById("notas").innerHTML =
 "<b>Notas:</b><br>"+notas.join("<br>")
-}
-
-function abrirScanner(){
-document.getElementById("scannerTela").style.display="block"
-
-scanner = new Html5Qrcode("reader")
-
-scanner.start(
-{ facingMode: "environment" },
-{ fps:30, qrbox:{width:350,height:180} },
-(codigo)=>{
-let nota=extrairNumeroNF(codigo)
-
-// permite duplicado
-notas.push(nota)
-
-atualizarLista()
-
-navigator.vibrate(200)
-new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg").play()
-})
-}
-
-function fecharScanner(){
-if(scanner){scanner.stop()}
-document.getElementById("scannerTela").style.display="none"
 }
 
 function notaManual(){
@@ -250,7 +185,7 @@ return
 
 fetch("SEU_LINK_GS_AQUI",{
 method:"POST",
-mode:"cors",
+mode:"no-cors",
 headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({
 notas:notas,
@@ -261,19 +196,9 @@ expedidor:expedidor,
 assinatura:assinatura
 })
 })
-.then(res => res.text())
-.then(res => {
-if(res.includes("OK")){
+
 alert("Salvo com sucesso!")
 location.reload()
-}else{
-alert("Erro: "+res)
-}
-})
-.catch(err=>{
-alert("Erro na comunicação")
-console.error(err)
-})
 
 }
 
