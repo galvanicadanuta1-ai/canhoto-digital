@@ -19,26 +19,23 @@ padding:15px;
 }
 
 .topo{
-display:flex;
-flex-direction:column;
-align-items:center;
+text-align:center;
 }
 
 .logo{
-width:160px;
+width:180px;
 margin-bottom:5px;
 }
 
 .titulo{
 font-size:22px;
 font-weight:bold;
-text-align:center;
 }
 
 .limparTudo{
 position:absolute;
-right:20px;
-top:20px;
+right:15px;
+top:15px;
 font-size:26px;
 color:red;
 cursor:pointer;
@@ -116,7 +113,7 @@ z-index:10000;
 <div class="container">
 
 <div class="topo">
-<img class="logo" src="https://i.imgur.com/6X4bKQx.png">
+<img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg">
 <div class="titulo">Canhoto Digital Danuta</div>
 </div>
 
@@ -127,13 +124,14 @@ z-index:10000;
 
 <input id="recebedor" placeholder="Recebedor">
 <input id="rgcpf" placeholder="RG ou CPF" inputmode="numeric">
-<input id="ordem" placeholder="Ordem de Serviço" inputmode="numeric">
-<input id="expedidor" placeholder="Expedidor">
 
 <p><b>Assinatura</b></p>
 <canvas id="assinatura"></canvas>
 
 <button class="btnLimpar" onclick="limparAss()">Limpar assinatura</button>
+
+<input id="ordem" placeholder="Ordem de Serviço" inputmode="numeric">
+<input id="expedidor" placeholder="Expedidor">
 
 <button class="btnSalvar" onclick="salvar()">Salvar</button>
 
@@ -173,7 +171,7 @@ scanner.start(
 (codigo)=>{
 let nota=extrairNumeroNF(codigo)
 
-// ✅ AGORA PERMITE DUPLICADO
+// permite duplicado
 notas.push(nota)
 
 atualizarLista()
@@ -189,11 +187,10 @@ document.getElementById("scannerTela").style.display="none"
 }
 
 function notaManual(){
-let nota=prompt("Digite número da nota (somente números)")
+let nota=prompt("Digite número da nota")
 if(nota){
-nota = nota.replace(/\D/g,'') // só número
-
-if(nota.length > 0){
+nota = nota.replace(/\D/g,'')
+if(nota){
 notas.push(nota)
 atualizarLista()
 }
@@ -227,7 +224,6 @@ function limparAss(){
 ctx.clearRect(0,0,canvas.width,canvas.height)
 }
 
-// SALVAR
 function salvar(){
 
 let recebedor=document.getElementById("recebedor").value.trim()
