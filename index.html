@@ -16,50 +16,58 @@
         
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .btnCamera { background: #0f4c81; color: white; }
-        .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; }
-        .btnManual { padding: 8px; font-size: 14px; background: #ced4da; color: #000; margin-top: 8px; border: 1px solid #adb5bd; }
+        .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; box-shadow: 0 4px 10px rgba(46,204,113,0.3); }
+        .btnManual { padding: 10px; font-size: 14px; background: #555; color: #fff; margin-top: 8px; border: 1px solid #333; }
         
         #listaNotas { background: #fff; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; }
-        .nota-item { background: #d1d8e0; color: #2d3436; padding: 6px 12px; margin: 4px; border-radius: 6px; display: inline-block; font-size: 13px; font-weight: bold; }
+        .nota-item { background: #0f4c81; color: #fff; padding: 6px 12px; margin: 4px; border-radius: 6px; display: inline-block; font-size: 13px; font-weight: bold; }
         
-        input { width: 100%; padding: 14px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
+        label { display: block; margin-top: 15px; font-size: 13px; font-weight: bold; color: #555; }
+        input { width: 100%; padding: 14px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
         canvas { border: 2px solid #bdc3c7; width: 100%; height: 180px; background: white; touch-action: none; border-radius: 10px; margin-top: 5px; }
+        .error-msg { color: red; font-size: 11px; margin-top: 2px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="topo">
-        <img src="logo.png" class="logo-topo" onerror="this.src='https://drive.google.com/uc?export=view&id=18XS6nKJjY2yAJazHg_Iju67e17Bvr0hn'">
+        <img src="logo.png" class="logo-topo" onerror="this.src='https://raw.githubusercontent.com/DanutaGalvanica/canhoto-digital/main/logo.png'">
         <div class="titulo">CANHOTO DIGITAL</div>
-        <div onclick="location.reload()" style="color:red; font-size:12px; font-weight:bold; cursor:pointer">LIMPAR TUDO</div>
+        <div onclick="location.reload()" style="color:red; font-size:12px; font-weight:bold; cursor:pointer">RESET</div>
     </div>
 
     <button class="btnCamera" onclick="abrirScanner()">📷 LER CÓDIGO DE BARRAS</button>
     
     <div id="listaNotas">
-        <small style="color:#7f8c8d;">Notas na fila:</small>
+        <small style="color:#7f8c8d;">Notas lidas para este envio:</small>
         <div id="notasContiner"></div>
         <button class="btnManual" onclick="notaManual()">+ Digitar Nota Manualmente</button>
     </div>
 
-    <input id="recebedor" type="text" placeholder="Nome de quem recebeu (Somente Texto)" oninput="this.value=this.value.replace(/[0-9]/g,'')">
-    <input id="rgcpf" type="tel" inputmode="numeric" placeholder="Documento RG/CPF (Somente Números)" oninput="this.value=this.value.replace(/\D/g,'')">
+    <label>NOME DE QUEM RECEBEU</label>
+    <input id="recebedor" type="text" placeholder="Apenas letras" oninput="this.value=this.value.replace(/[0-9]/g,'')">
+
+    <label>DOCUMENTO (RG OU CPF)</label>
+    <input id="rgcpf" type="tel" inputmode="numeric" placeholder="Apenas números" oninput="this.value=this.value.replace(/\D/g,'')">
     
-    <p style="margin: 20px 0 5px 0; font-size: 14px;"><b>Assine abaixo:</b></p>
+    <label>ASSINATURA DIGITAL</label>
     <canvas id="assinatura"></canvas>
-    <button style="background:none; color:red; text-decoration:underline; font-size:12px; width:auto; padding:0;" onclick="limparAss()">Limpar Assinatura</button>
+    <button style="background:none; color:red; text-decoration:underline; font-size:12px; width:auto; padding:5px; margin:0;" onclick="limparAss()">Limpar Assinatura</button>
 
-    <input id="ordem" type="tel" inputmode="numeric" placeholder="Ordem de Serviço (Obrigatório - Números)" oninput="this.value=this.value.replace(/\D/g,'')">
-    <input id="expedidor" type="text" placeholder="Nome do Expedidor (Somente Texto)" oninput="this.value=this.value.replace(/[0-9]/g,'')">
+    <label>ORDEM DE SERVIÇO *</label>
+    <input id="ordem" type="tel" inputmode="numeric" placeholder="Obrigatório - Apenas números" oninput="this.value=this.value.replace(/\D/g,'')">
 
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">FINALIZAR E ENVIAR</button>
+    <label>NOME DO EXPEDIDOR</label>
+    <input id="expedidor" type="text" placeholder="Apenas letras" oninput="this.value=this.value.replace(/[0-9]/g,'')">
+
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">GRAVAR E ENVIAR</button>
 </div>
 
 <div id="scannerTela">
     <div id="reader"></div>
     <div style="position:absolute; bottom:30px; width:100%; text-align:center;">
-        <button onclick="fecharScanner()" style="width:80%; background:red; color:white;">CANCELAR LEITURA</button>
+        <button onclick="fecharScanner()" style="width:80%; background:red; color:white; border:2px solid white;">FECHAR CÂMERA</button>
     </div>
 </div>
 
@@ -76,14 +84,15 @@ function extrairNumeroNF(codigo) {
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
-    scanner.start({ facingMode: "environment" }, { fps: 60, qrbox: { width: 320, height: 150 } }, (codigo) => {
+    scanner.start({ facingMode: "environment" }, { fps: 60, qrbox: { width: 300, height: 150 } }, (codigo) => {
         let nota = extrairNumeroNF(codigo);
         if (!notas.includes(nota)) {
             notas.push(nota);
-            document.getElementById("notasContiner").innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
+            atualizarVisualNotas();
             fecharScanner();
+            navigator.vibrate(100);
         }
-    }).catch(err => alert("Erro câmera: " + err));
+    }).catch(err => alert("Erro ao abrir câmera."));
 }
 
 function fecharScanner() {
@@ -91,16 +100,21 @@ function fecharScanner() {
 }
 
 function notaManual() {
-    let n = prompt("Número da Nota (Somente números):");
+    let n = prompt("Digite apenas os números da Nota:");
     if (n) {
         let limpo = n.replace(/\D/g, '');
         if (limpo && !notas.includes(limpo)) {
             notas.push(limpo);
-            document.getElementById("notasContiner").innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
+            atualizarVisualNotas();
         }
     }
 }
 
+function atualizarVisualNotas() {
+    document.getElementById("notasContiner").innerHTML = notas.map(n => `<span class="nota-item">${n}</span>`).join('');
+}
+
+// CANVAS ASSINATURA
 const canvas = document.getElementById("assinatura");
 const ctx = canvas.getContext("2d");
 canvas.width = canvas.offsetWidth;
@@ -113,20 +127,21 @@ canvas.addEventListener("pointerup", () => drawing = false);
 function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 function salvar() {
-    const fields = {
-        recebedor: document.getElementById("recebedor").value,
-        doc: document.getElementById("rgcpf").value,
-        ordem: document.getElementById("ordem").value,
-        exp: document.getElementById("expedidor").value
+    const dados = {
+        recebedor: document.getElementById("recebedor").value.trim(),
+        doc: document.getElementById("rgcpf").value.trim(),
+        ordem: document.getElementById("ordem").value.trim(),
+        exp: document.getElementById("expedidor").value.trim()
     };
 
-    if (!fields.recebedor || !fields.doc || !fields.ordem || !fields.exp || notas.length === 0) {
-        alert("Atenção: Todos os campos são obrigatórios (incluindo Ordem de Serviço e pelo menos uma nota).");
+    if (!dados.recebedor || !dados.doc || !dados.ordem || !dados.exp || notas.length === 0) {
+        alert("Erro: Preencha todos os campos e leia ao menos uma nota fiscal.");
         return;
     }
 
     const btn = document.getElementById("btnSalvar");
-    btn.disabled = true; btn.innerText = "ENVIANDO...";
+    btn.disabled = true;
+    btn.innerText = "ENVIANDO AO SERVIDOR...";
 
     fetch(apiUrl, {
         method: "POST",
@@ -134,18 +149,19 @@ function salvar() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             notas: notas,
-            recebedor: fields.recebedor,
-            documento: fields.doc,
-            ordem: fields.ordem,
-            expedidor: fields.exp,
+            recebedor: dados.recebedor,
+            documento: dados.doc,
+            ordem: dados.ordem,
+            expedidor: dados.exp,
             assinatura: canvas.toDataURL("image/png")
         })
     }).then(() => {
-        alert("Finalizado com sucesso!");
+        alert("Canhoto enviado com sucesso para Galvanica Danuta!");
         location.reload();
     }).catch(() => {
-        alert("Erro de conexão.");
+        alert("Erro de rede. Verifique sua internet.");
         btn.disabled = false;
+        btn.innerText = "GRAVAR E ENVIAR";
     });
 }
 </script>
