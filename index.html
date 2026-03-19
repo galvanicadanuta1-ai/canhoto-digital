@@ -1,26 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Canhoto Digital - Galvânica Danuta</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial; margin: 0; background: #f0f2f5; padding-bottom: 30px; }
+        body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 30px; color: #333; }
         .container { max-width: 500px; margin: auto; padding: 15px; }
+        
+        /* Topo */
         .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
         .logo-topo { height: 35px; }
-        #scannerTela { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; z-index: 9999; }
+        
+        /* Scanner Interface */
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
-        button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
+
+        /* Linha Guia Vermelha */
+        .linha-guia {
+            position: absolute; top: 50%; left: 50%;
+            width: 85%; height: 2px;
+            background: rgba(255, 0, 0, 0.8);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        /* Botões e Inputs */
+        button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btnCamera { background: #0f4c81; color: white; }
         .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; }
         .btnManual { padding: 10px; font-size: 13px; background: #444; color: #fff; margin-top: 5px; width: auto; display: block; }
+        
         .badge-container { background: #fff; padding: 10px; margin-top: 8px; border-radius: 8px; border: 1px solid #ddd; min-height: 40px; }
         .badge-item { background: #0f4c81; color: #fff; padding: 5px 10px; margin: 3px; border-radius: 4px; display: inline-block; font-size: 12px; font-weight: bold; }
-        .input-wrapper { position: relative; margin-top: 15px; }
-        .input-wrapper input { width: 100%; padding: 16px 50px 16px 16px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
-        .icon-cam-inline { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px; }
-        input { width: 100%; padding: 16px; margin-top: 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
+        
+        input { width: 100%; padding: 16px; margin-top: 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: #0f4c81; }
+        
+        /* Assinatura */
         canvas { border: 2px solid #bdc3c7; width: 100%; height: 180px; background: white; touch-action: none; border-radius: 10px; margin-top: 15px; }
+        
+        /* Wrapper para Campo OS com Ícone */
+        .input-wrapper { position: relative; margin-top: 15px; }
+        .input-wrapper input { margin-top: 0; padding-right: 50px; }
+        .icon-cam-inline { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px; width: auto; margin: 0; }
     </style>
 </head>
 <body>
@@ -42,7 +69,7 @@
     <button style="background:none; color:red; text-decoration:underline; font-size:12px; width:auto; padding:0;" onclick="limparAss()">Limpar Assinatura</button>
 
     <div class="input-wrapper">
-        <input id="ordem_display" type="text" placeholder="Ordem de Serviço Danuta" readonly onclick="alert('Use o ícone da câmera ou o botão abaixo para adicionar OS')">
+        <input id="ordem_display" type="text" placeholder="Ordem de Serviço Danuta" readonly>
         <button class="icon-cam-inline" onclick="abrirScanner('OS')">📷</button>
     </div>
     <div class="badge-container" id="contOS"></div>
@@ -55,8 +82,9 @@
 
 <div id="scannerTela">
     <div id="reader"></div>
-    <div style="position:absolute; bottom:30px; width:100%; text-align:center;">
-        <button onclick="fecharScanner()" style="width:80%; background:red; color:white;">CANCELAR</button>
+    <div class="linha-guia"></div>
+    <div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;">
+        <button onclick="fecharScanner()" style="width:80%; background:red; color:white; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">CANCELAR</button>
     </div>
 </div>
 
@@ -65,11 +93,13 @@ let scanner;
 let listaNF = [];
 let listaOS = [];
 let destino = 'NF';
-// ATENÇÃO: Verifique se este ID de execução está atualizado após salvar o code.gs
+
+// URL da sua API do Google Apps Script
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
 function extrairNum(codigo) {
     let n = codigo.replace(/\D/g, '');
+    // Se for chave de acesso de NF-e (44 dígitos), pega o número da nota (posições 25 a 34)
     return n.length >= 34 ? n.substring(25, 34) : n;
 }
 
@@ -77,16 +107,29 @@ function abrirScanner(tipo) {
     destino = tipo;
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
-    scanner.start({ facingMode: "environment" }, { fps: 60, qrbox: { width: 280, height: 150 } }, (codigo) => {
+    
+    const config = { 
+        fps: 30, 
+        qrbox: { width: 300, height: 150 },
+        aspectRatio: 1.777778 // Otimizado para leitura de códigos longos
+    };
+
+    scanner.start({ facingMode: "environment" }, config, (codigo) => {
         let num = extrairNum(codigo);
         adicionarValor(num);
         fecharScanner();
-        navigator.vibrate(100);
-    }).catch(err => alert("Erro câmera."));
+        if (navigator.vibrate) navigator.vibrate(100);
+    }).catch(err => alert("Erro ao acessar câmera. Verifique as permissões."));
 }
 
 function fecharScanner() {
-    if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); }
+    if (scanner) { 
+        scanner.stop().then(() => { 
+            document.getElementById("scannerTela").style.display = "none"; 
+        }).catch(() => {
+            document.getElementById("scannerTela").style.display = "none";
+        }); 
+    }
 }
 
 function addManual(tipo) {
@@ -111,33 +154,60 @@ function renderBadges(id, lista) {
     document.getElementById(id).innerHTML = lista.map(item => `<span class="badge-item">${item}</span>`).join('');
 }
 
+// Lógica do Canvas (Assinatura)
 const canvas = document.getElementById("assinatura");
 const ctx = canvas.getContext("2d");
-canvas.width = canvas.offsetWidth; canvas.height = 180;
+function ajustarCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 180;
+}
+window.addEventListener("resize", ajustarCanvas);
+ajustarCanvas();
+
 let drawing = false;
-canvas.addEventListener("pointerdown", (e) => { drawing = true; ctx.beginPath(); const r = canvas.getBoundingClientRect(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top); });
-canvas.addEventListener("pointermove", (e) => { if (!drawing) return; const r = canvas.getBoundingClientRect(); ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke(); });
+canvas.addEventListener("pointerdown", (e) => { 
+    drawing = true; 
+    ctx.beginPath(); 
+    const r = canvas.getBoundingClientRect(); 
+    ctx.moveTo(e.clientX - r.left, e.clientY - r.top); 
+});
+canvas.addEventListener("pointermove", (e) => { 
+    if (!drawing) return; 
+    const r = canvas.getBoundingClientRect(); 
+    ctx.lineWidth = 3; 
+    ctx.lineCap = "round"; 
+    ctx.strokeStyle = "#000";
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top); 
+    ctx.stroke(); 
+});
 canvas.addEventListener("pointerup", () => drawing = false);
+
 function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 function salvar() {
     const d = {
         recebedor: document.getElementById("recebedor").value.trim(),
         doc: document.getElementById("rgcpf").value.trim(),
-        exp: document.getElementById("expedidor").value.trim()
+        exp: document.getElementById("expedidor").value.trim(),
+        assinatura: canvas.toDataURL("image/png")
     };
 
-    if (!d.recebedor || !d.doc || !d.exp || listaNF.length === 0 || listaOS.length === 0) {
-        alert("Erro: Preencha todos os campos e adicione pelo menos 1 NF e 1 OS.");
+    // Validação básica
+    const canvasVazio = ctx.getImageData(0,0,canvas.width,canvas.height).data.every(p => p === 0);
+
+    if (!d.recebedor || !d.doc || !d.exp || listaNF.length === 0 || listaOS.length === 0 || canvasVazio) {
+        alert("Atenção: Preencha todos os campos, adicione NF/OS e assine o canhoto.");
         return;
     }
 
     const btn = document.getElementById("btnSalvar");
-    btn.disabled = true; btn.innerText = "PROCESSANDO...";
+    btn.disabled = true; 
+    btn.innerText = "ENVIANDO...";
 
     fetch(apiUrl, {
         method: "POST",
         mode: "no-cors",
+        cache: "no-cache",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             notas: listaNF,
@@ -145,13 +215,13 @@ function salvar() {
             recebedor: d.recebedor,
             documento: d.doc,
             expedidor: d.exp,
-            assinatura: canvas.toDataURL("image/png")
+            assinatura: d.assinatura
         })
     }).then(() => {
-        alert("Enviado com sucesso!");
+        alert("Canhoto enviado com sucesso!");
         location.reload();
-    }).catch(() => {
-        alert("Erro ao enviar.");
+    }).catch((err) => {
+        alert("Erro ao enviar. Verifique sua conexão.");
         btn.disabled = false;
         btn.innerText = "SALVAR";
     });
