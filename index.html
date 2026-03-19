@@ -66,7 +66,7 @@ let scanner;
 let listaNF = [];
 let listaOS = [];
 let destino = 'NF';
-const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
+const apiUrl = "SUA_NOVA_URL_AQUI"; // Certifique-se de usar a URL da nova implantação
 
 function extrairNum(codigo) {
     let n = codigo.replace(/\D/g, '');
@@ -128,7 +128,7 @@ function salvar() {
     };
 
     if (!d.recebedor || !d.doc || !d.exp || listaNF.length === 0 || listaOS.length === 0) {
-        alert("Atenção: Preencha todos os campos e escaneie ao menos 1 NF e 1 OS.");
+        alert("Preencha todos os campos e escaneie ao menos 1 NF e 1 OS.");
         return;
     }
 
