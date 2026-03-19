@@ -4,18 +4,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
+        body { font-family: 'Segoe UI', Arial; margin: 0; background: #f0f2f5; padding-bottom: 30px; }
         .container { max-width: 500px; margin: auto; padding: 15px; }
-        .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
         .logo-topo { height: 35px; }
+        
         #scannerTela { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
+        
         button { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .btnScan { background: #0f4c81; color: white; }
-        .btnSalvar { background: #2ecc71; color: white; margin-top: 30px; }
-        .btnManual { padding: 10px; font-size: 13px; background: #555; color: #fff; margin-top: 5px; width: auto; border-radius: 6px; }
-        .box-leitura { background: #fff; padding: 10px; margin-top: 8px; border-radius: 8px; border: 1px solid #ddd; min-height: 45px; }
-        .tag { background: #0f4c81; color: #fff; padding: 6px 10px; margin: 3px; border-radius: 5px; display: inline-block; font-size: 12px; }
+        .btnCamera { background: #0f4c81; color: white; }
+        .btnSalvar { background: #2ecc71; color: white; margin-top: 25px; }
+        .btnManual { padding: 10px; font-size: 13px; background: #444; color: #fff; margin-top: 5px; width: auto; display: block; }
+        
+        .badge-container { background: #fff; padding: 10px; margin-top: 8px; border-radius: 8px; border: 1px solid #ddd; min-height: 40px; }
+        .badge-item { background: #0f4c81; color: #fff; padding: 5px 10px; margin: 3px; border-radius: 4px; display: inline-block; font-size: 12px; font-weight: bold; }
+        
+        /* Campo OS com ícone à direita */
+        .input-wrapper { position: relative; margin-top: 15px; }
+        .input-wrapper input { width: 100%; padding: 16px 50px 16px 16px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
+        .icon-cam-inline { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px; }
+
         input { width: 100%; padding: 16px; margin-top: 15px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
         canvas { border: 2px solid #bdc3c7; width: 100%; height: 180px; background: white; touch-action: none; border-radius: 10px; margin-top: 15px; }
     </style>
@@ -25,11 +34,11 @@
 <div class="container">
     <div class="topo">
         <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo-topo">
-        <div onclick="location.reload()" style="color:red; font-size:12px; font-weight:bold; cursor:pointer;">RESET</div>
+        <div onclick="location.reload()" style="color:red; font-size:12px; font-weight:bold; cursor:pointer">RESET</div>
     </div>
 
-    <button class="btnScan" onclick="abrirScanner('NF')">📷 ESCANEAR NOTA FISCAL</button>
-    <div class="box-leitura" id="contNF"></div>
+    <button class="btnCamera" onclick="abrirScanner('NF')">📷 SCANNER NOTA FISCAL</button>
+    <div class="badge-container" id="contNF"></div>
     <button class="btnManual" onclick="addManual('NF')">+ Digitar Nota</button>
 
     <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu" oninput="this.value=this.value.replace(/[0-9]/g,'')">
@@ -38,8 +47,11 @@
     <canvas id="assinatura"></canvas>
     <button style="background:none; color:red; text-decoration:underline; font-size:12px; width:auto; padding:0;" onclick="limparAss()">Limpar Assinatura</button>
 
-    <button class="btnScan" style="margin-top:20px;" onclick="abrirScanner('OS')">📷 ESCANEAR OS</button>
-    <div class="box-leitura" id="contOS"></div>
+    <div class="input-wrapper">
+        <input id="ordem_display" type="text" placeholder="Ordem de Serviço Danuta" readonly onclick="alert('Use o ícone da câmera ou o botão abaixo para adicionar OS')">
+        <button class="icon-cam-inline" onclick="abrirScanner('OS')">📷</button>
+    </div>
+    <div class="badge-container" id="contOS"></div>
     <button class="btnManual" onclick="addManual('OS')">+ Digitar OS</button>
 
     <input id="expedidor" type="text" placeholder="Nome do Expedidor" oninput="this.value=this.value.replace(/[0-9]/g,'')">
@@ -59,7 +71,7 @@ let scanner;
 let listaNF = [];
 let listaOS = [];
 let destino = 'NF';
-const apiUrl = "SUA_URL_ATUAL_AQUI"; // Mantenha a URL que você já usa
+const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
 function extrairNum(codigo) {
     let n = codigo.replace(/\D/g, '');
@@ -74,7 +86,8 @@ function abrirScanner(tipo) {
         let num = extrairNum(codigo);
         adicionarValor(num);
         fecharScanner();
-    }).catch(err => alert("Câmera indisponível."));
+        navigator.vibrate(100);
+    }).catch(err => alert("Erro câmera."));
 }
 
 function fecharScanner() {
@@ -91,17 +104,19 @@ function adicionarValor(val) {
     if (!val) return;
     if (destino === 'NF') {
         if (!listaNF.includes(val)) listaNF.push(val);
-        renderTags('contNF', listaNF);
+        renderBadges('contNF', listaNF);
     } else {
         if (!listaOS.includes(val)) listaOS.push(val);
-        renderTags('contOS', listaOS);
+        renderBadges('contOS', listaOS);
+        document.getElementById("ordem_display").value = listaOS.length + " OS selecionada(s)";
     }
 }
 
-function renderTags(id, lista) {
-    document.getElementById(id).innerHTML = lista.map(item => `<span class="tag">${item}</span>`).join('');
+function renderBadges(id, lista) {
+    document.getElementById(id).innerHTML = lista.map(item => `<span class="badge-item">${item}</span>`).join('');
 }
 
+// Canvas Assinatura
 const canvas = document.getElementById("assinatura");
 const ctx = canvas.getContext("2d");
 canvas.width = canvas.offsetWidth; canvas.height = 180;
@@ -112,25 +127,37 @@ canvas.addEventListener("pointerup", () => drawing = false);
 function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 function salvar() {
+    const d = {
+        recebedor: document.getElementById("recebedor").value.trim(),
+        doc: document.getElementById("rgcpf").value.trim(),
+        exp: document.getElementById("expedidor").value.trim()
+    };
+
+    if (!d.recebedor || !d.doc || !d.exp || listaNF.length === 0 || listaOS.length === 0) {
+        alert("Erro: Preencha todos os campos e adicione pelo menos 1 NF e 1 OS.");
+        return;
+    }
+
     const btn = document.getElementById("btnSalvar");
-    btn.disabled = true; btn.innerText = "ENVIANDO...";
+    btn.disabled = true; btn.innerText = "PROCESSANDO...";
 
     fetch(apiUrl, {
         method: "POST",
         mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             notas: listaNF,
             ordens: listaOS,
-            recebedor: document.getElementById("recebedor").value,
-            documento: document.getElementById("rgcpf").value,
-            expedidor: document.getElementById("expedidor").value,
+            recebedor: d.recebedor,
+            documento: d.doc,
+            expedidor: d.exp,
             assinatura: canvas.toDataURL("image/png")
         })
     }).then(() => {
-        alert("Sucesso!");
+        alert("Enviado com sucesso!");
         location.reload();
     }).catch(() => {
-        alert("Erro.");
+        alert("Erro ao enviar.");
         btn.disabled = false;
         btn.innerText = "SALVAR";
     });
