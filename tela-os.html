@@ -3,16 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Saída OS - Galvânica Danuta</title>
+    <title>Liberação de OS - Galvânica Danuta</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f0f2f5; }
-        .btn-voltar { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #0f4c81; color: white; text-decoration: none; border-radius: 8px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
+        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; }
+        
+        .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .btn-voltar { flex: 1; text-align: left; color: #0f4c81; font-size: 14px; font-weight: bold; cursor: pointer; text-decoration: none; }
+        .titulo-topo { flex: 2; text-align: center; color: #0f4c81; font-size: 15px; font-weight: bold; text-transform: uppercase; }
+        .reset-topo { flex: 1; text-align: right; color: #e74c3c; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        
+        .secao-titulo { font-size: 14px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        
+        /* Campo Data com Ícone */
+        .campo-data-wrapper { position: relative; margin-top: 8px; }
+        input[type="date"], input[type="text"] { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; background: white; }
+        .icone-calendario { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 20px; }
+
+        .btn-scan { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; background: #2c3e50; color: white; }
+        .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px; font-weight: 600; cursor: pointer; display: inline-block; }
+
+        .badge-container { background: #fff; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #2c3e50; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .badge-item { background: #f1f3f5; color: #2c3e50; border: 1px solid #2c3e50; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .btn-excluir { color: #e74c3c; font-weight: 900; cursor: pointer; }
+
+        /* Botões Qualidade */
+        .qualidade-box { display: flex; gap: 10px; margin-top: 8px; }
+        .btn-qualidade { flex: 1; padding: 15px; border: 2px solid #ccc; border-radius: 8px; font-weight: bold; cursor: pointer; background: white; transition: 0.2s; }
+        .btn-ok.ativo { background: #27ae60; color: white; border-color: #27ae60; }
+        .btn-nok.ativo { background: #e74c3c; color: white; border-color: #e74c3c; }
+
+        .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 16px; border: none; border-radius: 10px; cursor: pointer; }
+
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
+        #reader { width: 100% !important; height: 100% !important; }
     </style>
 </head>
 <body>
-    <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" width="100">
-    <h2>Tela Saída OS</h2>
-    <p>Em desenvolvimento...</p>
-    <a href="index.html" class="btn-voltar">Voltar para o Menu</a>
+
+<div class="container">
+    <div class="topo">
+        <a href="index.html" class="btn-voltar">&#10094; MENU</a>
+        <div class="titulo-topo">Liberação de OS</div>
+        <div class="reset-topo" onclick="location.reload(true)">Reset</div>
+    </div>
+
+    <label class="secao-titulo">Data da Liberação</label>
+    <div class="campo-data-wrapper">
+        <input type="date" id="dataLibera">
+        <span class="icone-calendario">📅</span>
+    </div>
+
+    <label class="secao-titulo">Ordem de Serviço</label>
+    <button class="btn-scan" onclick="abrirScanner()">📷 Escanear Ordem de Serviço</button>
+    <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
+    <div class="badge-container" id="contOS"></div>
+
+    <label class="secao-titulo">Qualidade</label>
+    <div class="qualidade-box">
+        <button id="qOk" class="btn-qualidade btn-ok" onclick="setQualidade('OK')">OK</button>
+        <button id="qNok" class="btn-qualidade btn-nok" onclick="setQualidade('NÃO OK')">NÃO OK</button>
+    </div>
+
+    <label class="secao-titulo">Expedidor</label>
+    <input id="expedidor" type="text" placeholder="Nome do Expedidor">
+
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR LIBERAÇÃO</button>
+</div>
+
+<div id="scannerTela">
+    <div id="reader"></div>
+    <div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">CANCELAR</button></div>
+</div>
+
+<script>
+let scanner;
+let listaOS = [];
+let qualidadeSel = "";
+const apiUrl = "SUA_URL_DO_GOOGLE_SCRIPT_AQUI";
+
+// Definir data atual no carregamento
+window.onload = () => { document.getElementById('dataLibera').valueAsDate = new Date(); };
+
+function setQualidade(valor) {
+    qualidadeSel = valor;
+    document.getElementById('qOk').classList.remove('ativo');
+    document.getElementById('qNok').classList.remove('ativo');
+    if(valor === 'OK') document.getElementById('qOk').classList.add('ativo');
+    else document.getElementById('qNok').classList.add('ativo');
+}
+
+function abrirScanner() {
+    document.getElementById("scannerTela").style.display = "block";
+    scanner = new Html5Qrcode("reader");
+    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (codigo) => {
+        adicionarValor(codigo);
+        fecharScanner();
+    }).catch(() => alert("Câmera não disponível."));
+}
+
+function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
+
+function addManual() {
+    let n = prompt("Digite o número da OS:");
+    if (n) { adicionarValor(n); }
+}
+
+function adicionarValor(val) {
+    if (!val || listaOS.includes(val)) return;
+    listaOS.push(val);
+    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} <span class="btn-excluir">X</span></div>`).join('');
+}
+
+function removerItem(val) {
+    listaOS = listaOS.filter(i => i !== val);
+    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} <span class="btn-excluir">X</span></div>`).join('');
+}
+
+function salvar() {
+    const data = document.getElementById("dataLibera").value;
+    const exp = document.getElementById("expedidor").value.trim();
+
+    if (!data || listaOS.length === 0 || !qualidadeSel || !exp) {
+        alert("⚠️ Preencha todos os campos antes de salvar.");
+        return;
+    }
+
+    const btn = document.getElementById("btnSalvar");
+    btn.disabled = true; btn.innerText = "ENVIANDO...";
+
+    fetch(apiUrl, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({
+            tipo: "SAIDA_OS",
+            dataManual: data,
+            ordens: listaOS,
+            qualidade: qualidadeSel,
+            expedidor: exp
+        })
+    }).then(() => { alert("✅ Liberação de OS salva!"); location.reload(); }).catch(() => { alert("❌ Erro."); btn.disabled = false; btn.innerText = "SALVAR"; });
+}
+</script>
 </body>
 </html>
