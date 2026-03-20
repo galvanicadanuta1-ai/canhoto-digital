@@ -205,7 +205,7 @@ function salvar() {
     const d = document.getElementById("rgcpf").value.trim();
     const x = document.getElementById("expedidor").value.trim();
 
-    // Validação Nome Completo
+    // Validação Nome Completo (mínimo 2 palavras)
     if (r.split(' ').filter(word => word.length > 0).length < 2) {
         alert("⚠️ Digite o NOME COMPLETO de quem recebeu.");
         return;
@@ -213,12 +213,12 @@ function salvar() {
 
     // Validação CPF Real
     if (!validarCPF(d)) {
-        alert("⚠️ CPF INVÁLIDO. Digite um número real.");
+        alert("⚠️ CPF INVÁLIDO. Por favor, digite um número real.");
         return;
     }
 
     if (!r || !d || !x || listaNF.length === 0 || listaOS.length === 0 || !assinou) {
-        alert("⚠️ Preencha todos os campos, escaneie os documentos e assine.");
+        alert("⚠️ Preencha todos os campos corretamente e assine o quadro.");
         return;
     }
 
@@ -237,7 +237,7 @@ function salvar() {
             assinatura: canvas.toDataURL("image/png")
         })
     }).then(() => {
-        alert("✅ Enviado com sucesso!");
+        alert("✅ Canhoto enviado com sucesso!");
         location.reload(true);
     }).catch(() => {
         alert("❌ Erro na conexão.");
