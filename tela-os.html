@@ -10,13 +10,13 @@
         .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; }
         
         .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .btn-voltar { flex: 1; text-align: left; color: #0f4c81; font-size: 14px; font-weight: bold; cursor: pointer; text-decoration: none; }
-        .titulo-topo { flex: 2; text-align: center; color: #0f4c81; font-size: 15px; font-weight: bold; text-transform: uppercase; }
+        .logo-topo { flex: 1; display: flex; justify-content: flex-start; }
+        .logo-topo img { height: 30px; }
+        .titulo-topo { flex: 2; text-align: center; color: #0f4c81; font-size: 14px; font-weight: bold; text-transform: uppercase; }
         .reset-topo { flex: 1; text-align: right; color: #e74c3c; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         
         .secao-titulo { font-size: 14px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
         
-        /* Campo Data com Ícone */
         .campo-data-wrapper { position: relative; margin-top: 8px; }
         input[type="date"], input[type="text"] { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; background: white; }
         .icone-calendario { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 20px; }
@@ -25,26 +25,27 @@
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px; font-weight: 600; cursor: pointer; display: inline-block; }
 
         .badge-container { background: #fff; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #2c3e50; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .badge-item { background: #f1f3f5; color: #2c3e50; border: 1px solid #2c3e50; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-        .btn-excluir { color: #e74c3c; font-weight: 900; cursor: pointer; }
+        .badge-item { background: #f1f3f5; color: #2c3e50; border: 1px solid #2c3e50; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .btn-excluir { color: #e74c3c; font-weight: 900; font-size: 14px; }
 
-        /* Botões Qualidade */
         .qualidade-box { display: flex; gap: 10px; margin-top: 8px; }
-        .btn-qualidade { flex: 1; padding: 15px; border: 2px solid #ccc; border-radius: 8px; font-weight: bold; cursor: pointer; background: white; transition: 0.2s; }
+        .btn-qualidade { flex: 1; padding: 15px; border: 2px solid #ccc; border-radius: 8px; font-weight: bold; cursor: pointer; background: white; }
         .btn-ok.ativo { background: #27ae60; color: white; border-color: #27ae60; }
         .btn-nok.ativo { background: #e74c3c; color: white; border-color: #e74c3c; }
 
         .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 16px; border: none; border-radius: 10px; cursor: pointer; }
 
+        /* SCANNER PADRÃO NFE */
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
+        .linha-guia { position: absolute; top: 50%; left: 50%; width: 80%; height: 2px; background: red; transform: translate(-50%, -50%); z-index: 10000; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="topo">
-        <a href="index.html" class="btn-voltar">&#10094; MENU</a>
+        <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
         <div class="titulo-topo">Liberação de OS</div>
         <div class="reset-topo" onclick="location.reload(true)">Reset</div>
     </div>
@@ -56,7 +57,7 @@
     </div>
 
     <label class="secao-titulo">Ordem de Serviço</label>
-    <button class="btn-scan" onclick="abrirScanner()">📷 Escanear Ordem de Serviço</button>
+    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
     <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
 
@@ -74,16 +75,20 @@
 
 <div id="scannerTela">
     <div id="reader"></div>
-    <div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">CANCELAR</button></div>
+    <div class="linha-guia"></div>
+    <div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;">
+        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; font-weight:bold; border:none;">CANCELAR</button>
+    </div>
 </div>
 
 <script>
 let scanner;
 let listaOS = [];
 let qualidadeSel = "";
-const apiUrl = "SUA_URL_DO_GOOGLE_SCRIPT_AQUI";
 
-// Definir data atual no carregamento
+// ATENÇÃO: Verifique se este link está correto (é o mesmo da NFe)
+const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
+
 window.onload = () => { document.getElementById('dataLibera').valueAsDate = new Date(); };
 
 function setQualidade(valor) {
@@ -97,7 +102,9 @@ function setQualidade(valor) {
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
-    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (codigo) => {
+    scanner.start({ facingMode: "environment" }, 
+    { fps: 30, qrbox: { width: 300, height: 150 }, aspectRatio: 1.77 }, 
+    (codigo) => {
         adicionarValor(codigo);
         fecharScanner();
     }).catch(() => alert("Câmera não disponível."));
@@ -113,12 +120,18 @@ function addManual() {
 function adicionarValor(val) {
     if (!val || listaOS.includes(val)) return;
     listaOS.push(val);
-    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} <span class="btn-excluir">X</span></div>`).join('');
+    atualizarExibicao();
 }
 
 function removerItem(val) {
     listaOS = listaOS.filter(i => i !== val);
-    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} <span class="btn-excluir">X</span></div>`).join('');
+    atualizarExibicao();
+}
+
+function atualizarExibicao() {
+    document.getElementById('contOS').innerHTML = listaOS.map(i => 
+        `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} <span class="btn-excluir">X</span></div>`
+    ).join('');
 }
 
 function salvar() {
@@ -133,17 +146,26 @@ function salvar() {
     const btn = document.getElementById("btnSalvar");
     btn.disabled = true; btn.innerText = "ENVIANDO...";
 
+    const payload = {
+        tipo: "SAIDA_OS",
+        dataManual: data,
+        ordens: listaOS,
+        qualidade: qualidadeSel,
+        expedidor: exp
+    };
+
     fetch(apiUrl, {
         method: "POST",
         mode: "no-cors",
-        body: JSON.stringify({
-            tipo: "SAIDA_OS",
-            dataManual: data,
-            ordens: listaOS,
-            qualidade: qualidadeSel,
-            expedidor: exp
-        })
-    }).then(() => { alert("✅ Liberação de OS salva!"); location.reload(); }).catch(() => { alert("❌ Erro."); btn.disabled = false; btn.innerText = "SALVAR"; });
+        body: JSON.stringify(payload)
+    }).then(() => { 
+        alert("✅ Liberação de OS salva com sucesso!"); 
+        location.reload(); 
+    }).catch((err) => { 
+        alert("❌ Erro ao enviar: " + err); 
+        btn.disabled = false; 
+        btn.innerText = "SALVAR LIBERAÇÃO"; 
+    });
 }
 </script>
 </body>
