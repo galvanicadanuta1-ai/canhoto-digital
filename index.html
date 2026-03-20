@@ -50,8 +50,22 @@
         
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 6px; width: auto; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
 
+        /* Badges com X para excluir */
         .badge-container { background: #fff; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .badge-item { background: #e7f1ff; color: #0f4c81; border: 1px solid #0f4c81; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .badge-item { 
+            background: #e7f1ff; 
+            color: #0f4c81; 
+            border: 1px solid #0f4c81; 
+            padding: 5px 10px; 
+            border-radius: 5px; 
+            font-size: 13px; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            cursor: pointer;
+        }
+        .btn-excluir-item { color: #e74c3c; font-weight: 900; font-size: 14px; }
         
         .secao-titulo { font-size: 14px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
         input { width: 100%; padding: 15px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
@@ -116,14 +130,12 @@ let assinou = false;
 
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
-// Máscara de CPF automática
 function mascaraCPF(i) {
     let v = i.value.replace(/\D/g, "");
     if (v.length > 11) v = v.slice(0, 11);
     i.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
 
-// Validação matemática de CPF Real
 function validarCPF(cpf) {
     cpf = cpf.replace(/[^\d]+/g, '');
     if (cpf == '' || cpf.length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
@@ -169,11 +181,31 @@ function adicionarValor(val) {
     if (!val) return;
     if (destino === 'NF') {
         if (!listaNF.includes(val)) listaNF.push(val);
-        document.getElementById('contNF').innerHTML = listaNF.map(i => `<span class="badge-item">NF: ${i}</span>`).join('');
     } else {
         if (!listaOS.includes(val)) listaOS.push(val);
-        document.getElementById('contOS').innerHTML = listaOS.map(i => `<span class="badge-item">OS: ${i}</span>`).join('');
     }
+    atualizarExibicao();
+}
+
+// NOVA FUNÇÃO: Remove item da lista e atualiza tela
+function removerItem(tipo, val) {
+    if (tipo === 'NF') {
+        listaNF = listaNF.filter(i => i !== val);
+    } else {
+        listaOS = listaOS.filter(i => i !== val);
+    }
+    atualizarExibicao();
+}
+
+// Atualiza os badges na tela com o botão X
+function atualizarExibicao() {
+    document.getElementById('contNF').innerHTML = listaNF.map(i => 
+        `<div class="badge-item" onclick="removerItem('NF', '${i}')">NF: ${i} <span class="btn-excluir-item">X</span></div>`
+    ).join('');
+    
+    document.getElementById('contOS').innerHTML = listaOS.map(i => 
+        `<div class="badge-item" onclick="removerItem('OS', '${i}')">OS: ${i} <span class="btn-excluir-item">X</span></div>`
+    ).join('');
 }
 
 const canvas = document.getElementById("assinatura");
@@ -205,13 +237,11 @@ function salvar() {
     const d = document.getElementById("rgcpf").value.trim();
     const x = document.getElementById("expedidor").value.trim();
 
-    // Validação Nome Completo (mínimo 2 palavras)
     if (r.split(' ').filter(word => word.length > 0).length < 2) {
         alert("⚠️ Digite o NOME COMPLETO de quem recebeu.");
         return;
     }
 
-    // Validação CPF Real
     if (!validarCPF(d)) {
         alert("⚠️ CPF INVÁLIDO. Por favor, digite um número real.");
         return;
