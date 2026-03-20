@@ -20,8 +20,8 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
             margin-bottom: 20px;
         }
-        .logo-topo { height: 30px; flex: 1; display: flex; justify-content: flex-start; }
-        .logo-topo img { height: 100%; }
+        .logo-topo { flex: 1; display: flex; justify-content: flex-start; }
+        .logo-topo img { height: 30px; }
         
         .titulo-topo { 
             flex: 2; 
@@ -81,8 +81,8 @@
     <div class="badge-container" id="contNF"></div>
 
     <label class="secao-titulo">2. Identificação do Recebedor</label>
-    <input id="recebedor" type="text" placeholder="Nome de quem recebeu">
-    <input id="rgcpf" type="tel" placeholder="RG ou CPF">
+    <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu">
+    <input id="rgcpf" type="tel" placeholder="CPF (Apenas números)" maxlength="14" oninput="mascaraCPF(this)">
     
     <label class="secao-titulo">3. Assinatura Digital</label>
     <canvas id="assinatura"></canvas>
@@ -116,13 +116,37 @@ let assinou = false;
 
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
+// Máscara de CPF automática
+function mascaraCPF(i) {
+    let v = i.value.replace(/\D/g, "");
+    if (v.length > 11) v = v.slice(0, 11);
+    i.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+}
+
+// Validação matemática de CPF Real
+function validarCPF(cpf) {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf == '' || cpf.length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    let add = 0;
+    for (let i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i);
+    let rev = 11 - (add % 11);
+    if (rev == 10 || rev == 11) rev = 0;
+    if (rev != parseInt(cpf.charAt(9))) return false;
+    add = 0;
+    for (let i = 0; i < 10; i++) add += parseInt(cpf.charAt(i)) * (11 - i);
+    rev = 11 - (add % 11);
+    if (rev == 10 || rev == 11) rev = 0;
+    if (rev != parseInt(cpf.charAt(10))) return false;
+    return true;
+}
+
 function abrirScanner(tipo) {
     destino = tipo;
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
     scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: { width: 300, height: 150 }, aspectRatio: 1.77 }, (codigo) => {
         let n = codigo.replace(/\D/g, '');
-        let num = n.length >= 34 ? n.substring(25, 34) : n;
+        let num = (tipo === 'NF' && n.length >= 34) ? n.substring(25, 34) : n;
         adicionarValor(num);
         fecharScanner();
     }).catch(() => alert("Câmera não disponível."));
@@ -181,8 +205,20 @@ function salvar() {
     const d = document.getElementById("rgcpf").value.trim();
     const x = document.getElementById("expedidor").value.trim();
 
+    // Validação Nome Completo
+    if (r.split(' ').filter(word => word.length > 0).length < 2) {
+        alert("⚠️ Digite o NOME COMPLETO de quem recebeu.");
+        return;
+    }
+
+    // Validação CPF Real
+    if (!validarCPF(d)) {
+        alert("⚠️ CPF INVÁLIDO. Digite um número real.");
+        return;
+    }
+
     if (!r || !d || !x || listaNF.length === 0 || listaOS.length === 0 || !assinou) {
-        alert("Preencha todos os campos e escaneie/digite os documentos.");
+        alert("⚠️ Preencha todos os campos, escaneie os documentos e assine.");
         return;
     }
 
@@ -201,10 +237,10 @@ function salvar() {
             assinatura: canvas.toDataURL("image/png")
         })
     }).then(() => {
-        alert("Enviado com sucesso!");
+        alert("✅ Enviado com sucesso!");
         location.reload(true);
     }).catch(() => {
-        alert("Erro na conexão.");
+        alert("❌ Erro na conexão.");
         btn.disabled = false; btn.innerText = "SALVAR";
     });
 }
