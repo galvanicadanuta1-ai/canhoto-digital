@@ -28,8 +28,21 @@
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        /* Botão de Foto */
-        .btn-foto { background: #34495e; color: white; padding: 18px; border-radius: 10px; text-align: center; margin-top: 10px; cursor: pointer; font-weight: bold; display: block; border: 2px dashed #fff; }
+        /* Botão de Foto - Estilo Chamativo */
+        .btn-foto { 
+            background: #e74c3c; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            text-align: center; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            display: block; 
+            border: 2px solid #c0392b;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
         #preview { width: 100%; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #ccc; }
 
         .btnSalvar { background: #ff0000; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; border-bottom: 5px solid #b30000; cursor: pointer; }
@@ -104,8 +117,8 @@
     <textarea id="causa" rows="2" placeholder="Descreva o motivo..."></textarea>
 
     <label class="secao-titulo">Registro Fotográfico (Obrigatório)</label>
-    <label for="fotoInput" class="btn-foto">📸 ACESSAR CÂMERA (FOTO/VÍDEO)</label>
-    <input type="file" id="fotoInput" accept="image/*,video/*" capture="environment" class="hidden" onchange="previewImagem(this)">
+    <label for="fotoInput" class="btn-foto">📸 CLIQUE PARA TIRAR FOTO/VÍDEO</label>
+    <input type="file" id="fotoInput" accept="image/*,video/*" class="hidden" onchange="previewImagem(this)">
     <img id="preview" src="">
 
     <label class="secao-titulo">Qual Plano de Ação</label>
@@ -132,7 +145,7 @@ function abrirScanner() {
     scanner = new Html5Qrcode("reader");
     scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 300 }, (codigo) => {
         adicionarValor(codigo); fecharScanner();
-    }).catch(() => alert("Câmera não disponível."));
+    }).catch(() => alert("Câmera não disponível para o scanner."));
 }
 
 function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
