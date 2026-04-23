@@ -3,101 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Menu Principal - Galvânica Danuta</title>
+    <title>Home - Galvânica Danuta</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f1f5f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            background: white;
-            padding: 30px 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .logo {
-            width: 180px;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: #0f4c81;
-            font-size: 20px;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 22px 0;
-            margin-bottom: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-        }
-
-        /* Cor Azul para Expedição (Canhoto) */
-        .btn-expedicao {
-            background-color: #2563eb;
-            border-bottom: 4px solid #1d4ed8;
-        }
-
-        /* Cor Verde para Saída de OS / Qualidade */
-        .btn-os {
-            background-color: #059669;
-            border-bottom: 4px solid #047857;
-        }
-
-        .btn:active {
-            transform: translateY(2px);
-            border-bottom-width: 2px;
-        }
-
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #94a3b8;
-        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .container { width: 90%; max-width: 400px; text-align: center; background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .logo { width: 180px; margin-bottom: 20px; }
+        h1 { color: #0f4c81; font-size: 22px; margin-bottom: 30px; text-transform: uppercase; }
+        .btn-home { display: flex; align-items: center; justify-content: center; width: 100%; padding: 25px 0; margin-bottom: 15px; font-size: 20px; font-weight: bold; color: white; text-decoration: none; border-radius: 12px; transition: 0.2s; border: none; cursor: pointer; }
+        .btn-exp { background-color: #0f4c81; border-bottom: 5px solid #082d4d; }
+        .btn-qua { background-color: #64748b; border-bottom: 5px solid #475569; } /* Cinza por enquanto */
+        .btn-home:active { transform: translateY(3px); border-bottom-width: 2px; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo">
+        <h1>Sistema Interno</h1>
         
-        <h1>Expedição Danuta</h1>
-
-        <a href="tela-nfe.html" class="btn btn-expedicao">
-            📦 CANHOTO DIGITAL
-        </a>
-
-        <a href="tela-os.html" class="btn btn-os">
-            ✅ SAÍDA OS / QUALIDADE
-        </a>
-
-        <div class="footer">
-            Galvânica Danuta © 2026
-        </div>
+        <a href="menu-expedicao.html" class="btn-home btn-exp">📦 EXPEDIÇÃO</a>
+        
+        <button class="btn-home btn-qua" onclick="alert('Módulo em desenvolvimento')">🛡️ QUALIDADE</button>
     </div>
-
 </body>
 </html>
