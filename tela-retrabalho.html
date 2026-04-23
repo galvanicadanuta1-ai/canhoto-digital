@@ -12,7 +12,7 @@
         
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
-        .titulo-topo { flex: 1; text-align: center; color: #c0392b; font-size: 14px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
+        .titulo-topo { flex: 1; text-align: center; color: #ff0000; font-size: 14px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
 
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; text-transform: uppercase; }
         
@@ -20,21 +20,19 @@
         
         .hidden { display: none; }
 
-        /* Estilo para Botões de Ação */
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; background: #2c3e50; color: white; }
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
         
-        .badge-container { background: #fff; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px dashed #c0392b; min-height: 40px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .badge-item { background: #fdedec; color: #c0392b; border: 1px solid #c0392b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .badge-container { background: #fff; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px dashed #ff0000; min-height: 40px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .badge-item { background: #fdedec; color: #ff0000; border: 1px solid #ff0000; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
 
-        /* Grid para Quantidade e Unidade */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         /* Botão de Foto */
-        .btn-foto { background: #34495e; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-top: 10px; cursor: pointer; font-weight: bold; display: block; }
-        #preview { width: 100%; border-radius: 10px; margin-top: 10px; display: none; }
+        .btn-foto { background: #34495e; color: white; padding: 18px; border-radius: 10px; text-align: center; margin-top: 10px; cursor: pointer; font-weight: bold; display: block; border: 2px dashed #fff; }
+        #preview { width: 100%; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #ccc; }
 
-        .btnSalvar { background: #e74c3c; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; border-bottom: 5px solid #c0392b; cursor: pointer; }
+        .btnSalvar { background: #ff0000; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; border-bottom: 5px solid #b30000; cursor: pointer; }
 
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
@@ -56,7 +54,6 @@
     <label class="secao-titulo">Nome do Cliente</label>
     <select id="clienteSel" onchange="verificarOutro(this.value)">
         <option value="">Selecione o Cliente</option>
-        <option value="SGQ">SGQ</option>
         <option value="Fixpar">Fixpar</option>
         <option value="Macrosul">Macrosul</option>
         <option value="Outro">Outro...</option>
@@ -77,7 +74,7 @@
             </select>
         </div>
         <div>
-            <label class="secao-titulo">Turno</label>
+            <label class="secao-titulo">Turno que Produziu</label>
             <select id="turnoSel">
                 <option value="Dia">Dia</option>
                 <option value="Noite">Noite</option>
@@ -99,7 +96,7 @@
         </div>
         <div>
             <label class="secao-titulo">Kgs</label>
-            <input type="number" id="kgs" placeholder="Peso total">
+            <input type="number" id="kgs" placeholder="Peso">
         </div>
     </div>
 
@@ -107,8 +104,8 @@
     <textarea id="causa" rows="2" placeholder="Descreva o motivo..."></textarea>
 
     <label class="secao-titulo">Registro Fotográfico (Obrigatório)</label>
-    <label for="fotoInput" class="btn-foto">📸 TIRAR FOTO OU VÍDEO</label>
-    <input type="file" id="fotoInput" accept="image/*,video/*" capture="camera" class="hidden" onchange="previewImagem(this)">
+    <label for="fotoInput" class="btn-foto">📸 ACESSAR CÂMERA (FOTO/VÍDEO)</label>
+    <input type="file" id="fotoInput" accept="image/*,video/*" capture="environment" class="hidden" onchange="previewImagem(this)">
     <img id="preview" src="">
 
     <label class="secao-titulo">Qual Plano de Ação</label>
@@ -167,9 +164,7 @@ function salvar() {
     const data = document.getElementById("dataRetrabalho").value;
     const qtd = document.getElementById("qtd").value;
     const unidade = document.getElementById("unidade").value;
-    const kgs = document.getElementById("kgs").value;
     const causa = document.getElementById("causa").value.trim();
-    const plano = document.getElementById("plano").value.trim();
 
     if (!clienteFinal || listaOS.length === 0 || !qtd || !base64Image || !causa) {
         alert("⚠️ Por favor, preencha os campos obrigatórios e tire a foto."); return;
@@ -185,10 +180,10 @@ function salvar() {
         ordens: listaOS,
         lote: document.getElementById("loteSel").value,
         quantidade: qtd + " " + unidade,
-        kgs: kgs,
+        kgs: document.getElementById("kgs").value,
         turno: document.getElementById("turnoSel").value,
         causa: causa,
-        plano: plano,
+        plano: document.getElementById("plano").value.trim(),
         foto: base64Image
     };
 
