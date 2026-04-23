@@ -9,7 +9,7 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; color: #333; }
         .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; }
         
-        /* Cabeçalho Alinhado */
+        /* Cabeçalho com Botão Voltar */
         .topo { 
             display: flex; 
             justify-content: space-between; 
@@ -20,17 +20,23 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
             margin-bottom: 20px;
         }
-        .logo-topo { flex: 1; display: flex; justify-content: flex-start; }
+        .btn-voltar {
+            flex: 1;
+            text-decoration: none;
+            color: #0f4c81;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .logo-topo { flex: 1; display: flex; justify-content: center; }
         .logo-topo img { height: 30px; }
         
         .titulo-topo { 
             flex: 2; 
             text-align: center; 
             color: #0f4c81; 
-            font-size: 18px; 
+            font-size: 16px; 
             font-weight: bold; 
             text-transform: uppercase;
-            white-space: nowrap;
         }
         
         .reset-topo { 
@@ -43,35 +49,19 @@
             text-transform: uppercase;
         }
         
-        /* Botões e Interface */
+        /* Estilos de Botões e Inputs */
         .btn-scan { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-nf { background: #0f4c81; color: white; }
         .btn-os { background: #2c3e50; color: white; }
-        
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 6px; width: auto; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
-
-        /* Badges com X para excluir */
         .badge-container { background: #fff; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .badge-item { 
-            background: #e7f1ff; 
-            color: #0f4c81; 
-            border: 1px solid #0f4c81; 
-            padding: 5px 10px; 
-            border-radius: 5px; 
-            font-size: 13px; 
-            font-weight: bold; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            cursor: pointer;
-        }
-        .btn-excluir-item { color: #e74c3c; font-weight: 900; font-size: 14px; }
-        
+        .badge-item { background: #e7f1ff; color: #0f4c81; border: 1px solid #0f4c81; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .btn-excluir-item { color: #e74c3c; font-weight: 900; font-size: 14px; cursor: pointer;}
         .secao-titulo { font-size: 14px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
         input { width: 100%; padding: 15px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-        
         #assinatura { border: 2px solid #0f4c81; width: 100%; height: 200px; background: white; border-radius: 10px; margin-top: 10px; touch-action: none; }
-        .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; }
+        .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; border-bottom: 4px solid #219150; }
+        .btnSalvar:active { transform: translateY(2px); border-bottom: 0; }
 
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
@@ -82,10 +72,10 @@
 
 <div class="container">
     <div class="topo">
+        <a href="menu.html" class="btn-voltar">❮</a>
         <div class="logo-topo">
             <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png">
         </div>
-        <div class="titulo-topo">Canhoto Digital</div>
         <div class="reset-topo" onclick="location.reload(true)">Reset</div>
     </div>
 
@@ -128,6 +118,7 @@ let listaOS = [];
 let destino = 'NF';
 let assinou = false;
 
+// URL da API da sua Planilha (Code.gs)
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
 function mascaraCPF(i) {
@@ -187,7 +178,6 @@ function adicionarValor(val) {
     atualizarExibicao();
 }
 
-// NOVA FUNÇÃO: Remove item da lista e atualiza tela
 function removerItem(tipo, val) {
     if (tipo === 'NF') {
         listaNF = listaNF.filter(i => i !== val);
@@ -197,7 +187,6 @@ function removerItem(tipo, val) {
     atualizarExibicao();
 }
 
-// Atualiza os badges na tela com o botão X
 function atualizarExibicao() {
     document.getElementById('contNF').innerHTML = listaNF.map(i => 
         `<div class="badge-item" onclick="removerItem('NF', '${i}')">NF: ${i} <span class="btn-excluir-item">X</span></div>`
@@ -221,7 +210,7 @@ function obterPosicao(e) {
     return { x: cx - rect.left, y: cy - rect.top };
 }
 function iniciar(e) { e.preventDefault(); desenhando = true; assinou = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); }
-function mover(e) { if (!desenhando) return; e.preventDefault(); const p = obterPosicao(e); ctx.lineTo(p.x, p.y); ctx.lineWidth = 3; ctx.stroke(); }
+function mover(e) { if (!desenvando) return; if (!desenhando) return; e.preventDefault(); const p = obterPosicao(e); ctx.lineTo(p.x, p.y); ctx.lineWidth = 3; ctx.stroke(); }
 
 canvas.addEventListener("touchstart", iniciar, {passive: false});
 canvas.addEventListener("touchmove", mover, {passive: false});
@@ -247,8 +236,8 @@ function salvar() {
         return;
     }
 
-    if (!r || !d || !x || listaNF.length === 0 || listaOS.length === 0 || !assinou) {
-        alert("⚠️ Preencha todos os campos corretamente e assine o quadro.");
+    if (!r || !d || !x || listaNF.length === 0 || !assinou) {
+        alert("⚠️ Preencha os campos obrigatórios (NF, Recebedor, CPF) e assine.");
         return;
     }
 
