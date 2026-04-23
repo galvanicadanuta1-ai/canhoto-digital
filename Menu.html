@@ -1,83 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      background: #f1f5f9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    .container {
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    h1 {
-      color: #0f4c81;
-      margin-bottom: 30px;
-    }
-
-    .menu-button {
-      width: 100%;
-      padding: 20px;
-      margin-bottom: 15px;
-      font-size: 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: transform 0.2s;
-    }
-
-    .menu-button:active {
-      transform: scale(0.98);
-    }
-
-    .btn-expedicao { background-color: #2563eb; }
-    .btn-qualidade { background-color: #059669; }
-
-    .logo {
-      width: 150px;
-      margin-bottom: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Menu Principal - Danuta</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .logo {
+            width: 180px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #0f4c81;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 25px 0;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-expedicao { background-color: #2563eb; } /* Azul */
+        .btn-qualidade { background-color: #059669; } /* Verde */
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo" alt="Logo">
-    <h1>Controle Danuta</h1>
+    <div class="container">
+        <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo">
+        <h1>Sistema de Controle</h1>
 
-    <button class="menu-button btn-expedicao" onclick="navegar('index')">
-      📦 Expedição (Canhoto)
-    </button>
+        <a href="index.html" class="btn btn-expedicao">📦 EXPEDIÇÃO</a>
 
-    <button class="menu-button btn-qualidade" onclick="navegar('qualidade')">
-      ✅ Qualidade
-    </button>
-  </div>
-
-  <script>
-    function navegar(pagina) {
-      // Esta função vai chamar o servidor para carregar a nova página
-      google.script.run.withSuccessHandler(function(url) {
-        window.open(url, '_top');
-      }).getRoute(pagina);
-    }
-  </script>
+        <a href="qualidade.html" class="btn btn-qualidade">✅ QUALIDADE</a>
+    </div>
 
 </body>
 </html>
