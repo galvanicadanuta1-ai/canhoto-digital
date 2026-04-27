@@ -11,10 +11,9 @@
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
         .titulo-topo { flex: 1; text-align: center; color: #0f4c81; font-size: 16px; font-weight: bold; text-transform: uppercase; }
-        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
-        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-        .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #2c3e50; color: white; cursor: pointer; }
-        .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-bottom: 10px; }
+        .btn-scan { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #2c3e50; color: white; margin-bottom: 10px; }
+        .badge-container { background: #fff; padding: 10px; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
         .badge-item { background: #e1f5fe; color: #01579b; border: 1px solid #01579b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; }
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
@@ -28,61 +27,36 @@
         <div class="titulo-topo">Saída de OS</div>
     </div>
     
-    <label class="secao-titulo">Data/Hora</label>
-    <input type="datetime-local" id="dataHora">
-
-    <label class="secao-titulo">Empresa</label>
-    <input type="text" id="empresa" placeholder="Nome do cliente">
-
-    <label class="secao-titulo">Ordem de Serviço Danuta</label>
-    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR CÓDIGO</button>
+    <input type="text" id="empresa" placeholder="Empresa/Cliente">
+    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR OS</button>
     <div class="badge-container" id="contOS"></div>
+    <input type="text" id="documento" placeholder="Documento (RG ou CPF)">
 
-    <label class="secao-titulo">Documento (RG ou CPF)</label>
-    <input type="text" id="documento">
-
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR SAÍDA</button>
+    <button class="btnSalvar" onclick="salvar()">SALVAR</button>
 </div>
 
-<div id="scannerTela">
-    <div id="reader"></div>
-    <div style="position:absolute; bottom:40px; width:100%; text-align:center;">
-        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">CANCELAR</button>
-    </div>
-</div>
+<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
 
 <script>
 let scanner; let listaOS = [];
-const apiUrl = "SUA_URL_DO_APPS_SCRIPT";
-
-window.onload = () => { 
-    const now = new Date(); 
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
-    document.getElementById('dataHora').value = now.toISOString().slice(0, 16); 
-};
+const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
-    scanner = new Html5QrcodeScanner("reader", { fps: 20, qrbox: { width: 280, height: 150 } });
-    scanner.render((c) => { adicionarOS(c); fecharScanner(); });
+    scanner = new Html5Qrcode("reader");
+    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (c) => { 
+        if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); }
+        fecharScanner();
+    });
 }
 
-function fecharScanner() {
-    if (scanner) {
-        scanner.clear().then(() => { document.getElementById("scannerTela").style.display = "none"; })
-        .catch(() => document.getElementById("scannerTela").style.display = "none");
-    }
-}
-
-function adicionarOS(val) { if (!val || listaOS.includes(val)) return; listaOS.push(val); atualizarExibicao(); }
+function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
 function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
 function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
 
 function salvar() {
-    if (listaOS.length === 0 || !document.getElementById("empresa").value) { alert("⚠️ Preencha os campos!"); return; }
-    const btn = document.getElementById("btnSalvar"); btn.disabled = true;
-    const payload = { tipo: "SAIDA_OS", data: document.getElementById("dataHora").value, empresa: document.getElementById("empresa").value, ordens: listaOS, documento: document.getElementById("documento").value };
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { alert("✅ Salvo!"); location.reload(); }).catch(() => btn.disabled = false);
+    const payload = { tipo: "SAIDA_OS", empresa: document.getElementById("empresa").value, ordens: listaOS, documento: document.getElementById("documento").value };
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => location.reload());
 }
 </script>
 </body>
