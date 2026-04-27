@@ -1,72 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <title>Saída OS - Galvânica Danuta</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
-        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
-        .btn-voltar-topo { position: absolute; top: 15px; right: 15px; color: #e74c3c; text-decoration: none; font-weight: bold; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
-        .titulo-topo { flex: 1; text-align: center; color: #0f4c81; font-size: 14px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
-        .secao-titulo { font-size: 14px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
-        input { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 8px; }
-        .btn-scan { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; background: #059669; color: white; }
-        .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
-        .badge-container { background: #fff; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #059669; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .badge-item { background: #e7f9f3; color: #059669; border: 1px solid #059669; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-        .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 16px; border: none; border-radius: 10px; border-bottom: 4px solid #219150; }
+        .titulo-topo { flex: 1; text-align: center; color: #0f4c81; font-size: 16px; font-weight: bold; text-transform: uppercase; }
+        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; margin-top: 5px; }
+        .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #2c3e50; color: white; }
+        .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .badge-item { background: #e1f5fe; color: #01579b; border: 1px solid #01579b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; }
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
     </style>
 </head>
 <body>
 <div class="container">
-    <a href="menu-expedicao.html" class="btn-voltar-topo">< Voltar</a>
     <div class="topo">
         <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
-        <div class="titulo-topo">Saída OS</div>
+        <div class="titulo-topo">Saída de OS</div>
     </div>
-    
-    <label class="secao-titulo">Data da Liberação</label>
-    <input type="date" id="dataLibera">
-
-    <label class="secao-titulo">Ordem de Serviço</label>
-    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR OS</button>
-    <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
+    <label class="secao-titulo">Data/Hora</label>
+    <input type="datetime-local" id="dataHora">
+    <label class="secao-titulo">Empresa/Cliente</label>
+    <input type="text" id="empresa" placeholder="Nome da empresa">
+    <label class="secao-titulo">Ordem de Serviço Danuta</label>
+    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR CÓDIGO</button>
     <div class="badge-container" id="contOS"></div>
-
-    <label class="secao-titulo">Expedidor</label>
-    <input id="expedidor" type="text" placeholder="Nome do Expedidor">
-
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR LIBERAÇÃO</button>
+    <label class="secao-titulo">Documento (RG ou CPF)</label>
+    <input type="text" id="documento">
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR SAÍDA</button>
 </div>
-
-<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; font-weight:bold;">CANCELAR</button></div></div>
-
+<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none;">CANCELAR</button></div></div>
 <script>
 let scanner; let listaOS = [];
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
-window.onload = () => { document.getElementById('dataLibera').valueAsDate = new Date(); };
-
-function abrirScanner() { document.getElementById("scannerTela").style.display = "block"; scanner = new Html5Qrcode("reader"); scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: { width: 300, height: 150 }, aspectRatio: 1.77 }, (codigo) => { adicionarValor(codigo); fecharScanner(); }).catch(() => alert("Câmera não disponível.")); }
-function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
-
-function addManual() { let n = prompt("Digite o número da OS:"); if (n) { adicionarValor(n); } }
-
+window.onload = () => { const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); document.getElementById('dataHora').value = now.toISOString().slice(0, 16); };
+function abrirScanner() {
+    document.getElementById("scannerTela").style.display = "block";
+    scanner = new Html5QrcodeScanner("reader", { fps: 20, qrbox: { width: 280, height: 150 } });
+    scanner.render((c) => { adicionarValor(c); fecharScanner(); });
+}
+function fecharScanner() { if (scanner) { scanner.clear().then(() => { document.getElementById("scannerTela").style.display = "none"; }).catch(() => document.getElementById("scannerTela").style.display = "none"); } }
 function adicionarValor(val) { if (!val || listaOS.includes(val)) return; listaOS.push(val); atualizarExibicao(); }
 function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
-function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} <span style="color:red">X</span></div>`).join(''); }
-
+function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
 function salvar() {
-    const data = document.getElementById("dataLibera").value;
-    const exp = document.getElementById("expedidor").value.trim();
-    if (!data || listaOS.length === 0 || !exp) { alert("⚠️ Preencha todos os campos."); return; }
-    const btn = document.getElementById("btnSalvar"); btn.disabled = true; btn.innerText = "ENVIANDO...";
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify({ tipo: "SAIDA_OS", dataManual: data, ordens: listaOS, expedidor: exp }) }).then(() => { alert("✅ Sucesso!"); location.reload(); }).catch(() => { alert("❌ Erro."); btn.disabled = false; });
+    if (listaOS.length === 0 || !document.getElementById("empresa").value) { alert("Preencha os campos!"); return; }
+    const btn = document.getElementById("btnSalvar"); btn.disabled = true;
+    const payload = { tipo: "SAIDA_OS", data: document.getElementById("dataHora").value, empresa: document.getElementById("empresa").value, ordens: listaOS, documento: document.getElementById("documento").value };
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { alert("Salvo!"); location.reload(); }).catch(() => btn.disabled = false);
 }
 </script>
 </body>
