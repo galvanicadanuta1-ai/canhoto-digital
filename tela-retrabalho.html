@@ -24,22 +24,29 @@
         .badge-container { background: #fff; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px dashed #ff0000; min-height: 40px; display: flex; flex-wrap: wrap; gap: 5px; }
         .badge-item { background: #fdedec; color: #ff0000; border: 1px solid #ff0000; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        /* Botão de Foto Forçada */
-        .btn-foto-trigger { background: #e74c3c; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-top: 10px; cursor: pointer; font-weight: bold; display: block; border: none; width: 100%; font-size: 16px; }
-        #preview { width: 100%; border-radius: 10px; margin-top: 10px; display: none; border: 2px solid #ccc; }
+        .area-foto { margin-top: 10px; text-align: center; }
+        .btn-camera-nativa { 
+            background: #e74c3c; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            display: block; 
+            width: 100%; 
+            font-weight: bold; 
+            font-size: 16px; 
+            cursor: pointer;
+            border: 2px solid #c0392b;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+        #preview { width: 100%; border-radius: 12px; margin-top: 10px; display: none; border: 2px solid #ccc; }
 
         .btnSalvar { background: #ff0000; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; border-bottom: 5px solid #b30000; cursor: pointer; }
 
-        /* TELA DA CÂMERA AO VIVO */
-        #cameraTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 10000; }
-        #videoFeed { width: 100%; height: 80%; object-fit: cover; }
-        .controles-camera { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: space-around; align-items: center; }
-        .btn-capturar { width: 70px; height: 70px; background: white; border-radius: 50%; border: 5px solid rgba(255,255,255,0.3); }
-        
+        /* AJUSTE DA TELA DO SCANNER PARA MOSTRAR A MIRA */
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     </style>
 </head>
 <body>
@@ -94,8 +101,11 @@
     <textarea id="causa" rows="2" placeholder="Descreva o motivo..."></textarea>
 
     <label class="secao-titulo">Registro Fotográfico (Obrigatório)</label>
-    <button class="btn-foto-trigger" onclick="iniciarCamera()">📸 ABRIR CÂMERA DO SISTEMA</button>
-    <img id="preview" src="">
+    <div class="area-foto">
+        <label for="fotoInput" class="btn-camera-nativa">📸 ABRIR CÂMERA</label>
+        <input type="file" id="fotoInput" accept="image/*,video/*" capture="environment" class="hidden" onchange="exibirPreview(this)">
+        <img id="preview" src="">
+    </div>
 
     <label class="secao-titulo">Qual Plano de Ação</label>
     <textarea id="plano" rows="2" placeholder="O que será feito?"></textarea>
@@ -103,20 +113,15 @@
     <button class="btnSalvar" id="btnSalvar" onclick="salvar()">REGISTRAR RETRABALHO</button>
 </div>
 
-<div id="cameraTela">
-    <video id="videoFeed" autoplay playsinline></video>
-    <canvas id="canvasFoto" class="hidden"></canvas>
-    <div class="controles-camera">
-        <button onclick="pararCamera()" style="background:none; color:white; border:none; font-weight:bold;">FECHAR</button>
-        <button class="btn-capturar" onclick="tirarFoto()"></button>
-        <div style="width:50px;"></div> 
+<div id="scannerTela">
+    <div id="reader"></div>
+    <div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;">
+        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; font-weight:bold; border:none;">CANCELAR</button>
     </div>
 </div>
 
-<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; font-weight:bold; border:none;">CANCELAR</button></div></div>
-
 <script>
-let scanner; let listaOS = []; let base64Image = ""; let streamAtivo = null;
+let scanner; let listaOS = []; let base64Image = "";
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
 window.onload = () => { document.getElementById('dataRetrabalho').valueAsDate = new Date(); };
@@ -126,47 +131,49 @@ function verificarOutro(val) {
     val === 'Outro' ? inputOutro.classList.remove('hidden') : inputOutro.classList.add('hidden');
 }
 
-// LOGICA FORÇADA DE CÂMERA (Igual ao Scanner)
-async function iniciarCamera() {
-    const tela = document.getElementById('cameraTela');
-    const video = document.getElementById('videoFeed');
-    tela.style.display = 'block';
-    try {
-        streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-        video.srcObject = streamAtivo;
-    } catch (err) {
-        alert("Erro ao acessar câmera: " + err);
-        pararCamera();
+function exibirPreview(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            base64Image = e.target.result;
+            const prev = document.getElementById('preview');
+            prev.src = e.target.result;
+            prev.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
     }
 }
 
-function tirarFoto() {
-    const video = document.getElementById('videoFeed');
-    const canvas = document.getElementById('canvasFoto');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    base64Image = canvas.toDataURL('image/jpeg', 0.7);
-    const prev = document.getElementById('preview');
-    prev.src = base64Image;
-    prev.style.display = 'block';
-    pararCamera();
-}
-
-function pararCamera() {
-    if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
-    document.getElementById('cameraTela').style.display = 'none';
-}
-
+// FUNÇÃO DO SCANNER COM MIRA (LINHA VERMELHA)
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
-    scanner = new Html5Qrcode("reader");
-    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 300 }, (codigo) => {
-        adicionarValor(codigo); fecharScanner();
-    }).catch(() => alert("Erro no scanner."));
+    // Forçando a exibição da mira de leitura
+    scanner = new Html5Qrcode("reader", { verbose: false });
+    const config = { 
+        fps: 20, 
+        qrbox: { width: 250, height: 150 }, // Define a área de foco
+        aspectRatio: 1.0 
+    };
+
+    scanner.start(
+        { facingMode: "environment" }, 
+        config, 
+        (codigo) => {
+            adicionarValor(codigo); 
+            fecharScanner();
+        }
+    ).catch(() => alert("Erro ao abrir scanner. Verifique as permissões."));
 }
 
-function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
+function fecharScanner() { 
+    if (scanner) { 
+        scanner.stop().then(() => { 
+            document.getElementById("scannerTela").style.display = "none"; 
+        }).catch(() => {
+            document.getElementById("scannerTela").style.display = "none";
+        }); 
+    } 
+}
 
 function addManual() { let n = prompt("Digite o número da OS:"); if (n) adicionarValor(n); }
 function adicionarValor(val) { if (!val || listaOS.includes(val)) return; listaOS.push(val); atualizarExibicao(); }
@@ -181,11 +188,11 @@ function salvar() {
     const causa = document.getElementById("causa").value.trim();
 
     if (!clienteFinal || listaOS.length === 0 || !qtd || !base64Image || !causa) {
-        alert("⚠️ Preencha os obrigatórios e tire a foto."); return;
+        alert("⚠️ Preencha os campos obrigatórios e tire a foto!"); return;
     }
 
     const btn = document.getElementById("btnSalvar");
-    btn.disabled = true; btn.innerText = "ENVIANDO...";
+    btn.disabled = true; btn.innerText = "ENVIANDO AGUARDE...";
 
     const payload = {
         tipo: "RETRABALHO",
@@ -202,8 +209,8 @@ function salvar() {
     };
 
     fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
-    .then(() => { alert("✅ Enviado!"); location.reload(); })
-    .catch(() => { alert("❌ Erro."); btn.disabled = false; });
+    .then(() => { alert("✅ Registro de Retrabalho Salvo!"); location.reload(); })
+    .catch(() => { alert("❌ Erro ao salvar."); btn.disabled = false; });
 }
 </script>
 </body>
