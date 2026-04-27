@@ -18,7 +18,7 @@
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; background: #2c3e50; color: white; }
         .badge-container { background: #fff; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px dashed #ff0000; min-height: 40px; display: flex; flex-wrap: wrap; gap: 5px; }
         .badge-item { background: #fdedec; color: #ff0000; border: 1px solid #ff0000; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
-        .btn-camera-nativa { background: #e74c3c; color: white; padding: 20px; border-radius: 12px; display: block; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; border: 2px solid #c0392b; box-sizing: border-box; text-align: center; text-transform: uppercase; }
+        .btn-foto { background: #e74c3c; color: white; padding: 20px; border-radius: 12px; display: block; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; border: 2px solid #c0392b; text-align: center; }
         #preview { width: 100%; border-radius: 12px; margin-top: 10px; display: none; border: 2px solid #ccc; }
         .btnSalvar { background: #ff0000; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; border-bottom: 5px solid #b30000; cursor: pointer; }
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
@@ -30,7 +30,7 @@
     <a href="menu-qualidade.html" class="btn-voltar">< Voltar</a>
     <div class="topo">
         <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
-        <div class="titulo-topo">Registro de Retrabalho</div>
+        <div class="titulo-topo" id="mainTitle">Canhoto Digital</div>
     </div>
     
     <label class="secao-titulo">Data</label>
@@ -43,30 +43,25 @@
         <option value="Outro">Outro...</option>
     </select>
 
-    <label class="secao-titulo">Escanear Ordem de Serviço</label>
+    <label class="secao-titulo">Ordem de Serviço Danuta</label>
     <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR OS</button>
     <div class="badge-container" id="contOS"></div>
 
     <label class="secao-titulo">Registro Fotográfico</label>
     <div class="area-foto">
-        <label for="fotoInput" class="btn-camera-nativa">📸 ABRIR CÂMERA</label>
+        <label for="fotoInput" class="btn-foto">📸 ABRIR CÂMERA</label>
         <input type="file" id="fotoInput" accept="image/*" capture="environment" class="hidden" onchange="exibirPreview(this)">
         <img id="preview" src="">
     </div>
 
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">REGISTRAR RETRABALHO</button>
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
 </div>
 
-<div id="scannerTela">
-    <div id="reader"></div>
-    <div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;">
-        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; font-weight:bold; border:none;">CANCELAR</button>
-    </div>
-</div>
+<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
 
 <script>
 let scanner; let listaOS = []; let base64Image = "";
-const apiUrl = "SUA_URL_DO_APPS_SCRIPT";
+const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
 
 window.onload = () => { document.getElementById('dataRetrabalho').valueAsDate = new Date(); };
 
@@ -84,26 +79,25 @@ function exibirPreview(input) {
 
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
-    scanner = new Html5QrcodeScanner("reader", { fps: 20, qrbox: { width: 280, height: 150 } });
-    scanner.render((c) => { adicionarOS(c); fecharScanner(); });
+    scanner = new Html5Qrcode("reader");
+    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (c) => { 
+        if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); }
+        fecharScanner();
+    }).catch(() => alert("Erro ao abrir câmera"));
 }
 
 function fecharScanner() {
-    if (scanner) {
-        scanner.clear().then(() => { document.getElementById("scannerTela").style.display = "none"; })
-        .catch(() => document.getElementById("scannerTela").style.display = "none");
-    }
+    if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); }
 }
 
-function adicionarOS(val) { if (!val || listaOS.includes(val)) return; listaOS.push(val); atualizarExibicao(); }
 function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
 function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
 
 function salvar() {
-    if (listaOS.length === 0 || !base64Image) { alert("⚠️ Escaneie a OS e tire a foto!"); return; }
-    const btn = document.getElementById("btnSalvar"); btn.disabled = true; btn.innerText = "ENVIANDO...";
+    if (listaOS.length === 0 || !base64Image) { alert("⚠️ Falta OS ou Foto!"); return; }
+    document.getElementById("btnSalvar").innerText = "ENVIANDO...";
     const payload = { tipo: "RETRABALHO", data: document.getElementById("dataRetrabalho").value, cliente: document.getElementById("clienteSel").value, ordens: listaOS, foto: base64Image };
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { alert("✅ Salvo!"); location.reload(); }).catch(() => { alert("❌ Erro."); btn.disabled = false; });
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { alert("Salvo!"); location.reload(); });
 }
 </script>
 </body>
