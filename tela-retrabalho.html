@@ -9,8 +9,7 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
         .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
         
-        /* Botão Voltar Profissional */
-        .btn-voltar { position: absolute; top: 15px; right: 15px; background: #fff; color: #333; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 10; }
+        .btn-voltar { position: absolute; top: 15px; right: 15px; color: #e74c3c; text-decoration: none; font-weight: bold; font-size: 14px; }
         
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
@@ -19,30 +18,13 @@
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; text-transform: uppercase; }
         input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: white; }
         
-        .hidden { display: none; }
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; background: #2c3e50; color: white; }
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
         
         .badge-container { background: #fff; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px dashed #ff0000; min-height: 40px; display: flex; flex-wrap: wrap; gap: 5px; }
         .badge-item { background: #fdedec; color: #ff0000; border: 1px solid #ff0000; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
 
-        .area-foto { margin-top: 10px; text-align: center; }
-        
-        /* Câmera Restaurada ao Original que funcionava */
-        .btn-camera-nativa { 
-            background: #e74c3c; 
-            color: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            display: block; 
-            width: 100%; 
-            font-weight: bold; 
-            font-size: 16px; 
-            cursor: pointer;
-            border: 2px solid #c0392b;
-            box-sizing: border-box;
-            text-transform: uppercase;
-        }
+        .btn-foto { background: #e74c3c; color: white; padding: 20px; border-radius: 12px; display: block; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; border: 2px solid #c0392b; text-align: center; text-transform: uppercase; margin-top: 10px; }
         #preview { width: 100%; border-radius: 12px; margin-top: 10px; display: none; border: 2px solid #ccc; }
 
         .btnSalvar { background: #ff0000; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; border-bottom: 5px solid #b30000; cursor: pointer; }
@@ -54,11 +36,11 @@
 <body>
 
 <div class="container">
-    <a href="menu-qualidade.html" class="btn-voltar">← Voltar</a>
+    <a href="javascript:history.back()" class="btn-voltar">< Voltar</a>
     
     <div class="topo">
         <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
-        <div class="titulo-topo">Registro de Retrabalho</div>
+        <div class="titulo-topo">Canhoto Digital</div>
     </div>
 
     <label class="secao-titulo">Data</label>
@@ -71,49 +53,35 @@
         <option value="Macrosul">Macrosul</option>
         <option value="Outro">Outro...</option>
     </select>
-    <input type="text" id="clienteOutro" class="hidden" placeholder="Digite o nome do Cliente">
+    <input type="text" id="clienteOutro" style="display:none" placeholder="Digite o nome do Cliente">
 
-    <label class="secao-titulo">Ordem de Serviço (OS)</label>
+    <label class="secao-titulo">Ordem de Serviço Danuta</label>
     <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR OS</button>
     <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
 
     <div class="grid-2">
-        <div>
-            <label class="secao-titulo">Lote</label>
-            <select id="loteSel"><option value="Total">Total</option><option value="Parcial">Parcial</option></select>
-        </div>
-        <div>
-            <label class="secao-titulo">Turno que Produziu</label>
-            <select id="turnoSel"><option value="Dia">Dia</option><option value="Noite">Noite</option><option value="Ambos Turnos">Ambos Turnos</option></select>
-        </div>
+        <div><label class="secao-titulo">Lote</label><select id="loteSel"><option value="Total">Total</option><option value="Parcial">Parcial</option></select></div>
+        <div><label class="secao-titulo">Turno</label><select id="turnoSel"><option value="Dia">Dia</option><option value="Noite">Noite</option></select></div>
     </div>
 
     <div class="grid-2">
-        <div>
-            <label class="secao-titulo">Quantidade</label>
-            <div style="display:flex; gap:5px">
-                <input type="number" id="qtd" placeholder="Qtd">
-                <select id="unidade" style="width: 120px"><option value="Peças">Peças</option><option value="Volume">Volume</option></select>
-            </div>
-        </div>
-        <div><label class="secao-titulo">Kgs</label><input type="number" id="kgs" placeholder="Peso"></div>
+        <div><label class="secao-titulo">Quantidade</label><input type="number" id="qtd"></div>
+        <div><label class="secao-titulo">Kgs</label><input type="number" id="kgs"></div>
     </div>
 
     <label class="secao-titulo">Causa do Retrabalho</label>
-    <textarea id="causa" rows="2" placeholder="Descreva o motivo..."></textarea>
+    <textarea id="causa" rows="2"></textarea>
 
-    <label class="secao-titulo">Registro Fotográfico (Obrigatório)</label>
-    <div class="area-foto">
-        <label for="fotoInput" class="btn-camera-nativa">📸 ABRIR CÂMERA</label>
-        <input type="file" id="fotoInput" accept="image/*,video/*" capture="environment" class="hidden" onchange="exibirPreview(this)">
-        <img id="preview" src="">
-    </div>
+    <label class="secao-titulo">Registro Fotográfico</label>
+    <label for="fotoInput" class="btn-foto">📸 ABRIR CÂMERA</label>
+    <input type="file" id="fotoInput" accept="image/*" capture="environment" onchange="exibirPreview(this)" style="opacity:0; position:absolute; z-index:-1;">
+    <img id="preview" src="">
 
     <label class="secao-titulo">Qual Plano de Ação</label>
-    <textarea id="plano" rows="2" placeholder="O que será feito?"></textarea>
+    <textarea id="plano" rows="2"></textarea>
 
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">REGISTRAR RETRABALHO</button>
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
 </div>
 
 <div id="scannerTela">
@@ -129,10 +97,7 @@ const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX
 
 window.onload = () => { document.getElementById('dataRetrabalho').valueAsDate = new Date(); };
 
-function verificarOutro(val) {
-    const inputOutro = document.getElementById('clienteOutro');
-    val === 'Outro' ? inputOutro.classList.remove('hidden') : inputOutro.classList.add('hidden');
-}
+function verificarOutro(val) { document.getElementById('clienteOutro').style.display = val === 'Outro' ? 'block' : 'none'; }
 
 function exibirPreview(input) {
     if (input.files && input.files[0]) {
@@ -162,34 +127,22 @@ function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarE
 function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
 
 function salvar() {
-    const clienteBase = document.getElementById("clienteSel").value;
-    const clienteFinal = clienteBase === 'Outro' ? document.getElementById("clienteOutro").value.trim() : clienteBase;
-    const qtd = document.getElementById("qtd").value;
-
-    if (!clienteFinal || listaOS.length === 0 || !qtd || !base64Image) {
-        alert("⚠️ Preencha os campos obrigatórios e tire a foto!"); return;
-    }
-
-    const btn = document.getElementById("btnSalvar");
-    btn.disabled = true; btn.innerText = "ENVIANDO AGUARDE...";
-
+    if (listaOS.length === 0 || !base64Image) { alert("⚠️ OS ou Foto faltando!"); return; }
+    document.getElementById("btnSalvar").innerText = "SALVANDO...";
     const payload = {
         tipo: "RETRABALHO",
         data: document.getElementById("dataRetrabalho").value,
-        cliente: clienteFinal,
+        cliente: document.getElementById("clienteSel").value === 'Outro' ? document.getElementById("clienteOutro").value : document.getElementById("clienteSel").value,
         ordens: listaOS,
         lote: document.getElementById("loteSel").value,
-        quantidade: qtd + " " + document.getElementById("unidade").value,
+        quantidade: document.getElementById("qtd").value,
         kgs: document.getElementById("kgs").value,
         turno: document.getElementById("turnoSel").value,
-        causa: document.getElementById("causa").value.trim(),
-        plano: document.getElementById("plano").value.trim(),
+        causa: document.getElementById("causa").value,
+        plano: document.getElementById("plano").value,
         foto: base64Image
     };
-
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
-    .then(() => { alert("✅ Registro Salvo!"); location.reload(); })
-    .catch(() => { alert("❌ Erro."); btn.disabled = false; });
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { alert("Salvo!"); location.reload(); });
 }
 </script>
 </body>
