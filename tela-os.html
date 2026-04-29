@@ -6,40 +6,68 @@
     <title>Saída OS - Galvânica Danuta</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; }
-        .container { max-width: 500px; margin: auto; padding: 15px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
+        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
+        
+        /* Botão Voltar Profissional */
+        .btn-voltar { position: absolute; top: 15px; right: 15px; background: #fff; color: #333; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 10; }
+        
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
-        .titulo-topo { flex: 1; text-align: center; color: #0f4c81; font-size: 16px; font-weight: bold; text-transform: uppercase; }
-        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-bottom: 10px; }
-        .btn-scan { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #2c3e50; color: white; margin-bottom: 10px; }
-        .badge-container { background: #fff; padding: 10px; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .titulo-topo { flex: 1; text-align: center; color: #0f4c81; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
+        
+        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; }
+        
+        .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #2c3e50; color: white; cursor: pointer; }
+        .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
+        
+        .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
         .badge-item { background: #e1f5fe; color: #01579b; border: 1px solid #01579b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; }
+        
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
     </style>
 </head>
 <body>
 <div class="container">
+    <a href="javascript:history.back()" class="btn-voltar">← Voltar</a>
+
     <div class="topo">
         <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
         <div class="titulo-topo">Saída de OS</div>
     </div>
     
-    <input type="text" id="empresa" placeholder="Empresa/Cliente">
-    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR OS</button>
-    <div class="badge-container" id="contOS"></div>
-    <input type="text" id="documento" placeholder="Documento (RG ou CPF)">
+    <label class="secao-titulo">Data/Hora</label>
+    <input type="datetime-local" id="dataHora">
 
-    <button class="btnSalvar" onclick="salvar()">SALVAR</button>
+    <label class="secao-titulo">Empresa/Cliente</label>
+    <input type="text" id="empresa" placeholder="Nome da empresa">
+
+    <label class="secao-titulo">Ordem de Serviço Danuta</label>
+    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR CÓDIGO</button>
+    <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
+    <div class="badge-container" id="contOS"></div>
+
+    <label class="secao-titulo">Documento (RG ou CPF)</label>
+    <input type="text" id="documento">
+
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR SAÍDA</button>
 </div>
 
-<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
+<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
 
 <script>
 let scanner; let listaOS = [];
 const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
+
+window.onload = () => { 
+    const now = new Date(); 
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
+    document.getElementById('dataHora').value = now.toISOString().slice(0, 16); 
+};
 
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
@@ -51,12 +79,15 @@ function abrirScanner() {
 }
 
 function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
+function addManual() { let n = prompt("Digite o número da OS:"); if (n && !listaOS.includes(n)) { listaOS.push(n); atualizarExibicao(); } }
 function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
 function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
 
 function salvar() {
-    const payload = { tipo: "SAIDA_OS", empresa: document.getElementById("empresa").value, ordens: listaOS, documento: document.getElementById("documento").value };
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => location.reload());
+    if (listaOS.length === 0 || !document.getElementById("empresa").value) { alert("Preencha os campos!"); return; }
+    const btn = document.getElementById("btnSalvar"); btn.disabled = true; btn.innerText = "SALVANDO...";
+    const payload = { tipo: "SAIDA_OS", data: document.getElementById("dataHora").value, empresa: document.getElementById("empresa").value, ordens: listaOS, documento: document.getElementById("documento").value };
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { location.reload(); }).catch(() => btn.disabled = false);
 }
 </script>
 </body>
