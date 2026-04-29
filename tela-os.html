@@ -9,8 +9,8 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
         .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
         
-        /* Botão Voltar Profissional */
-        .btn-voltar { position: absolute; top: 15px; right: 15px; background: #fff; color: #333; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 10; }
+        /* Botão Voltar Original */
+        .btn-voltar { position: absolute; top: 15px; right: 15px; color: #e74c3c; text-decoration: none; font-weight: bold; font-size: 14px; }
         
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
@@ -33,11 +33,11 @@
 </head>
 <body>
 <div class="container">
-    <a href="javascript:history.back()" class="btn-voltar">← Voltar</a>
+    <a href="javascript:history.back()" class="btn-voltar">< Voltar</a>
 
     <div class="topo">
         <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
-        <div class="titulo-topo">Saída de OS</div>
+        <div class="titulo-topo">Canhoto Digital</div>
     </div>
     
     <label class="secao-titulo">Data/Hora</label>
@@ -47,14 +47,14 @@
     <input type="text" id="empresa" placeholder="Nome da empresa">
 
     <label class="secao-titulo">Ordem de Serviço Danuta</label>
-    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR CÓDIGO</button>
+    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
     <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
 
     <label class="secao-titulo">Documento (RG ou CPF)</label>
     <input type="text" id="documento">
 
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR SAÍDA</button>
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
 </div>
 
 <div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
