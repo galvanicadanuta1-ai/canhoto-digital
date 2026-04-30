@@ -2,38 +2,54 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galvânica Danuta - Menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Menu Principal - Galvânica Danuta</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; background-color: #f4f4f4; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; shadow: 0px 0px 10px gray; }
-        img { width: 150px; margin-bottom: 20px; }
-        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-size: 18px; color: white; background: #007bff; border: none; border-radius: 5px; text-decoration: none; cursor: pointer; }
-        .btn:hover { background: #0056b3; }
-        .btn-expedicao { background: #28a745; } /* Cor padrão para expedição */
-        h2 { color: #333; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; color: #333; }
+        .container { max-width: 500px; margin: auto; padding: 20px; box-sizing: border-box; }
+        
+        .topo { display: flex; align-items: center; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .logo-topo img { height: 40px; }
+        .titulo-topo { flex: 1; text-align: center; color: #ff0000; font-size: 18px; font-weight: bold; text-transform: uppercase; }
+
+        .card { background: #fff; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #0f4c81; }
+        .card h3 { margin-top: 0; color: #0f4c81; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        
+        .btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; background: #ebf0f5; color: #2c3e50; text-decoration: none; text-align: center; font-size: 16px; font-weight: 600; transition: 0.3s; box-sizing: border-box; }
+        .btn:last-child { margin-bottom: 0; }
+        .btn:active { transform: scale(0.98); background: #d1d9e0; }
+
+        /* Estilo especial para o novo botão Envio Fixpar */
+        .btn-fixpar { background: #0f4c81 !important; color: white !important; }
+        
+        .footer { text-align: center; font-size: 12px; color: #888; margin-top: 30px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" alt="Logo">
-    <h2>Menu Principal</h2>
-
-    <!-- CAMPO EXPEDIÇÃO -->
-    <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
-        <h3 style="margin-top: 0; font-size: 16px;">EXPEDIÇÃO</h3>
-        <a href="tela-saida-os.html" class="btn btn-expedicao">Saída de OS</a>
-        <!-- Novo botão incluído aqui -->
-        <a href="tela-envio-fixpar.html" class="btn btn-expedicao">Envio Fixpar</a>
+    <div class="topo">
+        <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
+        <div class="titulo-topo">Canhoto Digital</div>
     </div>
 
-    <!-- CAMPO QUALIDADE -->
-    <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
-        <h3 style="margin-top: 0; font-size: 16px;">QUALIDADE</h3>
-        <a href="tela-retrabalho.html" class="btn" style="background: #dc3545;">Retrabalho</a>
+    <!-- SEÇÃO EXPEDIÇÃO -->
+    <div class="card">
+        <h3>📦 EXPEDIÇÃO</h3>
+        <a href="tela-saida-os.html" class="btn">Saída de OS</a>
+        <a href="tela-envio-fixpar.html" class="btn btn-fixpar">Envio Fixpar</a>
     </div>
 
+    <!-- SEÇÃO QUALIDADE (RETRABALHO) -->
+    <div class="card" style="border-left-color: #e74c3c;">
+        <h3 style="color: #e74c3c;">🛠️ QUALIDADE</h3>
+        <a href="tela-retrabalho.html" class="btn">Registro de Retrabalho</a>
+    </div>
+
+    <div class="footer">
+        Galvânica Danuta - v2.0 <br>
+        Sistema de Controle de Envio
+    </div>
 </div>
 
 </body>
