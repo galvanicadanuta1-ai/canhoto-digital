@@ -1,51 +1,50 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canhoto Digital - Menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Expedição - Galvânica Danuta</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; background-color: #f4f4f4; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px gray; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; color: #333; }
+        .container-menu { width: 100%; max-width: 400px; text-align: center; padding: 20px; box-sizing: border-box; }
         
-        /* Titulo Centralizado conforme solicitado no histórico */
-        .titulo-topo { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 20px; text-align: center; }
+        .logo-menu img { height: 80px; margin-bottom: 10px; }
         
-        img { width: 120px; margin-bottom: 10px; }
+        .titulo-menu { color: #0f4c81; font-size: 28px; font-weight: bold; text-transform: uppercase; margin-bottom: 50px; }
         
-        .btn-sessao { display: block; width: 100%; padding: 15px; margin: 10px 0; font-size: 18px; color: white; background: #007bff; border: none; border-radius: 5px; text-decoration: none; cursor: pointer; font-weight: bold; }
+        .btn-menu { 
+            width: 100%; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border: none; 
+            border-radius: 15px; 
+            font-size: 20px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            display: block; 
+            text-decoration: none; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            text-align: center;
+        }
         
-        /* Sub-botões que ficam dentro das seções */
-        .sub-btn { display: block; width: 90%; padding: 12px; margin: 5px auto; font-size: 16px; color: #333; background: #e9ecef; border: 1px solid #ccc; border-radius: 5px; text-decoration: none; }
+        .btn-menu-nf { background: #0f4c81; color: white; }
+        .btn-menu-os { background: #2c3e50; color: white; }
         
-        h3 { font-size: 16px; color: #555; margin-top: 20px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .btn-menu:active { transform: scale(0.95); opacity: 0.9; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" alt="Logo">
-    <div class="titulo-topo">Canhoto Digital</div>
-
-    <!-- SEÇÃO EXPEDIÇÃO -->
-    <div class="sessao">
-        <div class="btn-sessao" style="background: #28a745;">EXPEDIÇÃO</div>
-        <a href="tela-saida-os.html" class="sub-btn">Saída de OS</a>
-        <!-- Inserido conforme sua necessidade atual -->
-        <a href="tela-envio-fixpar.html" class="sub-btn">Envio Fixpar</a>
+<div class="container-menu">
+    <div class="logo-menu">
+        <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png">
     </div>
-
-    <!-- SEÇÃO QUALIDADE -->
-    <div class="sessao">
-        <div class="btn-sessao" style="background: #dc3545;">QUALIDADE</div>
-        <a href="tela-retrabalho.html" class="sub-btn">Registro de Retrabalho</a>
-    </div>
-
-    <!-- BOTÃO ORIGINAL DE NOTA FISCAL (DANFE) -->
-    <div class="sessao">
-        <a href="tela-canhoto.html" class="btn-sessao" style="background: #007bff;">CANHOTO DIGITAL (NF-e)</a>
-    </div>
-
+    
+    <div class="titulo-menu">Expedição</div>
+    
+    <a href="tela-nfe.html" class="btn-menu btn-menu-nf">Saída - NFe</a>
+    <a href="tela-os.html" class="btn-menu btn-menu-os">Saída OS</a>
 </div>
 
 </body>
