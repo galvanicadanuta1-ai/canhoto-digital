@@ -85,7 +85,8 @@
 
 <script>
 let scanner; let listaOS = [];
-const apiUrl = "SUA_URL_DO_GOOGLE_SCRIPT_AQUI"; // <-- COLOQUE SUA URL AQUI
+// --- COLOQUE SUA URL DO GOOGLE APPS SCRIPT ABAIXO ---
+const apiUrl = "SUA_URL_AQUI"; 
 
 window.onload = () => { 
     const agora = new Date();
@@ -134,7 +135,8 @@ function salvar() {
 
     fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
     .then(() => {
-        const numeroZap = "5554999999999"; // <--- COLOQUE O NÚMERO AQUI
+        // --- WHATSAPP CONFIGURADO ---
+        const numeroZap = "5554984042504"; 
         
         let msg = `*ENVIO FIXPAR* 🏭\n`;
         msg += `📅 ${data.split('-').reverse().join('/')} - ⏰ ${hora}\n`;
