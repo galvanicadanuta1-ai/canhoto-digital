@@ -2,174 +2,49 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-<title>Canhoto Digital - Galvânica Danuta</title>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canhoto Digital</title>
 
 <style>
 
 body{
-font-family:'Segoe UI',Arial,sans-serif;
-margin:0;
-background:#f0f2f5;
-padding-bottom:40px;
-color:#333;
-}
-
-.container{
+font-family:Arial;
 max-width:500px;
 margin:auto;
-padding:15px;
+padding:20px;
+background:#f0f2f5;
+}
+
+input,button{
+width:100%;
+padding:14px;
+margin-top:10px;
 box-sizing:border-box;
 }
 
-.topo{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:#fff;
-padding:10px 15px;
-border-radius:12px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
-margin-bottom:20px;
-}
-
-.logo-topo{
-flex:1;
-display:flex;
-justify-content:flex-start;
-}
-
-.logo-topo img{
-height:30px;
-}
-
-.titulo-topo{
-flex:2;
-text-align:center;
-color:#0f4c81;
-font-size:18px;
-font-weight:bold;
-text-transform:uppercase;
-white-space:nowrap;
-}
-
-.reset-topo{
-flex:1;
-text-align:right;
-color:#e74c3c;
-font-size:10px;
-font-weight:bold;
-cursor:pointer;
-text-transform:uppercase;
-}
-
-.btn-scan{
-width:100%;
-padding:16px;
-margin-top:10px;
-border:none;
-border-radius:10px;
-font-size:16px;
-font-weight:700;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:10px;
-}
-
-.btn-nf{
+button{
 background:#0f4c81;
 color:white;
-}
-
-.btn-os{
-background:#2c3e50;
-color:white;
-}
-
-.btn-manual{
-background:#ebf0f5;
-color:#444;
-padding:8px;
-font-size:13px;
-border:1px solid #ccc;
-border-radius:6px;
-width:auto;
-display:inline-block;
-margin-top:5px;
-font-weight:600;
-cursor:pointer;
-}
-
-.badge-container{
-background:#fff;
-padding:10px;
-margin:8px 0 15px 0;
-border-radius:8px;
-border:1px dashed #0f4c81;
-min-height:45px;
-display:flex;
-flex-wrap:wrap;
-gap:5px;
-}
-
-.badge-item{
-background:#e7f1ff;
-color:#0f4c81;
-border:1px solid #0f4c81;
-padding:5px 10px;
-border-radius:5px;
-font-size:13px;
+border:none;
 font-weight:bold;
-display:flex;
-align-items:center;
-gap:8px;
 cursor:pointer;
-}
-
-.btn-excluir-item{
-color:#e74c3c;
-font-weight:900;
-font-size:14px;
-}
-
-.secao-titulo{
-font-size:14px;
-font-weight:bold;
-color:#555;
-margin-top:15px;
-display:block;
-}
-
-input{
-width:100%;
-padding:15px;
-margin-top:8px;
-border-radius:8px;
-border:1px solid #ccc;
-font-size:16px;
-box-sizing:border-box;
 }
 
 #assinatura{
 border:2px solid #0f4c81;
 width:100%;
 height:200px;
-background:white;
-border-radius:10px;
+background:#fff;
 margin-top:10px;
 touch-action:none;
 }
 
-.btnSalvar{
-background:#27ae60;
-color:white;
-margin-top:30px;
-font-size:18px;
-font-weight:bold;
+.badge{
+background:#fff;
+padding:10px;
+margin-top:5px;
+border-radius:6px;
+border:1px solid #ccc;
 }
 
 </style>
@@ -177,255 +52,108 @@ font-weight:bold;
 
 <body>
 
-<div class="container">
+<h2>Canhoto Digital</h2>
 
-<div class="topo">
+<button onclick="addManual('NF')">
+Adicionar NF
+</button>
 
-<div class="logo-topo">
-<img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png">
-</div>
+<div id="contNF"></div>
 
-<div class="titulo-topo">
-Canhoto Digital
-</div>
+<input id="recebedor" placeholder="Recebedor">
 
-<div class="reset-topo" onclick="location.reload(true)">
-Reset
-</div>
+<input id="rgcpf" placeholder="CPF">
 
-</div>
+<button onclick="addManual('OS')">
+Adicionar OS
+</button>
 
-<label class="secao-titulo">1. Notas Fiscais</label>
+<div id="contOS"></div>
 
-<div class="btn-manual" onclick="addManual('NF')">
-+ Digitar NF Manualmente
-</div>
-
-<div class="badge-container" id="contNF"></div>
-
-<label class="secao-titulo">2. Identificação do Recebedor</label>
-
-<input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu">
-
-<input id="rgcpf"
-type="tel"
-placeholder="CPF (Apenas números)"
-maxlength="14"
-oninput="mascaraCPF(this)">
-
-<label class="secao-titulo">3. Assinatura Digital</label>
+<input id="expedidor" placeholder="Expedidor">
 
 <canvas id="assinatura"></canvas>
 
-<button
-style="background:none;color:#e74c3c;text-decoration:underline;font-size:12px;width:auto;padding:5px;border:none;cursor:pointer;"
-onclick="limparAss()">
+<button onclick="limparAss()">
 Limpar Assinatura
 </button>
 
-<label class="secao-titulo">4. Ordens de Serviço (OS)</label>
-
-<div class="btn-manual" onclick="addManual('OS')">
-+ Digitar OS Manualmente
-</div>
-
-<div class="badge-container" id="contOS"></div>
-
-<label class="secao-titulo">5. Expedição</label>
-
-<input id="expedidor" type="text" placeholder="Nome do Expedidor">
-
-<button class="btn-scan btnSalvar"
-id="btnSalvar"
-onclick="salvar()">
+<button id="btnSalvar" onclick="salvar()">
 SALVAR
 </button>
 
-</div>
-
 <script>
+
+const apiUrl="https://script.google.com/macros/s/AKfycbw3S7HM-KQnZFd38NRh2J-OYIIsNMstsBfXOY6Q9yxeoNQPVRev4uKOSZq-aSRE1L9fWA/exec";
 
 let listaNF=[];
 let listaOS=[];
 let destino='NF';
 let assinou=false;
 
-const apiUrl="https://script.google.com/macros/s/AKfycbw3S7HM-KQnZFd38NRh2J-OYIIsNMstsBfXOY6Q9yxeoNQPVRev4uKOSZq-aSRE1L9fWA/exec";
-
-function mascaraCPF(i){
-
-let v=i.value.replace(/\D/g,'');
-
-if(v.length>11){
-v=v.slice(0,11);
-}
-
-i.value=v.replace(
-/(\d{3})(\d{3})(\d{3})(\d{2})/,
-"$1.$2.$3-$4"
-);
-}
-
-function validarCPF(cpf){
-
-cpf=cpf.replace(/[^\d]+/g,'');
-
-if(cpf==''||cpf.length!=11||/^(\d)\1{10}$/.test(cpf)){
-return false;
-}
-
-let add=0;
-
-for(let i=0;i<9;i++){
-add+=parseInt(cpf.charAt(i))*(10-i);
-}
-
-let rev=11-(add%11);
-
-if(rev==10||rev==11){
-rev=0;
-}
-
-if(rev!=parseInt(cpf.charAt(9))){
-return false;
-}
-
-add=0;
-
-for(let i=0;i<10;i++){
-add+=parseInt(cpf.charAt(i))*(11-i);
-}
-
-rev=11-(add%11);
-
-if(rev==10||rev==11){
-rev=0;
-}
-
-if(rev!=parseInt(cpf.charAt(10))){
-return false;
-}
-
-return true;
-}
-
 function addManual(tipo){
 
 destino=tipo;
 
-let n=prompt(
-tipo==='NF'
-?"Digite o número da NF:"
-:"Digite a Identificação da OS:"
-);
+let valor=prompt("Digite:");
 
-if(n){
+if(!valor)return;
 
-let valor=(tipo==='NF')
-?n.replace(/\D/g,'')
-:n.trim();
-
-adicionarValor(valor);
-}
-}
-
-function adicionarValor(val){
-
-if(!val)return;
-
-if(destino==='NF'){
-
-if(!listaNF.includes(val)){
-listaNF.push(val);
-}
-
+if(tipo==="NF"){
+listaNF.push(valor);
 }else{
-
-if(!listaOS.includes(val)){
-listaOS.push(val);
-}
+listaOS.push(valor);
 }
 
-atualizarExibicao();
+render();
 }
 
-function removerItem(tipo,val){
+function render(){
 
-if(tipo==='NF'){
-listaNF=listaNF.filter(i=>i!==val);
-}else{
-listaOS=listaOS.filter(i=>i!==val);
-}
+document.getElementById("contNF").innerHTML=
+listaNF.map(n=>`<div class="badge">NF: ${n}</div>`).join('');
 
-atualizarExibicao();
-}
-
-function atualizarExibicao(){
-
-document.getElementById('contNF').innerHTML=
-listaNF.map(i=>
-`<div class="badge-item" onclick="removerItem('NF','${i}')">NF: ${i} <span class="btn-excluir-item">X</span></div>`
-).join('');
-
-document.getElementById('contOS').innerHTML=
-listaOS.map(i=>
-`<div class="badge-item" onclick="removerItem('OS','${i}')">OS: ${i} <span class="btn-excluir-item">X</span></div>`
-).join('');
+document.getElementById("contOS").innerHTML=
+listaOS.map(n=>`<div class="badge">OS: ${n}</div>`).join('');
 }
 
 const canvas=document.getElementById("assinatura");
 const ctx=canvas.getContext("2d");
 
-function ajustarCanvas(){
-
 canvas.width=canvas.offsetWidth;
 canvas.height=200;
-}
-
-window.addEventListener("load",ajustarCanvas);
 
 let desenhando=false;
 
-function obterPosicao(e){
+function pos(e){
 
-const rect=canvas.getBoundingClientRect();
-
-const cx=e.touches
-?e.touches[0].clientX
-:e.clientX;
-
-const cy=e.touches
-?e.touches[0].clientY
-:e.clientY;
+const r=canvas.getBoundingClientRect();
 
 return{
-x:cx-rect.left,
-y:cy-rect.top
+x:(e.touches?e.touches[0].clientX:e.clientX)-r.left,
+y:(e.touches?e.touches[0].clientY:e.clientY)-r.top
 };
 }
 
-function iniciar(e){
-
-e.preventDefault();
+function start(e){
 
 desenhando=true;
-
 assinou=true;
 
 ctx.beginPath();
 
-const p=obterPosicao(e);
+const p=pos(e);
 
 ctx.moveTo(p.x,p.y);
 }
 
-function mover(e){
+function move(e){
 
 if(!desenhando)return;
 
 e.preventDefault();
 
-const p=obterPosicao(e);
+const p=pos(e);
 
 ctx.lineTo(p.x,p.y);
 
@@ -434,14 +162,13 @@ ctx.lineWidth=3;
 ctx.stroke();
 }
 
-canvas.addEventListener("touchstart",iniciar,{passive:false});
-canvas.addEventListener("touchmove",mover,{passive:false});
-canvas.addEventListener("touchend",()=>desenhando=false);
-
-canvas.addEventListener("mousedown",iniciar);
-canvas.addEventListener("mousemove",mover);
-
+canvas.addEventListener("mousedown",start);
+canvas.addEventListener("mousemove",move);
 window.addEventListener("mouseup",()=>desenhando=false);
+
+canvas.addEventListener("touchstart",start,{passive:false});
+canvas.addEventListener("touchmove",move,{passive:false});
+canvas.addEventListener("touchend",()=>desenhando=false);
 
 function limparAss(){
 
@@ -452,83 +179,46 @@ assinou=false;
 
 function salvar(){
 
-const r=document.getElementById("recebedor").value.trim();
-const d=document.getElementById("rgcpf").value.trim();
-const x=document.getElementById("expedidor").value.trim();
-
-if(r.split(' ').filter(word=>word.length>0).length<2){
-
-alert("⚠️ Digite o NOME COMPLETO de quem recebeu.");
-
-return;
-}
-
-if(!validarCPF(d)){
-
-alert("⚠️ CPF INVÁLIDO.");
-
-return;
-}
-
-if(!r||!d||!x||listaNF.length===0||listaOS.length===0||!assinou){
-
-alert("⚠️ Preencha todos os campos.");
-
-return;
-}
-
-const btn=document.getElementById("btnSalvar");
-
-btn.disabled=true;
-
-btn.innerText="ENVIANDO...";
-
 const payload={
 
 notas:listaNF,
 ordens:listaOS,
-recebedor:r,
-documento:d,
-expedidor:x,
+recebedor:document.getElementById("recebedor").value,
+documento:document.getElementById("rgcpf").value,
+expedidor:document.getElementById("expedidor").value,
 assinatura:canvas.toDataURL("image/png")
 
 };
 
-fetch(apiUrl,{
+const xhr=new XMLHttpRequest();
 
-method:"POST",
+xhr.open("POST",apiUrl,true);
 
-headers:{
-"Content-Type":"application/json"
-},
+xhr.setRequestHeader(
+"Content-Type",
+"application/json"
+);
 
-body:JSON.stringify(payload)
+xhr.onreadystatechange=function(){
 
-})
+if(xhr.readyState===4){
 
-.then(response=>response.text())
+if(xhr.status===200){
 
-.then(data=>{
+alert("✅ Enviado com sucesso");
 
-console.log(data);
+location.reload();
 
-alert("✅ Canhoto enviado com sucesso!");
+}else{
 
-location.reload(true);
+alert("❌ Erro ao enviar");
+console.log(xhr.responseText);
 
-})
+}
+}
+};
 
-.catch(error=>{
-
-console.error(error);
-
-alert("❌ Erro na conexão.");
-
-btn.disabled=false;
-
-btn.innerText="SALVAR";
-
-});
+xhr.send(JSON.stringify(payload));
 }
 
 </script>
