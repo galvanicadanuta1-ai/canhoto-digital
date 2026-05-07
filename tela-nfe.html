@@ -8,6 +8,7 @@
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
+
 body{
 font-family:'Segoe UI',Arial,sans-serif;
 margin:0;
@@ -171,33 +172,6 @@ font-size:18px;
 font-weight:bold;
 }
 
-#scannerTela{
-position:fixed;
-top:0;
-left:0;
-width:100vw;
-height:100vh;
-background:#000;
-display:none;
-z-index:9999;
-}
-
-#reader{
-width:100%!important;
-height:100%!important;
-}
-
-.linha-guia{
-position:absolute;
-top:50%;
-left:50%;
-width:80%;
-height:2px;
-background:red;
-transform:translate(-50%,-50%);
-z-index:10000;
-pointer-events:none;
-}
 </style>
 </head>
 
@@ -223,10 +197,6 @@ Reset
 
 <label class="secao-titulo">1. Notas Fiscais</label>
 
-<button class="btn-scan btn-nf" onclick="abrirScanner('NF')">
-📷 ESCANEAR NOTA FISCAL
-</button>
-
 <div class="btn-manual" onclick="addManual('NF')">
 + Digitar NF Manualmente
 </div>
@@ -237,21 +207,23 @@ Reset
 
 <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu">
 
-<input id="rgcpf" type="tel" placeholder="CPF (Apenas números)" maxlength="14" oninput="mascaraCPF(this)">
+<input id="rgcpf"
+type="tel"
+placeholder="CPF (Apenas números)"
+maxlength="14"
+oninput="mascaraCPF(this)">
 
 <label class="secao-titulo">3. Assinatura Digital</label>
 
 <canvas id="assinatura"></canvas>
 
-<button style="background:none;color:#e74c3c;text-decoration:underline;font-size:12px;width:auto;padding:5px;border:none;cursor:pointer;" onclick="limparAss()">
+<button
+style="background:none;color:#e74c3c;text-decoration:underline;font-size:12px;width:auto;padding:5px;border:none;cursor:pointer;"
+onclick="limparAss()">
 Limpar Assinatura
 </button>
 
 <label class="secao-titulo">4. Ordens de Serviço (OS)</label>
-
-<button class="btn-scan btn-os" onclick="abrirScanner('OS')">
-📷 ESCANEAR ORDEM SERVIÇO
-</button>
 
 <div class="btn-manual" onclick="addManual('OS')">
 + Digitar OS Manualmente
@@ -263,7 +235,9 @@ Limpar Assinatura
 
 <input id="expedidor" type="text" placeholder="Nome do Expedidor">
 
-<button class="btn-scan btnSalvar" id="btnSalvar" onclick="salvar()">
+<button class="btn-scan btnSalvar"
+id="btnSalvar"
+onclick="salvar()">
 SALVAR
 </button>
 
@@ -271,12 +245,12 @@ SALVAR
 
 <script>
 
-let listaNF = [];
-let listaOS = [];
-let destino = 'NF';
-let assinou = false;
+let listaNF=[];
+let listaOS=[];
+let destino='NF';
+let assinou=false;
 
-const apiUrl = "https://script.google.com/macros/s/AKfycbw3S7HM-KQnZFd38NRh2J-OYIIsNMstsBfXOY6Q9yxeoNQPVRev4uKOSZq-aSRE1L9fWA/exec";
+const apiUrl="https://script.google.com/macros/s/AKfycbw3S7HM-KQnZFd38NRh2J-OYIIsNMstsBfXOY6Q9yxeoNQPVRev4uKOSZq-aSRE1L9fWA/exec";
 
 function mascaraCPF(i){
 
@@ -286,7 +260,10 @@ if(v.length>11){
 v=v.slice(0,11);
 }
 
-i.value=v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,"$1.$2.$3-$4");
+i.value=v.replace(
+/(\d{3})(\d{3})(\d{3})(\d{2})/,
+"$1.$2.$3-$4"
+);
 }
 
 function validarCPF(cpf){
@@ -400,6 +377,7 @@ const canvas=document.getElementById("assinatura");
 const ctx=canvas.getContext("2d");
 
 function ajustarCanvas(){
+
 canvas.width=canvas.offsetWidth;
 canvas.height=200;
 }
@@ -412,8 +390,13 @@ function obterPosicao(e){
 
 const rect=canvas.getBoundingClientRect();
 
-const cx=e.touches?e.touches[0].clientX:e.clientX;
-const cy=e.touches?e.touches[0].clientY:e.clientY;
+const cx=e.touches
+?e.touches[0].clientX
+:e.clientX;
+
+const cy=e.touches
+?e.touches[0].clientY
+:e.clientY;
 
 return{
 x:cx-rect.left,
@@ -501,31 +484,50 @@ btn.disabled=true;
 btn.innerText="ENVIANDO...";
 
 const payload={
+
 notas:listaNF,
 ordens:listaOS,
 recebedor:r,
 documento:d,
 expedidor:x,
 assinatura:canvas.toDataURL("image/png")
+
 };
 
 fetch(apiUrl,{
+
 method:"POST",
+
 headers:{
-"Content-Type":"application/x-www-form-urlencoded"
+"Content-Type":"application/json"
 },
-body:"dados="+encodeURIComponent(JSON.stringify(payload))
+
+body:JSON.stringify(payload)
+
 })
+
 .then(response=>response.text())
-.then(()=>{
+
+.then(data=>{
+
+console.log(data);
+
 alert("✅ Canhoto enviado com sucesso!");
+
 location.reload(true);
+
 })
+
 .catch(error=>{
-alert("❌ Erro na conexão.");
-btn.disabled=false;
-btn.innerText="SALVAR";
+
 console.error(error);
+
+alert("❌ Erro na conexão.");
+
+btn.disabled=false;
+
+btn.innerText="SALVAR";
+
 });
 }
 
