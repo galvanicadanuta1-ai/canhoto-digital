@@ -8,25 +8,17 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
         .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
-        
-        /* Botão Voltar Original */
         .btn-voltar { position: absolute; top: 15px; right: 15px; color: #e74c3c; text-decoration: none; font-weight: bold; font-size: 14px; }
-        
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
         .titulo-topo { flex: 1; text-align: center; color: #0f4c81; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
-        
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
         input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; }
-        
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #2c3e50; color: white; cursor: pointer; }
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
-        
         .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
         .badge-item { background: #e1f5fe; color: #01579b; border: 1px solid #01579b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
-        
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; }
-        
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
     </style>
@@ -37,31 +29,32 @@
 
     <div class="topo">
         <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
-        <div class="titulo-topo">Canhoto Digital</div>
+        <div class="titulo-topo">Saída de OS</div>
     </div>
     
-    <label class="secao-titulo">Data/Hora</label>
+    <label class="secao-titulo">Data/Hora de Saída</label>
     <input type="datetime-local" id="dataHora">
-
-    <label class="secao-titulo">Empresa/Cliente</label>
-    <input type="text" id="empresa" placeholder="Nome da empresa">
 
     <label class="secao-titulo">Ordem de Serviço Danuta</label>
     <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
     <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
 
-    <label class="secao-titulo">Documento (RG ou CPF)</label>
-    <input type="text" id="documento">
+    <label class="secao-titulo">Recebedor</label>
+    <input type="text" id="recebedor" placeholder="Nome de quem recebeu">
 
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
+    <label class="secao-titulo">Expedidor</label>
+    <input type="text" id="expedidor" placeholder="Nome de quem entregou">
+
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">REGISTRAR SAÍDA</button>
 </div>
 
 <div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
 
 <script>
 let scanner; let listaOS = [];
-const apiUrl = "https://script.google.com/macros/s/AKfycbxOseaVN67HO0UMyGpHoWqCX1llA0uazVeI4xvUha7TYF7UNL-Jnwc-LIWBfmmzce9LlA/exec";
+// URL ATUALIZADA E CORRETA
+const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 window.onload = () => { 
     const now = new Date(); 
@@ -84,10 +77,33 @@ function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarE
 function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
 
 function salvar() {
-    if (listaOS.length === 0 || !document.getElementById("empresa").value) { alert("Preencha os campos!"); return; }
-    const btn = document.getElementById("btnSalvar"); btn.disabled = true; btn.innerText = "SALVANDO...";
-    const payload = { tipo: "SAIDA_OS", data: document.getElementById("dataHora").value, empresa: document.getElementById("empresa").value, ordens: listaOS, documento: document.getElementById("documento").value };
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { location.reload(); }).catch(() => btn.disabled = false);
+    const rec = document.getElementById("recebedor").value;
+    const exp = document.getElementById("expedidor").value;
+    
+    if (listaOS.length === 0 || !rec || !exp) { alert("Preencha todos os campos e escaneie a OS!"); return; }
+    
+    const btn = document.getElementById("btnSalvar"); 
+    btn.disabled = true; 
+    btn.innerText = "SALVANDO...";
+    
+    const payload = { 
+        tipo: "SAIDA_OS", 
+        data: document.getElementById("dataHora").value, 
+        recebedor: rec, 
+        expedidor: exp,
+        ordens: listaOS 
+    };
+    
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
+    .then(() => { 
+        alert("✅ Saída registrada com sucesso!");
+        location.reload(); 
+    })
+    .catch(() => {
+        alert("❌ Erro ao salvar.");
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR SAÍDA";
+    });
 }
 </script>
 </body>
