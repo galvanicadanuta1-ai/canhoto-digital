@@ -76,7 +76,7 @@ let destino = 'NF';
 let assinou = false;
 
 // URL ATUALIZADA
-const apiUrl = "https://script.google.com/macros/s/AKfycbybKRVaZVuIdmGzXTR8HrHCTn27I9qYKZ0TB1CXenkS-IX3h92uNaFwX4Tz7tV23OpMww/exec";
+const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 function mascaraCPF(i) {
     let v = i.value.replace(/\D/g, "");
@@ -195,8 +195,6 @@ function salvar() {
     fetch(apiUrl, {
         method: "POST",
         mode: "no-cors",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
     })
     .then(() => {
