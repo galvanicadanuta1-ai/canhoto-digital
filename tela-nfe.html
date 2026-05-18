@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -7,7 +6,6 @@
     <title>Canhoto Digital - Galvânica Danuta</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        /* MANTIDO SEU ESTILO ORIGINAL E CORES EXATAS */
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
         .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
         
@@ -18,7 +16,6 @@
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
         input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; }
         
-        /* BOTÕES ORIGINAIS RECOLOCADOS */
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; background: #2c3e50; color: white; }
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
         
@@ -58,28 +55,30 @@
     <button class="btnSalvar" id="btnSalvar" onclick="proximaEtapa()">PRÓXIMO: ASSINATURA</button>
 </div>
 
-<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
+<div id="scannerTela">
+    <div id="reader"></div>
+    <div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;">
+        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button>
+    </div>
+</div>
 
 <script>
-// MANTIDA LÓGICA DE DADOS ORIGINAL
 let scanner; let listaNF = []; let listaOS = []; let tipoAtual = "";
 
-// AQUI ESTÁ A ÚNICA MUDANÇA: A FUNÇÃO abrirScanner FOI ATUALIZADA
-// PARA INICIAR A CÂMERA IGUAL À TELA DE RETRABALHO
 function abrirScanner(tipo) {
     tipoAtual = tipo; 
     document.getElementById("scannerTela").style.display = "block";
     
-    // Inicialização direta e simples que resolveu a tela preta
     if (!scanner) {
         scanner = new Html5Qrcode("reader");
     }
 
+    // Código de inicialização idêntico ao da tela de retrabalho que funciona
     scanner.start(
-        { facingMode: "environment" }, // Modo genérico direto
+        { facingMode: "environment" }, 
         { fps: 30, qrbox: 250 }, 
         (c) => { 
-            processarCodigoLido(c); // Chama a lógica de mapeamento de dados
+            processarCodigoLido(c);
             fecharScanner();
         }
     ).catch(err => {
@@ -101,7 +100,6 @@ function processarCodigoLido(texto) {
     }
 }
 
-// MANTIDO RESTANTE DO SEU CÓDIGO ORIGINAL
 function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
 function addManual(tipo) { let n = prompt("Digite o número:"); if (n) { if (tipo === 'NF') { if(!listaNF.includes(n)) listaNF.push(n); atualizarExibicao('contNF', listaNF); } else { if(!listaOS.includes(n)) listaOS.push(n); atualizarExibicao('contOS', listaOS); } } }
 function atualizarExibicao(id, lista) { document.getElementById(id).innerHTML = lista.map(i => `<div class="badge-item" onclick="removerItem('${id}', '${i}')">${i} ✕</div>`).join(''); }
