@@ -1,71 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Canhoto Digital - Galvânica Danuta</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; color: #333; }
-        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; }
-        .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .logo-topo { flex: 1; display: flex; justify-content: flex-start; }
-        .logo-topo img { height: 30px; }
-        .titulo-topo { flex: 2; text-align: center; color: #0f4c81; font-size: 18px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
-        .reset-topo { flex: 1; text-align: right; color: #e74c3c; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-scan { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-nf { background: #0f4c81; color: white; }
-        .btn-os { background: #2c3e50; color: white; }
-        .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 6px; width: auto; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
-        .badge-container { background: #fff; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .badge-item { background: #e7f1ff; color: #0f4c81; border: 1px solid #0f4c81; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .btn-excluir-item { color: #e74c3c; font-weight: 900; font-size: 14px; }
-        .secao-titulo { font-size: 14px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
-        input { width: 100%; padding: 15px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-        #assinatura { border: 2px solid #0f4c81; width: 100%; height: 200px; background: white; border-radius: 10px; margin-top: 10px; touch-action: none; }
-        .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; }
-        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
-        #reader { width: 100% !important; height: 100% !important; }
-        .linha-guia { position: absolute; top: 50%; left: 50%; width: 80%; height: 2px; background: red; transform: translate(-50%, -50%); z-index: 10000; pointer-events: none; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Canhoto Digital - Galvânica Danuta</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; color: #333; }
+        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; }
+        .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .logo-topo { flex: 1; display: flex; justify-content: flex-start; }
+        .logo-topo img { height: 30px; }
+        .titulo-topo { flex: 2; text-align: center; color: #0f4c81; font-size: 18px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
+        .reset-topo { flex: 1; text-align: right; color: #e74c3c; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-scan { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-nf { background: #0f4c81; color: white; }
+        .btn-os { background: #2c3e50; color: white; }
+        .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 6px; width: auto; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
+        .badge-container { background: #fff; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .badge-item { background: #e7f1ff; color: #0f4c81; border: 1px solid #0f4c81; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .btn-excluir-item { color: #e74c3c; font-weight: 900; font-size: 14px; }
+        .secao-titulo { font-size: 14px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        input { width: 100%; padding: 15px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        #assinatura { border: 2px solid #0f4c81; width: 100%; height: 200px; background: white; border-radius: 10px; margin-top: 10px; touch-action: none; }
+        .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; }
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
+        #reader { width: 100% !important; height: 100% !important; }
+        .linha-guia { position: absolute; top: 50%; left: 50%; width: 80%; height: 2px; background: red; transform: translate(-50%, -50%); z-index: 10000; pointer-events: none; }
+    </style>
 </head>
 <body>
 <div class="container">
-    <div class="topo">
-        <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
-        <div class="titulo-topo">Canhoto Digital</div>
-        <div class="reset-topo" onclick="location.reload(true)">Reset</div>
-    </div>
+    <div class="topo">
+        <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
+        <div class="titulo-topo">Canhoto Digital</div>
+        <div class="reset-topo" onclick="location.reload(true)">Reset</div>
+    </div>
 
-    <label class="secao-titulo">1. Notas Fiscais</label>
-    <button class="btn-scan btn-nf" onclick="abrirScanner('NF')">📷 ESCANEAR NOTA FISCAL</button>
-    <div class="btn-manual" onclick="addManual('NF')">+ Digitar NF Manualmente</div>
-    <div class="badge-container" id="contNF"></div>
+    <label class="secao-titulo">1. Notas Fiscais</label>
+    <button class="btn-scan btn-nf" onclick="abrirScanner('NF')">📷 ESCANEAR NOTA FISCAL</button>
+    <div class="btn-manual" onclick="addManual('NF')">+ Digitar NF Manualmente</div>
+    <div class="badge-container" id="contNF"></div>
 
-    <label class="secao-titulo">2. Identificação do Recebedor</label>
-    <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu">
-    <input id="rgcpf" type="tel" placeholder="CPF (Apenas números)" maxlength="14" oninput="mascaraCPF(this)">
+    <label class="secao-titulo">2. Identificação do Recebedor</label>
+    <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu">
+    <input id="rgcpf" type="tel" placeholder="CPF (Apenas números)" maxlength="14" oninput="mascaraCPF(this)">
 
-    <label class="secao-titulo">3. Assinatura Digital</label>
-    <canvas id="assinatura"></canvas>
-    <button style="background:none; color:#e74c3c; text-decoration:underline; font-size:12px; width:auto; padding:5px; border:none; cursor:pointer;" onclick="limparAss()">Limpar Assinatura</button>
+    <label class="secao-titulo">3. Assinatura Digital</label>
+    <canvas id="assinatura"></canvas>
+    <button style="background:none; color:#e74c3c; text-decoration:underline; font-size:12px; width:auto; padding:5px; border:none; cursor:pointer;" onclick="limparAss()">Limpar Assinatura</button>
 
-    <label class="secao-titulo">4. Ordens de Serviço (OS)</label>
-    <button class="btn-scan btn-os" onclick="abrirScanner('OS')">📷 ESCANEAR ORDEM SERVIÇO</button>
-    <div class="btn-manual" onclick="addManual('OS')">+ Digitar OS Manualmente</div>
-    <div class="badge-container" id="contOS"></div>
+    <label class="secao-titulo">4. Ordens de Serviço (OS)</label>
+    <button class="btn-scan btn-os" onclick="abrirScanner('OS')">📷 ESCANEAR ORDEM SERVIÇO</button>
+    <div class="btn-manual" onclick="addManual('OS')">+ Digitar OS Manualmente</div>
+    <div class="badge-container" id="contOS"></div>
 
-    <label class="secao-titulo">5. Expedição</label>
-    <input id="expedidor" type="text" placeholder="Nome do Expedidor">
-    <button class="btn-scan btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
+    <label class="secao-titulo">5. Expedição</label>
+    <input id="expedidor" type="text" placeholder="Nome do Expedidor">
+    <button class="btn-scan btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
 </div>
 
 <div id="scannerTela">
-    <div id="reader"></div>
-    <div class="linha-guia"></div>
-    <div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;">
-        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; font-weight:bold;">CANCELAR</button>
-    </div>
+    <div id="reader"></div>
+    <div class="linha-guia"></div>
+    <div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;">
+        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; font-weight:bold;">CANCELAR</button>
+    </div>
 </div>
 
 <script>
@@ -78,83 +78,78 @@ let assinou = false;
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 function mascaraCPF(i) {
-    let v = i.value.replace(/\D/g, "");
-    if (v.length > 11) v = v.slice(0, 11);
-    i.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    let v = i.value.replace(/\D/g, "");
+    if (v.length > 11) v = v.slice(0, 11);
+    i.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
 
 function validarCPF(cpf) {
-    cpf = cpf.replace(/[^\d]+/g, '');
-    if (cpf == '' || cpf.length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-    let add = 0;
-    for (let i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i);
-    let rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) rev = 0;
-    if (rev != parseInt(cpf.charAt(9))) return false;
-    add = 0;
-    for (let i = 0; i < 10; i++) add += parseInt(cpf.charAt(i)) * (11 - i);
-    rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) rev = 0;
-    if (rev != parseInt(cpf.charAt(10))) return false;
-    return true;
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf == '' || cpf.length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    let add = 0;
+    for (let i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i);
+    let rev = 11 - (add % 11);
+    if (rev == 10 || rev == 11) rev = 0;
+    if (rev != parseInt(cpf.charAt(9))) return false;
+    add = 0;
+    for (let i = 0; i < 10; i++) add += parseInt(cpf.charAt(i)) * (11 - i);
+    rev = 11 - (add % 11);
+    if (rev == 10 || rev == 11) rev = 0;
+    if (rev != parseInt(cpf.charAt(10))) return false;
+    return true;
 }
 
-// CORREÇÃO CIRÚRGICA DA CÂMERA AQUI (IGUAL À TELA DE RETRABALHO)
+// SUA FUNÇÃO ORIGINAL DE VOLTA, APENAS LIMPANDO AS AMARRAS QUE TRAVAVAM A CÂMERA
 function abrirScanner(tipo) {
-    destino = tipo;
-    document.getElementById("scannerTela").style.display = "block";
+    destino = tipo;
+    document.getElementById("scannerTela").style.display = "block";
+    scanner = new Html5Qrcode("reader");
     
-    if (!scanner) {
-        scanner = new Html5Qrcode("reader");
-    }
-
-    // Removido restrições extras e amarras de proporção que davam tela preta
-    scanner.start(
+    // Removido qrbox retangular e aspectRatio fixo que causavam a tela preta
+    scanner.start(
         { facingMode: "environment" }, 
-        { fps: 30, qrbox: 250 }, 
+        { fps: 30, qrbox: 250 }, // Configuração limpa e direta igual à tela de Retrabalho
         (codigo) => {
-            let n = codigo.replace(/\D/g, '');
-            let num = (tipo === 'NF' && n.length >= 34) ? n.substring(25, 34) : n;
-            adicionarValor(num);
-            fecharScanner();
-        }
-    ).catch((err) => { 
-        console.error("Erro na inicialização da câmera:", err);
-        alert("Câmera não disponível."); 
-    });
+            // Sua lógica exata de leitura retornada para cá
+            let n = codigo.replace(/\D/g, '');
+            let num = (tipo === 'NF' && n.length >= 34) ? n.substring(25, 34) : n;
+            adicionarValor(num);
+            fecharScanner();
+        }
+    ).catch(() => { alert("Câmera não disponível."); });
 }
 
 function fecharScanner() {
-    if (scanner) {
-        scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; });
-    }
+    if (scanner) {
+        scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; });
+    }
 }
 
 function addManual(tipo) {
-    destino = tipo;
-    let n = prompt(tipo === 'NF' ? "Digite o número da NF:" : "Digite a Identificação da OS:");
-    if (n) {
-        let valor = (tipo === 'NF') ? n.replace(/\D/g, '') : n.trim();
-        adicionarValor(valor);
-    }
+    destino = tipo;
+    let n = prompt(tipo === 'NF' ? "Digite o número da NF:" : "Digite a Identificação da OS:");
+    if (n) {
+        let valor = (tipo === 'NF') ? n.replace(/\D/g, '') : n.trim();
+        adicionarValor(valor);
+    }
 }
 
 function adicionarValor(val) {
-    if (!val) return;
-    if (destino === 'NF') { if (!listaNF.includes(val)) listaNF.push(val); }
-    else { if (!listaOS.includes(val)) listaOS.push(val); }
-    atualizarExibicao();
+    if (!val) return;
+    if (destino === 'NF') { if (!listaNF.includes(val)) listaNF.push(val); }
+    else { if (!listaOS.includes(val)) listaOS.push(val); }
+    atualizarExibicao();
 }
 
 function removerItem(tipo, val) {
-    if (tipo === 'NF') { listaNF = listaNF.filter(i => i !== val); }
-    else { listaOS = listaOS.filter(i => i !== val); }
-    atualizarExibicao();
+    if (tipo === 'NF') { listaNF = listaNF.filter(i => i !== val); }
+    else { listaOS = listaOS.filter(i => i !== val); }
+    atualizarExibicao();
 }
 
 function atualizarExibicao() {
-    document.getElementById('contNF').innerHTML = listaNF.map(i => `<div class="badge-item" onclick="removerItem('NF', '${i}')">NF: ${i} <span class="btn-excluir-item">X</span></div>`).join('');
-    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('OS', '${i}')">OS: ${i} <span class="btn-excluir-item">X</span></div>`).join('');
+    document.getElementById('contNF').innerHTML = listaNF.map(i => `<div class="badge-item" onclick="removerItem('NF', '${i}')">NF: ${i} <span class="btn-excluir-item">X</span></div>`).join('');
+    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('OS', '${i}')">OS: ${i} <span class="btn-excluir-item">X</span></div>`).join('');
 }
 
 const canvas = document.getElementById("assinatura");
@@ -164,10 +159,10 @@ window.addEventListener("load", ajustarCanvas);
 
 let desenhando = false;
 function obterPosicao(e) {
-    const rect = canvas.getBoundingClientRect();
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: cx - rect.left, y: cy - rect.top };
+    const rect = canvas.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: cx - rect.left, y: cy - rect.top };
 }
 
 function iniciar(e) { e.preventDefault(); desenhando = true; assinou = true; ctx.beginPath(); const p = obterPosicao(e); ctx.moveTo(p.x, p.y); }
@@ -183,42 +178,42 @@ window.addEventListener("mouseup", () => desenhando = false);
 function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); assinou = false; }
 
 function salvar() {
-    const r = document.getElementById("recebedor").value.trim();
-    const d = document.getElementById("rgcpf").value.trim();
-    const x = document.getElementById("expedidor").value.trim();
+    const r = document.getElementById("recebedor").value.trim();
+    const d = document.getElementById("rgcpf").value.trim();
+    const x = document.getElementById("expedidor").value.trim();
 
-    if (r.split(' ').filter(word => word.length > 0).length < 2) { alert("⚠️ Digite o NOME COMPLETO de quem recebeu."); return; }
-    if (!validarCPF(d)) { alert("⚠️ CPF INVÁLIDO."); return; }
-    if (!r || !d || !x || listaNF.length === 0 || listaOS.length === 0 || !assinou) { alert("⚠️ Preencha todos os campos."); return; }
+    if (r.split(' ').filter(word => word.length > 0).length < 2) { alert("⚠️ Digite o NOME COMPLETO de quem recebeu."); return; }
+    if (!validarCPF(d)) { alert("⚠️ CPF INVÁLIDO."); return; }
+    if (!r || !d || !x || listaNF.length === 0 || listaOS.length === 0 || !assinou) { alert("⚠️ Preencha todos os campos."); return; }
 
-    const btn = document.getElementById("btnSalvar");
-    btn.disabled = true;
-    btn.innerText = "ENVIANDO...";
+    const btn = document.getElementById("btnSalvar");
+    btn.disabled = true;
+    btn.innerText = "ENVIANDO...";
 
-    const payload = {
-        notas: listaNF,
-        ordens: listaOS,
-        recebedor: r,
-        documento: d,
-        expedidor: x,
-        assinatura: canvas.toDataURL("image/png")
-    };
+    const payload = {
+        notas: listaNF,
+        ordens: listaOS,
+        recebedor: r,
+        documento: d,
+        expedidor: x,
+        assinatura: canvas.toDataURL("image/png")
+    };
 
-    fetch(apiUrl, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(payload)
-    })
-    .then(() => {
-        alert("✅ Canhoto enviado com sucesso!");
-        location.reload(true);
-    })
-    .catch(err => {
-        console.error(err);
-        alert("❌ Erro na conexão.");
-        btn.disabled = false;
-        btn.innerText = "SALVAR";
-    });
+    fetch(apiUrl, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify(payload)
+    })
+    .then(() => {
+        alert("✅ Canhoto enviado com sucesso!");
+        location.reload(true);
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ Erro na conexão.");
+        btn.disabled = false;
+        btn.innerText = "SALVAR";
+    });
 }
 </script>
 </body>
