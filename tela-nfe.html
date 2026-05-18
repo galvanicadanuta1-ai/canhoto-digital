@@ -99,23 +99,21 @@ function validarCPF(cpf) {
     return true;
 }
 
-// SUA FUNÇÃO ORIGINAL DE VOLTA, APENAS LIMPANDO AS AMARRAS QUE TRAVAVAM A CÂMERA
 function abrirScanner(tipo) {
     destino = tipo;
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
-    
-    // Removido qrbox retangular e aspectRatio fixo que causavam a tela preta
-    scanner.start(
+    
+    // CORREÇÃO: Mantendo sua função idêntica, apenas tirando as duas travas de proporção de vídeo que dão tela preta
+    scanner.start(
         { facingMode: "environment" }, 
-        { fps: 30, qrbox: 250 }, // Configuração limpa e direta igual à tela de Retrabalho
+        { fps: 30, qrbox: 250 }, 
         (codigo) => {
-            // Sua lógica exata de leitura retornada para cá
-            let n = codigo.replace(/\D/g, '');
-            let num = (tipo === 'NF' && n.length >= 34) ? n.substring(25, 34) : n;
-            adicionarValor(num);
-            fecharScanner();
-        }
+            let n = codigo.replace(/\D/g, '');
+            let num = (tipo === 'NF' && n.length >= 34) ? n.substring(25, 34) : n;
+            adicionarValor(num);
+            fecharScanner();
+        }
     ).catch(() => { alert("Câmera não disponível."); });
 }
 
