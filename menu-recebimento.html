@@ -1,1 +1,70 @@
 
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Recebimento - Galvânica Danuta</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 500px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); box-sizing: border-box; }
+        
+        /* Topo com Logo à Esquerda e Título Centralizado */
+        .header-painel { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; }
+        .logo-painel { height: 35px; width: auto; position: absolute; left: 0; }
+        .titulo-painel { font-size: 22px; font-weight: bold; color: #1e293b; margin: 0; text-align: center; }
+        
+        /* Estrutura dos Campos de Formulário */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control { width: 100%; padding: 14px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; color: #334155; transition: border-color 0.2s; background-color: #fff; }
+        .form-control:focus { outline: none; border-color: #16a34a; }
+        
+        /* Ajuste do campo de Data para o Calendário Nativo */
+        input[type="date"] { font-family: 'Segoe UI', sans-serif; -webkit-appearance: none; appearance: none; position: relative; }
+        
+        /* Botão Voltar Profissional e Discreto */
+        .btn-voltar { display: inline-flex; align-items: center; justify-content: center; background: none; border: none; color: #64748b; font-size: 15px; font-weight: 600; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: background 0.2s; text-decoration: none; margin-bottom: 20px; }
+        .btn-voltar:hover { background: #f1f5f9; color: #334155; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="btn-voltar">⬅ Voltar</a>
+
+        <div class="header-painel">
+            <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo-painel">
+            <h1 class="titulo-painel">Recebimento</h1>
+        </div>
+
+        <form id="formRecebimento">
+            
+            <div class="form-group">
+                <label for="dataRecebimento">Data</label>
+                <input type="date" id="dataRecebimento" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="nomeCliente">Nome do Cliente</label>
+                <input type="text" id="nomeCliente" class="form-control" placeholder="Digite o nome do cliente" autocomplete="off">
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        // Script para predefinir a data atual no campo ao carregar a página
+        window.addEventListener('DOMContentLoaded', () => {
+            const campoData = document.getElementById('dataRecebimento');
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            
+            campoData.value = `${ano}-${mes}-${dia}`;
+        });
+    </script>
+
+</body>
+</html>
