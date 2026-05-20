@@ -2,173 +2,104 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <title>Recebimento - Galvânica Danuta</title>
-    <script src="https://unpkg.com/@scanapp/html5-qrcode"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 500px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
+        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
+        .btn-voltar { position: absolute; top: 15px; right: 15px; color: #64748b; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .logo-topo img { height: 30px; }
+        .titulo-topo { flex: 1; text-align: center; color: #16a34a; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
+        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; }
         
-        /* Topo com Logo à Esquerda e Título Centralizado */
-        .header-painel { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid #e2e8f0; }
-        .logo-painel { height: 35px; width: auto; position: absolute; left: 0; }
-        .titulo-painel { font-size: 22px; font-weight: bold; color: #1e293b; margin: 0; text-align: center; }
+        /* Botões padronizados no tom Verde do Recebimento */
+        .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #16a34a; color: white; cursor: pointer; }
+        .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
+        .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #16a34a; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .badge-item { background: #e8f5e9; color: #1b5e20; border: 1px solid #1b5e20; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         
-        /* Estrutura dos Campos de Formulário */
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-control { width: 100%; padding: 14px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; color: #334155; transition: border-color 0.2s; background-color: #fff; }
-        .form-control:focus { outline: none; border-color: #16a34a; }
-        
-        /* Botão Voltar Profissional e Discreto */
-        .btn-voltar { display: inline-flex; align-items: center; justify-content: center; background: none; border: none; color: #64748b; font-size: 15px; font-weight: 600; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: background 0.2s; text-decoration: none; margin-bottom: 20px; }
-        .btn-voltar:hover { background: #f1f5f9; color: #334155; }
-
-        /* Botão Principal de Escanear */
-        .btn-scan { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; font-size: 16px; font-weight: bold; color: white; background-color: #16a34a; border: none; border-bottom: 4px solid #14532d; border-radius: 10px; cursor: pointer; transition: transform 0.1s; box-sizing: border-box; }
-        .btn-scan:active { transform: translateY(2px); border-bottom-width: 2px; }
-
-        /* Link/Botão Discreto para Digitação Manual */
-        .btn-manual-toggle { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 600; color: #475569; background: none; border: none; cursor: pointer; text-decoration: underline; padding: 5px; }
-        .btn-manual-toggle:hover { color: #1e293b; }
-
-        /* Janela Modal da Câmera (Espelhada exatamente das outras telas operacionais) */
-        .scanner-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 10000; flex-direction: column; justify-content: flex-start; align-items: center; box-sizing: border-box; }
-        .scanner-header { width: 100%; padding: 15px; background: #000; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        .scanner-title { color: white; margin: 0; font-size: 18px; font-weight: bold; }
-        .btn-fechar-camera { background: #ef4444; color: white; border: none; padding: 10px 18px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; }
-        
-        /* Div de Leitura Nativa da biblioteca */
-        #reader { width: 100% !important; max-width: 450px; background: black; }
-
-        .hidden { display: none; }
+        /* Estrutura da Câmera (Idêntica à que funciona) */
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
+        #reader { width: 100% !important; height: 100% !important; }
     </style>
 </head>
 <body>
+<div class="container">
+    <a href="index.html" class="btn-voltar">< Voltar</a>
 
-    <div class="container">
-        <a href="index.html" class="btn-voltar">⬅ Voltar</a>
-
-        <div class="header-painel">
-            <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo-painel">
-            <h1 class="titulo-painel">Recebimento</h1>
-        </div>
-
-        <form id="formRecebimento" onsubmit="event.preventDefault();">
-            
-            <div class="form-group">
-                <label for="dataRecebimento">Data</label>
-                <input type="date" id="dataRecebimento" class="form-control">
-            </div>
-
-            <div class="form-group">
-                <label>Ordem de Serviço (OS)</label>
-                <button type="button" id="btnEscanearOS" class="btn-scan">📷 ESCANEAR OS</button>
-                
-                <div style="text-align: center;">
-                    <button type="button" id="toggleManualOS" class="btn-manual-toggle">+ Digitar OS Manualmente</button>
-                </div>
-
-                <div id="blocoManualOS" class="hidden" style="margin-top: 12px;">
-                    <input type="text" id="numeroOS" class="form-control" placeholder="Número da OS" autocomplete="off">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="nomeCliente">Nome do Cliente</label>
-                <input type="text" id="nomeCliente" class="form-control" placeholder="Digite o nome do cliente" autocomplete="off">
-            </div>
-
-        </form>
+    <div class="topo">
+        <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
+        <div class="titulo-topo">Recebimento</div>
     </div>
+    
+    <label class="secao-titulo">Data de Recebimento</label>
+    <input type="date" id="dataRecebimento">
 
-    <div id="scannerModal" class="scanner-modal">
-        <div class="scanner-header">
-            <span class="scanner-title">Escanear Código da OS</span>
-            <button type="button" id="btnFecharCamera" class="btn-fechar-camera">Fechar</button>
-        </div>
-        <div id="reader"></div>
+    <label class="secao-titulo">Ordem de Serviço (OS)</label>
+    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
+    <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
+    <div class="badge-container" id="contOS"></div>
+
+    <label class="secao-titulo">Nome do Cliente</label>
+    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
+</div>
+
+<div id="scannerTela">
+    <div id="reader"></div>
+    <div style="position:absolute; bottom:40px; width:100%; text-align:center;">
+        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button>
     </div>
+</div>
 
-    <script>
-        let html5QrcodeScanner = null;
+<script>
+let scanner; let listaOS = [];
 
-        // Predefinir a data atual
-        window.addEventListener('DOMContentLoaded', () => {
-            const campoData = document.getElementById('dataRecebimento');
-            const hoje = new Date();
-            const ano = hoje.getFullYear();
-            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-            const dia = String(hoje.getDate()).padStart(2, '0');
-            campoData.value = `${ano}-${mes}-${dia}`;
-        });
+// Define a data de hoje no carregamento da página
+window.onload = () => { 
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    document.getElementById('dataRecebimento').value = `${ano}-${mes}-${dia}`;
+};
 
-        // Controle do campo manual de exibição
-        const toggleBtn = document.getElementById('toggleManualOS');
-        const blocoManual = document.getElementById('blocoManualOS');
-        const inputOS = document.getElementById('numeroOS');
+// Mecanismo de Câmera e Scanner idêntico ao que funciona perfeitamente
+function abrirScanner() {
+    document.getElementById("scannerTela").style.display = "block";
+    scanner = new Html5Qrcode("reader");
+    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (c) => { 
+        if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); }
+        fecharScanner();
+    });
+}
 
-        toggleBtn.addEventListener('click', () => {
-            if (blocoManual.classList.contains('hidden')) {
-                blocoManual.classList.remove('hidden');
-                toggleBtn.innerText = '- Ocultar Campo da OS';
-                inputOS.focus();
-            } else {
-                blocoManual.classList.add('hidden');
-                toggleBtn.innerText = '+ Digitar OS Manualmente';
-            }
-        });
+function fecharScanner() { 
+    if (scanner) { 
+        scanner.stop().then(() => { 
+            document.getElementById("scannerTela").style.display = "none"; 
+        }); 
+    } 
+}
 
-        // =========================================================================
-        // PADRÃO DE CHAMADA IDÊNTICO ÀS OUTRAS TELAS DO SEU PROJETO
-        // =========================================================================
-        const btnEscanearOS = document.getElementById('btnEscanearOS');
-        const scannerModal = document.getElementById('scannerModal');
-        const btnFecharCamera = document.getElementById('btnFecharCamera');
+function addManual() { 
+    let n = prompt("Digite o número da OS:"); 
+    if (n && !listaOS.includes(n)) { 
+        listaOS.push(n); 
+        atualizarExibicao(); 
+    } 
+}
 
-        function onScanSuccess(decodedText, decodedResult) {
-            // Injeta o resultado lido exatamente igual aos demais módulos
-            inputOS.value = decodedText;
-            blocoManual.classList.remove('hidden');
-            toggleBtn.innerText = '- Ocultar Campo da OS';
-            finalizarEscaneamento();
-        }
+function removerItem(val) { 
+    listaOS = listaOS.filter(i => i !== val); 
+    atualizarExibicao(); 
+}
 
-        function iniciarEscaneamento() {
-            scannerModal.style.display = 'flex';
-            
-            // Inicialização padrão da biblioteca que você usa nas outras páginas prontas
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "reader", 
-                { 
-                    fps: 15, 
-                    qrbox: { width: 300, height: 150 },
-                    rememberLastUsedCamera: true,
-                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-                },
-                /* verbose= */ false
-            );
-            
-            html5QrcodeScanner.render(onScanSuccess);
-        }
-
-        function finalizarEscaneamento() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().then(() => {
-                    html5QrcodeScanner = null;
-                    scannerModal.style.display = 'none';
-                }).catch(err => {
-                    console.error("Erro ao limpar scanner:", err);
-                    scannerModal.style.display = 'none';
-                });
-            } else {
-                scannerModal.style.display = 'none';
-            }
-        }
-
-        btnEscanearOS.addEventListener('click', iniciarEscaneamento);
-        btnFecharCamera.addEventListener('click', finalizarEscaneamento);
-    </script>
-
+function atualizarExibicao() { 
+    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); 
+}
+</script>
 </body>
 </html>
