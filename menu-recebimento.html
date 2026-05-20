@@ -13,15 +13,21 @@
         .logo-topo img { height: 30px; }
         .titulo-topo { flex: 1; text-align: center; color: #16a34a; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
-        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; }
         
-        /* Botões padronizados no tom Verde do Recebimento */
+        /* Padronização de inputs e caixas de seleção */
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; }
+        
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #16a34a; color: white; cursor: pointer; }
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
         .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #16a34a; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
         .badge-item { background: #e8f5e9; color: #1b5e20; border: 1px solid #1b5e20; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         
-        /* Estrutura da Câmera (Idêntica à que funciona) */
+        /* Botões de Seleção OK / NOK do Lote */
+        .btn-lote { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; transition: all 0.2s; }
+        .btn-ok-ativo { background: #27ae60 !important; color: white !important; border-color: #27ae60 !important; }
+        .btn-nok-ativo { background: #c0392b !important; color: white !important; border-color: #c0392b !important; }
+
+        .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; }
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
     </style>
@@ -45,19 +51,63 @@
 
     <label class="secao-titulo">Nome do Cliente</label>
     <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
+
+    <label class="secao-titulo">N° Nota Fiscal</label>
+    <input type="text" id="notaFiscal" placeholder="Digite o número da Nota Fiscal">
+
+    <label class="secao-titulo">OP do Cliente</label>
+    <input type="text" id="opCliente" placeholder="Digite a OP do Cliente">
+
+    <label class="secao-titulo">Cromato</label>
+    <select id="cromato" onchange="verificarCromato(this.value)">
+        <option value="">-- Selecione o Cromato --</option>
+        <option value="Azul Trivalente (Branco)">Azul Trivalente (Branco)</option>
+        <option value="Amarelo Hexavalente">Amarelo Hexavalente</option>
+        <option value="Amarelo Trivalente">Amarelo Trivalente</option>
+        <option value="Preto">Preto</option>
+        <option value="Verde Oliva">Verde Oliva</option>
+        <option value="Outro">Outro</option>
+    </select>
+    <input type="text" id="cromatoOutro" placeholder="Digite o tipo de Cromato" style="display: none; margin-top: 8px;">
+
+    <label class="secao-titulo">Linha de Banho</label>
+    <select id="linhaBanho">
+        <option value="">-- Selecione a Linha --</option>
+        <option value="Parado">Parado</option>
+        <option value="Rotativo">Rotativo</option>
+    </select>
+
+    <label class="secao-titulo">Kgs</label>
+    <input type="number" step="0.01" id="kgs" placeholder="Digite o peso em Kgs">
+
+    <label class="secao-titulo">Lote Aprovado?</label>
+    <div style="display: flex; gap: 10px; margin-top: 5px;">
+        <button type="button" id="loteOK" class="btn-lote" onclick="selecionarLote('OK')" style="color: #27ae60;">OK</button>
+        <button type="button" id="loteNOK" class="btn-lote" onclick="selecionarLote('NOK')" style="color: #c0392b;">NOK</button>
+    </div>
+
+    <div id="boxMotivo" style="display: none; margin-top: 10px;">
+        <label class="secao-titulo">Motivo Reprovação</label>
+        <input type="text" id="motivoReprovacao" placeholder="Digite o motivo da reprovação">
+    </div>
+
+    <label class="secao-titulo">Fotografia do Recebimento</label>
+    <button type="button" class="btn-scan" style="background: #7f8c8d;" onclick="document.getElementById('fotoInput').click()">📷 REGISTRAR FOTOGRAFIA</button>
+    <input type="file" accept="image/*" capture="environment" id="fotoInput" style="display: none;" onchange="capturarFoto(this)">
+    
+    <div id="previewContainer" style="display: none; text-align: center; margin-top: 10px;">
+        <img id="imgPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #ccc;">
+    </div>
+
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">REGISTRAR RECEBIMENTO</button>
 </div>
 
-<div id="scannerTela">
-    <div id="reader"></div>
-    <div style="position:absolute; bottom:40px; width:100%; text-align:center;">
-        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button>
-    </div>
-</div>
+<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
 
 <script>
-let scanner; let listaOS = [];
+let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = "";
+const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
-// Define a data de hoje no carregamento da página
 window.onload = () => { 
     const hoje = new Date();
     const ano = hoje.getFullYear();
@@ -66,7 +116,7 @@ window.onload = () => {
     document.getElementById('dataRecebimento').value = `${ano}-${mes}-${dia}`;
 };
 
-// Mecanismo de Câmera e Scanner idêntico ao que funciona perfeitamente
+// MOTOR DA CÂMERA MANTIDO EXATAMENTE COMO ESTAVA
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
@@ -76,29 +126,104 @@ function abrirScanner() {
     });
 }
 
-function fecharScanner() { 
-    if (scanner) { 
-        scanner.stop().then(() => { 
-            document.getElementById("scannerTela").style.display = "none"; 
-        }); 
-    } 
+function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
+function addManual() { let n = prompt("Digite o número da OS:"); if (n && !listaOS.includes(n)) { listaOS.push(n); atualizarExibicao(); } }
+function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
+function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
+
+// LÓGICA DINÂMICA DO CROMATO
+function verificarCromato(val) {
+    const campoOutro = document.getElementById("cromatoOutro");
+    if (val === "Outro") {
+        campoOutro.style.display = "block";
+        campoOutro.focus();
+    } else {
+        campoOutro.style.display = "none";
+        campoOutro.value = "";
+    }
 }
 
-function addManual() { 
-    let n = prompt("Digite o número da OS:"); 
-    if (n && !listaOS.includes(n)) { 
-        listaOS.push(n); 
-        atualizarExibicao(); 
-    } 
+// LÓGICA DO LOTE APROVADO (VERDE E VERMELHO)
+function selecionarLote(opcao) {
+    statusLote = opcao;
+    const btnOK = document.getElementById("loteOK");
+    const btnNOK = document.getElementById("loteNOK");
+    const boxMotivo = document.getElementById("boxMotivo");
+
+    if (opcao === "OK") {
+        btnOK.classList.add("btn-ok-ativo");
+        btnNOK.classList.remove("btn-nok-ativo");
+        boxMotivo.style.display = "none";
+        document.getElementById("motivoReprovacao").value = "";
+    } else {
+        btnNOK.classList.add("btn-nok-ativo");
+        btnOK.classList.remove("btn-ok-ativo");
+        boxMotivo.style.display = "block";
+    }
 }
 
-function removerItem(val) { 
-    listaOS = listaOS.filter(i => i !== val); 
-    atualizarExibicao(); 
+// PROCESSO DE FOTOGRAFIA
+function capturarFoto(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            fotoBase64 = e.target.result;
+            document.getElementById("imgPreview").src = e.target.result;
+            document.getElementById("previewContainer").style.display = "block";
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
 }
 
-function atualizarExibicao() { 
-    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); 
+// ENVIO DE INFORMAÇÕES E SALVAMENTO
+function salvar() {
+    const cli = document.getElementById("nomeCliente").value;
+    const nf = document.getElementById("notaFiscal").value;
+    const op = document.getElementById("opCliente").value;
+    const cromatoSel = document.getElementById("cromato").value;
+    const cromatoFinal = cromatoSel === "Outro" ? document.getElementById("cromatoOutro").value : cromatoSel;
+    const linha = document.getElementById("linhaBanho").value;
+    const peso = document.getElementById("kgs").value;
+    const motivo = document.getElementById("motivoReprovacao").value;
+
+    if (listaOS.length === 0 || !cli || !nf || !cromatoFinal || !linha || !peso || !statusLote) { 
+        alert("Preencha todos os campos obrigatórios e escaneie a OS!"); 
+        return; 
+    }
+    if (statusLote === "NOK" && !motivo) {
+        alert("Preencha o motivo da reprovação!");
+        return;
+    }
+    
+    const btn = document.getElementById("btnSalvar"); 
+    btn.disabled = true; 
+    btn.innerText = "SALVANDO...";
+    
+    const payload = { 
+        tipo: "RECEBIMENTO", 
+        data: document.getElementById("dataRecebimento").value, 
+        cliente: cli,
+        notaFiscal: nf,
+        opCliente: op,
+        cromato: cromatoFinal,
+        linhaBanho: linha,
+        kgs: peso,
+        loteAprovado: statusLote,
+        motivoReprovacao: statusLote === "NOK" ? motivo : "",
+        ordens: listaOS,
+        foto: fotoBase64
+    };
+    
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
+    .then(() => { 
+        alert("✅ Recebimento registrado com sucesso!");
+        location.reload(); 
+    })
+    .catch(() => {
+        alert("❌ Erro ao salvar.");
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR RECEBIMENTO";
+    });
 }
 </script>
 </body>
