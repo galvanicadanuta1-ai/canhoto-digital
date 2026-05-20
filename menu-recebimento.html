@@ -32,17 +32,14 @@
         .btn-manual-toggle { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 600; color: #475569; background: none; border: none; cursor: pointer; text-decoration: underline; padding: 5px; }
         .btn-manual-toggle:hover { color: #1e293b; }
 
-        /* Janela Modal da Câmera - Revisada para Tela Cheia sem Linhas Extras */
-        .scanner-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 10000; flex-direction: column; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        .scanner-header { width: 100%; padding: 15px; background: rgba(0,0,0,0.8); display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 10002; }
+        /* Janela Modal da Câmera (Espelhada exatamente das outras telas operacionais) */
+        .scanner-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 10000; flex-direction: column; justify-content: flex-start; align-items: center; box-sizing: border-box; }
+        .scanner-header { width: 100%; padding: 15px; background: #000; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
         .scanner-title { color: white; margin: 0; font-size: 18px; font-weight: bold; }
         .btn-fechar-camera { background: #ef4444; color: white; border: none; padding: 10px 18px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; }
         
-        /* Container de Renderização do Vídeo */
-        #reader { width: 100vw !important; height: calc(100vh - 130px) !important; background: #000000; display: block; position: relative; }
-        #reader__video { width: 100% !important; height: 100% !important; object-fit: cover !important; }
-        
-        .scanner-footer { width: 100%; padding: 15px; background: rgba(0,0,0,0.8); text-align: center; color: #94a3b8; font-size: 13px; box-sizing: border-box; z-index: 10002; }
+        /* Div de Leitura Nativa da biblioteca */
+        #reader { width: 100% !important; max-width: 450px; background: black; }
 
         .hidden { display: none; }
     </style>
@@ -91,7 +88,6 @@
             <button type="button" id="btnFecharCamera" class="btn-fechar-camera">Fechar</button>
         </div>
         <div id="reader"></div>
-        <div class="scanner-footer">Aponte a câmera para o código de barras da OS</div>
     </div>
 
     <script>
@@ -124,62 +120,46 @@
         });
 
         // =========================================================================
-        // MOTOR DE CÂMERA REVISADO (PADRÃO EXATO DAS DEMAIS TELAS OPERACIONAIS)
+        // PADRÃO DE CHAMADA IDÊNTICO ÀS OUTRAS TELAS DO SEU PROJETO
         // =========================================================================
         const btnEscanearOS = document.getElementById('btnEscanearOS');
         const scannerModal = document.getElementById('scannerModal');
         const btnFecharCamera = document.getElementById('btnFecharCamera');
 
+        function onScanSuccess(decodedText, decodedResult) {
+            // Injeta o resultado lido exatamente igual aos demais módulos
+            inputOS.value = decodedText;
+            blocoManual.classList.remove('hidden');
+            toggleBtn.innerText = '- Ocultar Campo da OS';
+            finalizarEscaneamento();
+        }
+
         function iniciarEscaneamento() {
             scannerModal.style.display = 'flex';
             
-            // Instancia o leitor exatamente como nas outras páginas funcionais
-            html5QrcodeScanner = new Html5Qrcode("reader");
-            
-            html5QrcodeScanner.start(
-                { facingMode: "environment" }, // Força o uso da câmera traseira principal
+            // Inicialização padrão da biblioteca que você usa nas outras páginas prontas
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader", 
                 { 
-                    fps: 20, 
-                    qrbox: function(width, height) {
-                        // Janela de leitura otimizada para códigos horizontais (OS industrial)
-                        return { width: Math.floor(width * 0.85), height: Math.floor(height * 0.3) };
-                    },
-                    aspectRatio: 1.777778 // Força proporção 16:9 industrial de tela cheia
+                    fps: 15, 
+                    qrbox: { width: 300, height: 150 },
+                    rememberLastUsedCamera: true,
+                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
                 },
-                (decodedText) => {
-                    // Sucesso na leitura do código de barras
-                    inputOS.value = decodedText;
-                    blocoManual.classList.remove('hidden');
-                    toggleBtn.innerText = '- Ocultar Campo da OS';
-                    finalizarEscaneamento();
-                },
-                (errorMessage) => {
-                    // Varredura de frames contínua
-                }
-            ).catch(err => {
-                console.error("Falha ao inicializar câmera traseira:", err);
-                // Tratamento fallback idêntico aos demais menus operacionais
-                html5QrcodeScanner.start({ facingMode: "user" }, { fps: 20, qrbox: { width: 250, height: 150 } }, (txt) => {
-                    inputOS.value = txt;
-                    blocoManual.classList.remove('hidden');
-                    finalizarEscaneamento();
-                }).catch(e => {
-                    alert("Câmera bloqueada ou não encontrada.");
-                    finalizarEscaneamento();
-                });
-            });
+                /* verbose= */ false
+            );
+            
+            html5QrcodeScanner.render(onScanSuccess);
         }
 
         function finalizarEscaneamento() {
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
+                html5QrcodeScanner.clear().then(() => {
                     html5QrcodeScanner = null;
                     scannerModal.style.display = 'none';
-                    document.getElementById('reader').innerHTML = ""; // Limpa os elementos criados para evitar congelamento
                 }).catch(err => {
-                    html5QrcodeScanner = null;
+                    console.error("Erro ao limpar scanner:", err);
                     scannerModal.style.display = 'none';
-                    document.getElementById('reader').innerHTML = "";
                 });
             } else {
                 scannerModal.style.display = 'none';
