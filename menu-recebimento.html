@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -26,6 +25,17 @@
         /* Botão Voltar Profissional e Discreto */
         .btn-voltar { display: inline-flex; align-items: center; justify-content: center; background: none; border: none; color: #64748b; font-size: 15px; font-weight: 600; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: background 0.2s; text-decoration: none; margin-bottom: 20px; }
         .btn-voltar:hover { background: #f1f5f9; color: #334155; }
+
+        /* Botão Principal de Escanear (Estilo Profissional) */
+        .btn-scan { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; font-size: 16px; font-weight: bold; color: white; background-color: #16a34a; border: none; border-bottom: 4px solid #14532d; border-radius: 10px; cursor: pointer; transition: transform 0.1s; box-sizing: border-box; }
+        .btn-scan:active { transform: translateY(2px); border-bottom-width: 2px; }
+
+        /* Link/Botão Discreto para Digitação Manual */
+        .btn-manual-toggle { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 600; color: #475569; background: none; border: none; cursor: pointer; text-decoration: underline; padding: 5px; }
+        .btn-manual-toggle:hover { color: #1e293b; }
+
+        /* Classe para ocultar elementos inicialmente */
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -46,6 +56,19 @@
             </div>
 
             <div class="form-group">
+                <label>Ordem de Serviço (OS)</label>
+                <button type="button" id="btnEscanearOS" class="btn-scan">📷 ESCANEAR OS</button>
+                
+                <div style="text-align: center;">
+                    <button type="button" id="toggleManualOS" class="btn-manual-toggle">+ Digitar OS Manualmente</button>
+                </div>
+
+                <div id="blocoManualOS" class="hidden" style="margin-top: 12px;">
+                    <input type="text" id="numeroOS" class="form-control" placeholder="Digite o número da OS manual" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="nomeCliente">Nome do Cliente</label>
                 <input type="text" id="nomeCliente" class="form-control" placeholder="Digite o nome do cliente" autocomplete="off">
             </div>
@@ -63,6 +86,23 @@
             const dia = String(hoje.getDate()).padStart(2, '0');
             
             campoData.value = `${ano}-${mes}-${dia}`;
+        });
+
+        // Lógica para mostrar/esconder o campo de digitação manual da OS
+        const toggleBtn = document.getElementById('toggleManualOS');
+        const blocoManual = document.getElementById('blocoManualOS');
+        const inputOS = document.getElementById('numeroOS');
+
+        toggleBtn.addEventListener('click', () => {
+            if (blocoManual.classList.contains('hidden')) {
+                blocoManual.classList.remove('hidden');
+                toggleBtn.innerText = '- Ocultar Digitação Manual';
+                inputOS.focus();
+            } else {
+                blocoManual.classList.add('hidden');
+                toggleBtn.innerText = '+ Digitar OS Manualmente';
+                inputOS.value = ''; // Limpa se ocultar
+            }
         });
     </script>
 
