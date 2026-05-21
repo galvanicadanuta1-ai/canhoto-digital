@@ -13,6 +13,7 @@
         .logo-topo img { height: 30px; }
         .titulo-topo { flex: 1; text-align: center; color: #16a34a; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        .obrigatorio { color: #dc2626; font-weight: bold; margin-left: 3px; }
         
         /* Padronização de inputs e caixas de seleção */
         input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; }
@@ -44,12 +45,12 @@
     <label class="secao-titulo">Data de Recebimento</label>
     <input type="date" id="dataRecebimento">
 
-    <label class="secao-titulo">Ordem de Serviço (OS)</label>
+    <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
     <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
     <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
 
-    <label class="secao-titulo">Nome do Cliente</label>
+    <label class="secao-titulo">Nome do Cliente<span class="obrigatorio">*</span></label>
     <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
 
     <label class="secao-titulo">N° Nota Fiscal</label>
@@ -58,7 +59,7 @@
     <label class="secao-titulo">OP do Cliente</label>
     <input type="text" id="opCliente" placeholder="Digite a OP do Cliente">
 
-    <label class="secao-titulo">Cromato</label>
+    <label class="secao-titulo">Cromato<span class="obrigatorio">*</span></label>
     <select id="cromato" onchange="verificarCromato(this.value)">
         <option value="">-- Selecione o Cromato --</option>
         <option value="Azul Trivalente (Branco)">Azul Trivalente (Branco)</option>
@@ -68,9 +69,9 @@
         <option value="Verde Oliva">Verde Oliva</option>
         <option value="Outro">Outro</option>
     </select>
-    <input type="text" id="cromatoOutro" placeholder="Digite o tipo de Cromato" style="display: none; margin-top: 8px;">
+    <input type="text" id="cromatoOutro" placeholder="Digite o tipo de Cromato*" style="display: none; margin-top: 8px;">
 
-    <label class="secao-titulo">Linha de Banho</label>
+    <label class="secao-titulo">Linha de Banho<span class="obrigatorio">*</span></label>
     <select id="linhaBanho">
         <option value="">-- Selecione a Linha --</option>
         <option value="Parado">Parado</option>
@@ -79,30 +80,30 @@
 
     <div style="display: flex; gap: 10px; margin-top: 5px;">
         <div style="flex: 1;">
-            <label class="secao-titulo" style="margin-top: 10px;">Qtd.</label>
-            <input type="number" id="quantidade" placeholder="Qtd. peças" style="margin-top: 5px;">
+            <label class="secao-titulo" style="margin-top: 10px;">Qtd.<span class="obrigatorio">*</span></label>
+            <input type="number" inputmode="numeric" pattern="[0-9]*" id="quantidade" placeholder="Apenas números" style="margin-top: 5px;">
         </div>
         <div style="flex: 1;">
-            <label class="secao-titulo" style="margin-top: 10px;">Volumes</label>
-            <input type="number" id="volumes" placeholder="Ex: 2 caixas" style="margin-top: 5px;">
+            <label class="secao-titulo" style="margin-top: 10px;">Volumes<span class="obrigatorio">*</span></label>
+            <input type="number" inputmode="numeric" pattern="[0-9]*" id="volumes" placeholder="Apenas números" style="margin-top: 5px;">
         </div>
     </div>
 
-    <label class="secao-titulo">Kgs</label>
-    <input type="number" step="0.01" id="kgs" placeholder="Digite o peso em Kgs">
+    <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
+    <input type="number" inputmode="decimal" step="0.01" id="kgs" placeholder="Digite o peso (Apenas números)">
 
-    <label class="secao-titulo">Lote Aprovado?</label>
+    <label class="secao-titulo">Lote Aprovado?<span class="obrigatorio">*</span></label>
     <div style="display: flex; gap: 10px; margin-top: 5px;">
         <button type="button" id="loteOK" class="btn-lote" onclick="selecionarLote('OK')" style="color: #27ae60;">OK</button>
         <button type="button" id="loteNOK" class="btn-lote" onclick="selecionarLote('NOK')" style="color: #c0392b;">NOK</button>
     </div>
 
     <div id="boxMotivo" style="display: none; margin-top: 10px;">
-        <label class="secao-titulo">Motivo Reprovação</label>
+        <label class="secao-titulo">Motivo Reprovação<span class="obrigatorio">*</span></label>
         <input type="text" id="motivoReprovacao" placeholder="Digite o motivo da reprovação">
     </div>
 
-    <label class="secao-titulo">Fotografia do Recebimento</label>
+    <label class="secao-titulo">Fotografia do Recebimento<span class="obrigatorio">*</span></label>
     <button type="button" class="btn-scan" style="background: #7f8c8d;" onclick="document.getElementById('fotoInput').click()">📷 REGISTRAR FOTOGRAFIA</button>
     <input type="file" accept="image/*" capture="environment" id="fotoInput" style="display: none;" onchange="capturarFoto(this)">
     
@@ -110,7 +111,7 @@
         <img id="imgPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #ccc;">
     </div>
 
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">REGISTRAR RECEBIMENTO</button>
+    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR RECEBIMENTO</button>
 </div>
 
 <div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
@@ -183,25 +184,30 @@ function capturarFoto(input) {
 }
 
 function salvar() {
-    const cli = document.getElementById("nomeCliente").value;
-    const nf = document.getElementById("notaFiscal").value;
-    const op = document.getElementById("opCliente").value;
+    const cli = document.getElementById("nomeCliente").value.trim();
+    const nf = document.getElementById("notaFiscal").value.trim();
+    const op = document.getElementById("opCliente").value.trim();
     const cromatoSel = document.getElementById("cromato").value;
-    const cromatoFinal = cromatoSel === "Outro" ? document.getElementById("cromatoOutro").value : cromatoSel;
+    const cromatoOutroValor = document.getElementById("cromatoOutro").value.trim();
+    const cromatoFinal = cromatoSel === "Outro" ? cromatoOutroValor : cromatoSel;
     const linha = document.getElementById("linhaBanho").value;
     const qtd = document.getElementById("quantidade").value;
     const vols = document.getElementById("volumes").value;
     const peso = document.getElementById("kgs").value;
-    const motivo = document.getElementById("motivoReprovacao").value;
+    const motivo = document.getElementById("motivoReprovacao").value.trim();
 
-    if (listaOS.length === 0 || !cli || !nf || !cromatoFinal || !linha || !qtd || !vols || !peso || !statusLote) { 
-        alert("Por favor, preencha todos os campos obrigatórios e escaneie ao menos uma OS!"); 
-        return; 
-    }
-    if (statusLote === "NOK" && !motivo) {
-        alert("Por favor, preencha o motivo da reprovação!");
-        return;
-    }
+    // VALIDAÇÕES OBRIGATÓRIAS COM ALERTAS ESPECÍFICOS
+    if (listaOS.length === 0) { alert("⚠️ Campo Obrigatório: Escaneie ou digite ao menos uma Ordem de Serviço (OS)!"); return; }
+    if (!cli) { alert("⚠️ Campo Obrigatório: Digite o Nome do Cliente!"); document.getElementById("nomeCliente").focus(); return; }
+    if (!cromatoSel) { alert("⚠️ Campo Obrigatório: Selecione o Cromato!"); document.getElementById("cromato").focus(); return; }
+    if (cromatoSel === "Outro" && !cromatoOutroValor) { alert("⚠️ Campo Obrigatório: Especifique o tipo de Cromato!"); document.getElementById("cromatoOutro").focus(); return; }
+    if (!linha) { alert("⚠️ Campo Obrigatório: Selecione a Linha de Banho!"); document.getElementById("linhaBanho").focus(); return; }
+    if (!qtd || isNaN(qtd)) { alert("⚠️ Campo Obrigatório: Digite uma Quantidade válida!"); document.getElementById("quantidade").focus(); return; }
+    if (!vols || isNaN(vols)) { alert("⚠️ Campo Obrigatório: Digite um Volume válido!"); document.getElementById("volumes").focus(); return; }
+    if (!peso || isNaN(peso)) { alert("⚠️ Campo Obrigatório: Digite o peso em Kgs válido!"); document.getElementById("kgs").focus(); return; }
+    if (!statusLote) { alert("⚠️ Campo Obrigatório: Selecione se o Lote foi Aprovado (OK ou NOK)!"); return; }
+    if (statusLote === "NOK" && !motivo) { alert("⚠️ Campo Obrigatório: Digite o Motivo da Reprovação!"); document.getElementById("motivoReprovacao").focus(); return; }
+    if (!fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa Registrar a Fotografia do lote!"); return; }
     
     const btn = document.getElementById("btnSalvar"); 
     btn.disabled = true; 
@@ -226,13 +232,13 @@ function salvar() {
     
     fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
     .then(() => { 
-        alert("✅ Recebimento registrado com sucesso!");
+        alert("✅ Recebimento registrado e salvo com sucesso!");
         location.reload(); 
     })
     .catch(() => {
-        alert("❌ Erro ao salvar o recebimento.");
+        alert("❌ Erro de comunicação ao salvar o recebimento.");
         btn.disabled = false;
-        btn.innerText = "REGISTRAR RECEBIMENTO";
+        btn.innerText = "SALVAR RECEBIMENTO";
     });
 }
 </script>
