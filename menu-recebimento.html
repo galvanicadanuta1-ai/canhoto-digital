@@ -27,7 +27,7 @@
         .btn-ok-ativo { background: #27ae60 !important; color: white !important; border-color: #27ae60 !important; }
         .btn-nok-ativo { background: #c0392b !important; color: white !important; border-color: #c0392b !important; }
 
-        .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; }
+        .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; }
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
     </style>
@@ -77,6 +77,17 @@
         <option value="Rotativo">Rotativo</option>
     </select>
 
+    <div style="display: flex; gap: 10px; margin-top: 5px;">
+        <div style="flex: 1;">
+            <label class="secao-titulo" style="margin-top: 10px;">Qtd.</label>
+            <input type="number" id="quantidade" placeholder="Qtd. peças" style="margin-top: 5px;">
+        </div>
+        <div style="flex: 1;">
+            <label class="secao-titulo" style="margin-top: 10px;">Volumes</label>
+            <input type="number" id="volumes" placeholder="Ex: 2 caixas" style="margin-top: 5px;">
+        </div>
+    </div>
+
     <label class="secao-titulo">Kgs</label>
     <input type="number" step="0.01" id="kgs" placeholder="Digite o peso em Kgs">
 
@@ -116,7 +127,6 @@ window.onload = () => {
     document.getElementById('dataRecebimento').value = `${ano}-${mes}-${dia}`;
 };
 
-// MOTOR DA CÂMERA MANTIDO EXATAMENTE COMO ESTAVA
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
@@ -131,7 +141,6 @@ function addManual() { let n = prompt("Digite o número da OS:"); if (n && !list
 function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
 function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
 
-// LÓGICA DINÂMICA DO CROMATO
 function verificarCromato(val) {
     const campoOutro = document.getElementById("cromatoOutro");
     if (val === "Outro") {
@@ -143,7 +152,6 @@ function verificarCromato(val) {
     }
 }
 
-// LÓGICA DO LOTE APROVADO (VERDE E VERMELHO)
 function selecionarLote(opcao) {
     statusLote = opcao;
     const btnOK = document.getElementById("loteOK");
@@ -162,7 +170,6 @@ function selecionarLote(opcao) {
     }
 }
 
-// PROCESSO DE FOTOGRAFIA
 function capturarFoto(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -175,7 +182,6 @@ function capturarFoto(input) {
     }
 }
 
-// ENVIO DE INFORMAÇÕES E SALVAMENTO
 function salvar() {
     const cli = document.getElementById("nomeCliente").value;
     const nf = document.getElementById("notaFiscal").value;
@@ -183,21 +189,23 @@ function salvar() {
     const cromatoSel = document.getElementById("cromato").value;
     const cromatoFinal = cromatoSel === "Outro" ? document.getElementById("cromatoOutro").value : cromatoSel;
     const linha = document.getElementById("linhaBanho").value;
+    const qtd = document.getElementById("quantidade").value;
+    const vols = document.getElementById("volumes").value;
     const peso = document.getElementById("kgs").value;
     const motivo = document.getElementById("motivoReprovacao").value;
 
-    if (listaOS.length === 0 || !cli || !nf || !cromatoFinal || !linha || !peso || !statusLote) { 
-        alert("Preencha todos os campos obrigatórios e escaneie a OS!"); 
+    if (listaOS.length === 0 || !cli || !nf || !cromatoFinal || !linha || !qtd || !vols || !peso || !statusLote) { 
+        alert("Por favor, preencha todos os campos obrigatórios e escaneie ao menos uma OS!"); 
         return; 
     }
     if (statusLote === "NOK" && !motivo) {
-        alert("Preencha o motivo da reprovação!");
+        alert("Por favor, preencha o motivo da reprovação!");
         return;
     }
     
     const btn = document.getElementById("btnSalvar"); 
     btn.disabled = true; 
-    btn.innerText = "SALVANDO...";
+    btn.innerText = "SALVANDO RECEBIMENTO...";
     
     const payload = { 
         tipo: "RECEBIMENTO", 
@@ -207,6 +215,8 @@ function salvar() {
         opCliente: op,
         cromato: cromatoFinal,
         linhaBanho: linha,
+        quantidade: qtd,
+        volumes: vols,
         kgs: peso,
         loteAprovado: statusLote,
         motivoReprovacao: statusLote === "NOK" ? motivo : "",
@@ -220,7 +230,7 @@ function salvar() {
         location.reload(); 
     })
     .catch(() => {
-        alert("❌ Erro ao salvar.");
+        alert("❌ Erro ao salvar o recebimento.");
         btn.disabled = false;
         btn.innerText = "REGISTRAR RECEBIMENTO";
     });
