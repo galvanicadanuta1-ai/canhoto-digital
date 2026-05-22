@@ -54,10 +54,10 @@
     <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
 
     <label class="secao-titulo">N° Nota Fiscal</label>
-    <input type="text" id="notaFiscal" placeholder="Digite o número da Nota Fiscal">
+    <input type="number" inputmode="numeric" pattern="[0-9]*" id="notaFiscal" placeholder="Apenas números">
 
     <label class="secao-titulo">OP do Cliente</label>
-    <input type="text" id="opCliente" placeholder="Digite a OP do Cliente">
+    <input type="number" inputmode="numeric" pattern="[0-9]*" id="opCliente" placeholder="Apenas números">
 
     <label class="secao-titulo">Cromato<span class="obrigatorio">*</span></label>
     <select id="cromato" onchange="verificarCromato(this.value)">
@@ -80,7 +80,7 @@
 
     <div style="display: flex; gap: 10px; margin-top: 5px;">
         <div style="flex: 1;">
-            <label class="secao-titulo" style="margin-top: 10px;">Qtd.<span class="obrigatorio">*</span></label>
+            <label class="secao-titulo" style="margin-top: 10px;">Qtd. de Peças<span class="obrigatorio">*</span></label>
             <input type="number" inputmode="numeric" pattern="[0-9]*" id="quantidade" placeholder="Apenas números" style="margin-top: 5px;">
         </div>
         <div style="flex: 1;">
@@ -138,7 +138,19 @@ function abrirScanner() {
 }
 
 function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
-function addManual() { let n = prompt("Digite o número da OS:"); if (n && !listaOS.includes(n)) { listaOS.push(n); atualizarExibicao(); } }
+
+function addManual() { 
+    let n = prompt("Digite o número da OS (Apenas números):"); 
+    if (n) {
+        n = n.trim();
+        if (/^\d+$/.test(n)) {
+            if (!listaOS.includes(n)) { listaOS.push(n); atualizarExibicao(); }
+        } else {
+            alert("⚠️ Erro: O número da OS deve conter apenas números!");
+        }
+    } 
+}
+
 function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
 function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
 
@@ -199,10 +211,15 @@ function salvar() {
     // VALIDAÇÕES OBRIGATÓRIAS COM ALERTAS ESPECÍFICOS
     if (listaOS.length === 0) { alert("⚠️ Campo Obrigatório: Escaneie ou digite ao menos uma Ordem de Serviço (OS)!"); return; }
     if (!cli) { alert("⚠️ Campo Obrigatório: Digite o Nome do Cliente!"); document.getElementById("nomeCliente").focus(); return; }
+    
+    // Validações opcionais mas que se preenchidas precisam ser apenas números
+    if (nf && !/^\d+$/.test(nf)) { alert("⚠️ O campo N° Nota Fiscal deve conter apenas números!"); document.getElementById("notaFiscal").focus(); return; }
+    if (op && !/^\d+$/.test(op)) { alert("⚠️ O campo OP do Cliente deve conter apenas números!"); document.getElementById("opCliente").focus(); return; }
+    
     if (!cromatoSel) { alert("⚠️ Campo Obrigatório: Selecione o Cromato!"); document.getElementById("cromato").focus(); return; }
     if (cromatoSel === "Outro" && !cromatoOutroValor) { alert("⚠️ Campo Obrigatório: Especifique o tipo de Cromato!"); document.getElementById("cromatoOutro").focus(); return; }
     if (!linha) { alert("⚠️ Campo Obrigatório: Selecione a Linha de Banho!"); document.getElementById("linhaBanho").focus(); return; }
-    if (!qtd || isNaN(qtd)) { alert("⚠️ Campo Obrigatório: Digite uma Quantidade válida!"); document.getElementById("quantidade").focus(); return; }
+    if (!qtd || isNaN(qtd)) { alert("⚠️ Campo Obrigatório: Digite uma Qtd. de Peças válida!"); document.getElementById("quantidade").focus(); return; }
     if (!vols || isNaN(vols)) { alert("⚠️ Campo Obrigatório: Digite um Volume válido!"); document.getElementById("volumes").focus(); return; }
     if (!peso || isNaN(peso)) { alert("⚠️ Campo Obrigatório: Digite o peso em Kgs válido!"); document.getElementById("kgs").focus(); return; }
     if (!statusLote) { alert("⚠️ Campo Obrigatório: Selecione se o Lote foi Aprovado (OK ou NOK)!"); return; }
@@ -216,7 +233,7 @@ function salvar() {
         notaFiscal: nf,
         opCliente: op,
         cromato: cromatoFinal,
-        linhaBanho: inline = linha,
+        linhaBanho: linha,
         quantidade: qtd,
         volumes: vols,
         kgs: peso,
@@ -226,11 +243,9 @@ function salvar() {
         foto: fotoBase64
     };
     
-    // NOVO COMPORTAMENTO ASSÍNCRONO ULTRA-RÁPIDO:
-    // O celular dispara o pacote para a nuvem em paralelo...
+    // Envio Assíncrono (Segundo Plano)
     fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
 
-    // ...E libera o operador no mesmo milissegundo!
     alert("✅ Registro enviado com sucesso!");
     location.reload();
 }
