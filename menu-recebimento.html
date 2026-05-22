@@ -195,7 +195,8 @@ function capturarFoto(input) {
     }
 }
 
-function salvar() {
+// Transformado em função assíncrona (async) para segurar o celular até o envio terminar de sair do aparelho
+async function salvar() {
     const cli = document.getElementById("nomeCliente").value.trim();
     const nf = document.getElementById("notaFiscal").value.trim();
     const op = document.getElementById("opCliente").value.trim();
@@ -208,14 +209,10 @@ function salvar() {
     const peso = document.getElementById("kgs").value;
     const motivo = document.getElementById("motivoReprovacao").value.trim();
 
-    // VALIDAÇÕES OBRIGATÓRIAS COM ALERTAS ESPECÍFICOS
     if (listaOS.length === 0) { alert("⚠️ Campo Obrigatório: Escaneie ou digite ao menos uma Ordem de Serviço (OS)!"); return; }
     if (!cli) { alert("⚠️ Campo Obrigatório: Digite o Nome do Cliente!"); document.getElementById("nomeCliente").focus(); return; }
-    
-    // Validações opcionais mas que se preenchidas precisam ser apenas números
     if (nf && !/^\d+$/.test(nf)) { alert("⚠️ O campo N° Nota Fiscal deve conter apenas números!"); document.getElementById("notaFiscal").focus(); return; }
     if (op && !/^\d+$/.test(op)) { alert("⚠️ O campo OP do Cliente deve conter apenas números!"); document.getElementById("opCliente").focus(); return; }
-    
     if (!cromatoSel) { alert("⚠️ Campo Obrigatório: Selecione o Cromato!"); document.getElementById("cromato").focus(); return; }
     if (cromatoSel === "Outro" && !cromatoOutroValor) { alert("⚠️ Campo Obrigatório: Especifique o tipo de Cromato!"); document.getElementById("cromatoOutro").focus(); return; }
     if (!linha) { alert("⚠️ Campo Obrigatório: Selecione a Linha de Banho!"); document.getElementById("linhaBanho").focus(); return; }
@@ -226,6 +223,10 @@ function salvar() {
     if (statusLote === "NOK" && !motivo) { alert("⚠️ Campo Obrigatório: Digite o Motivo da Reprovação!"); document.getElementById("motivoReprovacao").focus(); return; }
     if (!fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa Registrar a Fotografia do lote!"); return; }
     
+    const btn = document.getElementById("btnSalvar");
+    btn.disabled = true;
+    btn.innerText = "ENVIANDO DADOS...";
+
     const payload = { 
         tipo: "RECEBIMENTO", 
         data: document.getElementById("dataRecebimento").value, 
@@ -243,11 +244,16 @@ function salvar() {
         foto: fotoBase64
     };
     
-    // Envio Assíncrono (Segundo Plano)
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-
-    alert("✅ Registro enviado com sucesso!");
-    location.reload();
+    try {
+        // O "await" obriga o celular a transmitir com sucesso o pacote antes de dar o alerta e limpar a tela
+        await fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        alert("✅ Registro enviado com sucesso!");
+        location.reload();
+    } catch (e) {
+        alert("❌ Ocorreu um erro ao tentar transmitir os dados. Verifique a rede e tente novamente.");
+        btn.disabled = false;
+        btn.innerText = "SALVAR RECEBIMENTO";
+    }
 }
 </script>
 </body>
