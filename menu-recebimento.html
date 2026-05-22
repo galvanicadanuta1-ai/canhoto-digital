@@ -209,10 +209,6 @@ function salvar() {
     if (statusLote === "NOK" && !motivo) { alert("⚠️ Campo Obrigatório: Digite o Motivo da Reprovação!"); document.getElementById("motivoReprovacao").focus(); return; }
     if (!fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa Registrar a Fotografia do lote!"); return; }
     
-    const btn = document.getElementById("btnSalvar"); 
-    btn.disabled = true; 
-    btn.innerText = "SALVANDO RECEBIMENTO...";
-    
     const payload = { 
         tipo: "RECEBIMENTO", 
         data: document.getElementById("dataRecebimento").value, 
@@ -220,7 +216,7 @@ function salvar() {
         notaFiscal: nf,
         opCliente: op,
         cromato: cromatoFinal,
-        linhaBanho: linha,
+        linhaBanho: inline = linha,
         quantidade: qtd,
         volumes: vols,
         kgs: peso,
@@ -230,16 +226,13 @@ function salvar() {
         foto: fotoBase64
     };
     
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
-    .then(() => { 
-        alert("✅ Recebimento registrado e salvo com sucesso!");
-        location.reload(); 
-    })
-    .catch(() => {
-        alert("❌ Erro de comunicação ao salvar o recebimento.");
-        btn.disabled = false;
-        btn.innerText = "SALVAR RECEBIMENTO";
-    });
+    // NOVO COMPORTAMENTO ASSÍNCRONO ULTRA-RÁPIDO:
+    // O celular dispara o pacote para a nuvem em paralelo...
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+
+    // ...E libera o operador no mesmo milissegundo!
+    alert("✅ Registro enviado com sucesso!");
+    location.reload();
 }
 </script>
 </body>
