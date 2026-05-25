@@ -12,10 +12,19 @@
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
         .titulo-topo { flex: 1; text-align: center; color: #16a34a; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
+        
+        /* Menu de Escolha Inicial */
+        .menu-escolha { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        .btn-opcao { width: 100%; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: background 0.2s; }
+        .btn-novo-rec { background: #16a34a; color: white; }
+        .btn-consulta-os { background: #0f4c81; color: white; }
+        
+        /* Formulários Ocultos por Padrão */
+        .sub-tela { display: none; }
+
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
         .obrigatorio { color: #dc2626; font-weight: bold; margin-left: 3px; }
         
-        /* Padronização de inputs e caixas de seleção */
         input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; }
         
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #16a34a; color: white; cursor: pointer; }
@@ -23,7 +32,6 @@
         .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #16a34a; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
         .badge-item { background: #e8f5e9; color: #1b5e20; border: 1px solid #1b5e20; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         
-        /* Botões de Seleção OK / NOK do Lote */
         .btn-lote { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; transition: all 0.2s; }
         .btn-ok-ativo { background: #27ae60 !important; color: white !important; border-color: #27ae60 !important; }
         .btn-nok-ativo { background: #c0392b !important; color: white !important; border-color: #c0392b !important; }
@@ -35,83 +43,101 @@
 </head>
 <body>
 <div class="container">
-    <a href="index.html" class="btn-voltar">< Voltar</a>
+    <a href="index.html" id="btnNavegacaoVoltar" class="btn-voltar">< Voltar</a>
 
     <div class="topo">
         <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
-        <div class="titulo-topo">Recebimento</div>
+        <div class="titulo-topo" id="textoMenuTopo">Recebimento</div>
     </div>
     
-    <label class="secao-titulo">Data de Recebimento</label>
-    <input type="date" id="dataRecebimento">
+    <div id="telaEscolhaInicial" class="menu-escolha">
+        <button class="btn-opcao btn-novo-rec" onclick="abrirSubTela('novoRecebimento')">
+            🟢 + Novo Recebimento
+        </button>
+        <button class="btn-opcao btn-consulta-os" onclick="abrirSubTela('consultaOS')">
+            🔍 Consulta OS
+        </button>
+    </div>
 
-    <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
-    <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
-    <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
-    <div class="badge-container" id="contOS"></div>
+    <div id="telaNovoRecebimento" class="sub-tela">
+        <label class="secao-titulo">Data de Recebimento</label>
+        <input type="date" id="dataRecebimento">
 
-    <label class="secao-titulo">Nome do Cliente<span class="obrigatorio">*</span></label>
-    <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
+        <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
+        <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
+        <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
+        <div class="badge-container" id="contOS"></div>
 
-    <label class="secao-titulo">N° Nota Fiscal</label>
-    <input type="number" inputmode="numeric" pattern="[0-9]*" id="notaFiscal" placeholder="Apenas números">
+        <label class="secao-titulo">Nome do Cliente<span class="obrigatorio">*</span></label>
+        <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
 
-    <label class="secao-titulo">OP do Cliente</label>
-    <input type="number" inputmode="numeric" pattern="[0-9]*" id="opCliente" placeholder="Apenas números">
+        <label class="secao-titulo">N° Nota Fiscal</label>
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="notaFiscal" placeholder="Apenas números">
 
-    <label class="secao-titulo">Cromato<span class="obrigatorio">*</span></label>
-    <select id="cromato" onchange="verificarCromato(this.value)">
-        <option value="">-- Selecione o Cromato --</option>
-        <option value="Azul Trivalente (Branco)">Azul Trivalente (Branco)</option>
-        <option value="Amarelo Hexavalente">Amarelo Hexavalente</option>
-        <option value="Amarelo Trivalente">Amarelo Trivalente</option>
-        <option value="Preto">Preto</option>
-        <option value="Verde Oliva">Verde Oliva</option>
-        <option value="Outro">Outro</option>
-    </select>
-    <input type="text" id="cromatoOutro" placeholder="Digite o tipo de Cromato*" style="display: none; margin-top: 8px;">
+        <label class="secao-titulo">OP do Cliente</label>
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="opCliente" placeholder="Apenas números">
 
-    <label class="secao-titulo">Linha de Banho<span class="obrigatorio">*</span></label>
-    <select id="linhaBanho">
-        <option value="">-- Selecione a Linha --</option>
-        <option value="Parado">Parado</option>
-        <option value="Rotativo">Rotativo</option>
-    </select>
+        <label class="secao-titulo">Cromato<span class="obrigatorio">*</span></label>
+        <select id="cromato" onchange="verificarCromato(this.value)">
+            <option value="">-- Selecione o Cromato --</option>
+            <option value="Azul Trivalente (Branco)">Azul Trivalente (Branco)</option>
+            <option value="Amarelo Hexavalente">Amarelo Hexavalente</option>
+            <option value="Amarelo Trivalente">Amarelo Trivalente</option>
+            <option value="Preto">Preto</option>
+            <option value="Verde Oliva">Verde Oliva</option>
+            <option value="Outro">Outro</option>
+        </select>
+        <input type="text" id="cromatoOutro" placeholder="Digite o tipo de Cromato*" style="display: none; margin-top: 8px;">
 
-    <div style="display: flex; gap: 10px; margin-top: 5px;">
-        <div style="flex: 1;">
-            <label class="secao-titulo" style="margin-top: 10px;">Qtd. de Peças<span class="obrigatorio">*</span></label>
-            <input type="number" inputmode="numeric" pattern="[0-9]*" id="quantidade" placeholder="Apenas números" style="margin-top: 5px;">
+        <label class="secao-titulo">Linha de Banho<span class="obrigatorio">*</span></label>
+        <select id="linhaBanho">
+            <option value="">-- Selecione a Linha --</option>
+            <option value="Parado">Parado</option>
+            <option value="Rotativo">Rotativo</option>
+        </select>
+
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <div style="flex: 1;">
+                <label class="secao-titulo" style="margin-top: 10px;">Qtd. de Peças<span class="obrigatorio">*</span></label>
+                <input type="number" inputmode="numeric" pattern="[0-9]*" id="quantidade" placeholder="Apenas números" style="margin-top: 5px;">
+            </div>
+            <div style="flex: 1;">
+                <label class="secao-titulo" style="margin-top: 10px;">Volumes<span class="obrigatorio">*</span></label>
+                <input type="number" inputmode="numeric" pattern="[0-9]*" id="volumes" placeholder="Apenas números" style="margin-top: 5px;">
+            </div>
         </div>
-        <div style="flex: 1;">
-            <label class="secao-titulo" style="margin-top: 10px;">Volumes<span class="obrigatorio">*</span></label>
-            <input type="number" inputmode="numeric" pattern="[0-9]*" id="volumes" placeholder="Apenas números" style="margin-top: 5px;">
+
+        <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
+        <input type="number" inputmode="decimal" step="0.01" id="kgs" placeholder="Digite o peso (Apenas números)">
+
+        <label class="secao-titulo">Lote Aprovado?<span class="obrigatorio">*</span></label>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <button type="button" id="loteOK" class="btn-lote" onclick="selecionarLote('OK')" style="color: #27ae60;">OK</button>
+            <button type="button" id="loteNOK" class="btn-lote" onclick="selecionarLote('NOK')" style="color: #c0392b;">NOK</button>
         </div>
+
+        <div id="boxMotivo" style="display: none; margin-top: 10px;">
+            <label class="secao-titulo">Motivo Reprovação<span class="obrigatorio">*</span></label>
+            <input type="text" id="motivoReprovacao" placeholder="Digite o motivo da reprovação">
+        </div>
+
+        <label class="secao-titulo">Fotografia do Recebimento<span class="obrigatorio">*</span></label>
+        <button type="button" class="btn-scan" style="background: #7f8c8d;" onclick="document.getElementById('fotoInput').click()">📷 REGISTRAR FOTOGRAFIA</button>
+        <input type="file" accept="image/*" capture="environment" id="fotoInput" style="display: none;" onchange="capturarFoto(this)">
+        
+        <div id="previewContainer" style="display: none; text-align: center; margin-top: 10px;">
+            <img id="imgPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #ccc;">
+        </div>
+
+        <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR RECEBIMENTO</button>
     </div>
 
-    <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
-    <input type="number" inputmode="decimal" step="0.01" id="kgs" placeholder="Digite o peso (Apenas números)">
-
-    <label class="secao-titulo">Lote Aprovado?<span class="obrigatorio">*</span></label>
-    <div style="display: flex; gap: 10px; margin-top: 5px;">
-        <button type="button" id="loteOK" class="btn-lote" onclick="selecionarLote('OK')" style="color: #27ae60;">OK</button>
-        <button type="button" id="loteNOK" class="btn-lote" onclick="selecionarLote('NOK')" style="color: #c0392b;">NOK</button>
+    <div id="telaConsultaOS" class="sub-tela">
+        <p style="text-align: center; color: #64748b; margin-top: 40px; font-style: italic;">
+            Área reservada para a Consulta de OS.<br>Pode me passar as instruções assim que quiser configurar este campo!
+        </p>
     </div>
 
-    <div id="boxMotivo" style="display: none; margin-top: 10px;">
-        <label class="secao-titulo">Motivo Reprovação<span class="obrigatorio">*</span></label>
-        <input type="text" id="motivoReprovacao" placeholder="Digite o motivo da reprovação">
-    </div>
-
-    <label class="secao-titulo">Fotografia do Recebimento<span class="obrigatorio">*</span></label>
-    <button type="button" class="btn-scan" style="background: #7f8c8d;" onclick="document.getElementById('fotoInput').click()">📷 REGISTRAR FOTOGRAFIA</button>
-    <input type="file" accept="image/*" capture="environment" id="fotoInput" style="display: none;" onchange="capturarFoto(this)">
-    
-    <div id="previewContainer" style="display: none; text-align: center; margin-top: 10px;">
-        <img id="imgPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #ccc;">
-    </div>
-
-    <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR RECEBIMENTO</button>
 </div>
 
 <div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
@@ -128,6 +154,35 @@ window.onload = () => {
     document.getElementById('dataRecebimento').value = `${ano}-${mes}-${dia}`;
 };
 
+// Gerenciamento de Navegação entre as telas internas
+function abrirSubTela(tela) {
+    document.getElementById("telaEscolhaInicial").style.display = "none";
+    const btnVoltar = document.getElementById("btnNavegacaoVoltar");
+    
+    // Altera o comportamento do botão voltar para não fechar o app direto, mas sim voltar ao menu inicial do recebimento
+    btnVoltar.href = "javascript:voltarParaEscolha()";
+    btnVoltar.innerText = "< Voltar";
+
+    if (tela === 'novoRecebimento') {
+        document.getElementById("telaNovoRecebimento").style.display = "block";
+        document.getElementById("textoMenuTopo").innerText = "Novo Recebimento";
+    } else if (tela === 'consultaOS') {
+        document.getElementById("telaConsultaOS").style.display = "block";
+        document.getElementById("textoMenuTopo").innerText = "Consulta OS";
+    }
+}
+
+function voltarParaEscolha() {
+    document.getElementById("telaNovoRecebimento").style.display = "none";
+    document.getElementById("telaConsultaOS").style.display = "none";
+    document.getElementById("telaEscolhaInicial").style.display = "flex";
+    document.getElementById("textoMenuTopo").innerText = "Recebimento";
+    
+    const btnVoltar = document.getElementById("btnNavegacaoVoltar");
+    btnVoltar.href = "index.html"; // Volta a apontar para a raiz do painel
+}
+
+// Manutenção das funções originais do Script de Recebimento
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
@@ -195,7 +250,6 @@ function capturarFoto(input) {
     }
 }
 
-// Transformado em função assíncrona (async) para segurar o celular até o envio terminar de sair do aparelho
 async function salvar() {
     const cli = document.getElementById("nomeCliente").value.trim();
     const nf = document.getElementById("notaFiscal").value.trim();
@@ -245,7 +299,6 @@ async function salvar() {
     };
     
     try {
-        // O "await" obriga o celular a transmitir com sucesso o pacote antes de dar o alerta e limpar a tela
         await fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
         alert("✅ Registro enviado com sucesso!");
         location.reload();
