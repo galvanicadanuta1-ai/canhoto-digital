@@ -17,7 +17,7 @@
         /* Grupos de Formulário */
         .form-group { margin-bottom: 18px; text-align: left; }
         .form-group label { display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; color: #334155; background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; color: #334155; background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; font-family: inherit; }
         .form-control:focus { border-color: #4f46e5; }
         
         /* Botões de Escanear */
@@ -66,6 +66,11 @@
     </div>
 
     <div class="form-group">
+        <label for="campoKgs">Kgs. Prod.</label>
+        <input type="number" id="campoKgs" class="form-control" step="0.01" min="0" placeholder="0.00" oninput="validarApenasNumeros(this)">
+    </div>
+
+    <div class="form-group">
         <label for="selectLote">Lote</label>
         <select id="selectLote" class="form-control" onchange="verificarLoteParcial(this.value)">
             <option value="Total">Total</option>
@@ -82,8 +87,8 @@
     </div>
 
     <div class="form-group">
-        <label for="campoKgs">Kgs</label>
-        <input type="number" id="campoKgs" class="form-control" step="0.01" min="0" placeholder="0.00" oninput="validarApenasNumeros(this)">
+        <label for="campoObs">Obs.</label>
+        <textarea id="campoObs" class="form-control" rows="3" placeholder="Digite observações sobre o apontamento se houver..." style="resize: none;"></textarea>
     </div>
 
     <button class="btn-salvar" onclick="salvarApontamento()">Salvar Apontamento</button>
@@ -98,7 +103,7 @@
 </div>
 
 <script>
-    // Inicializa o campo de data com o dia de hoje no formato correto
+    // Inicializa o campo de data com o dia de hoje
     window.onload = function() {
         var hoje = new Date();
         var dia = String(hoje.getDate()).padStart(2, '0');
@@ -127,34 +132,34 @@
         }
     }
 
-    // Impede a digitação de caracteres que não sejam numéricos ou ponto de fração
+    // Impede a digitação de caracteres que não sejam numéricos ou ponto
     function validarApenasNumeros(input) {
         input.value = input.value.replace(/[^0-9.]/g, '');
     }
 
-    // Simulação do leitor de câmera (integra com sua biblioteca de scanner)
+    // Simulação do leitor de câmera (integrado com o scanner da fábrica)
     function abrirCameraScanner() {
-        alert("Câmera do Scanner Iniciada! (Integração com a câmera ativa)");
-        // Sua lógica de leitura injeta o valor lido diretamente no input:
+        alert("Câmera do Scanner Iniciada!");
         document.getElementById('grupo-os-manual').classList.remove('hidden');
         document.getElementById('campoOS').value = "12345"; 
     }
 
-    // Estrutura de Envio dos dados para o Google Apps Script
+    // Estrutura de Coleta dos dados finais
     function salvarApontamento() {
         var data = document.getElementById('dataApontamento').value;
         var os = document.getElementById('campoOS').value;
         var turno = document.getElementById('selectTurno').value;
+        var kgs = document.getElementById('campoKgs').value;
         var lote = document.getElementById('selectLote').value;
         var encaminhado = lote === 'Parcial' ? document.getElementById('selectEncaminhado').value : 'N/A';
-        var kgs = document.getElementById('campoKgs').value;
+        var obs = document.getElementById('campoObs').value;
 
         if (!os) {
             alert("Por favor, faça a leitura ou digite o número da OS!");
             return;
         }
         if (!kgs) {
-            alert("Por favor, preencha o peso em Kgs!");
+            alert("Por favor, preencha o peso em Kgs. Prod.!");
             return;
         }
 
@@ -163,13 +168,13 @@
             data: data,
             os: os,
             turno: turno,
+            kgs: kgs,
             lote: lote,
             encaminhado: encaminhado,
-            kgs: kgs
+            obs: obs
         };
 
         alert("Enviando Apontamento:\n" + JSON.stringify(payload, null, 2));
-        // Aqui entra o seu fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) })
     }
 </script>
 
