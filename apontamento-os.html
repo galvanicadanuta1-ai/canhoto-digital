@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Apontamento de OS - Galvânica Danuta</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px 0; box-sizing: border-box; }
+        .container { width: 92%; max-width: 420px; background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; }
+        .logo { width: 180px; margin-bottom: 25px; display: block; margin-left: auto; margin-right: auto; }
+        
+        /* Cabeçalho de Data com Escolha Manual */
+        .topo-data { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #f8fafc; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .topo-data span { font-size: 14px; font-weight: 600; color: #475569; }
+        .topo-data input[type="date"] { border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 6px; font-family: inherit; font-size: 14px; color: #334155; background: white; outline: none; }
+
+        /* Grupos de Formulário */
+        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; color: #334155; background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+        .form-control:focus { border-color: #4f46e5; }
+        
+        /* Botões de Escanear */
+        .btn-scan { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background-color: #4f46e5; border: none; border-bottom: 4px solid #3730a3; color: white; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; transition: transform 0.1s; box-sizing: border-box; }
+        .btn-scan:active { transform: translateY(2px); border-bottom-width: 2px; }
+        
+        .btn-manual { background: none; border: none; color: #4f46e5; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; padding: 5px; display: block; margin: 0 auto 15px auto; }
+
+        /* Lógica Dinâmica Oculta */
+        .hidden { display: none; }
+        
+        /* Ações Finais */
+        .btn-salvar { width: 100%; padding: 18px; background-color: #16a34a; border: none; border-bottom: 5px solid #14532d; color: white; font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 10px; box-sizing: border-box; }
+        .btn-salvar:active { transform: translateY(3px); border-bottom-width: 2px; }
+        
+        .btn-voltar { display: inline-block; margin-top: 20px; padding: 8px 18px; font-size: 13px; font-weight: 600; color: #dc2626; text-decoration: none; border: 1px solid #fca5a5; border-radius: 6px; background: #fff; transition: background 0.2s; text-transform: uppercase; }
+        .btn-voltar:active { background: #fef2f2; }
+
+        .footer { margin-top: 25px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; line-height: 1.5; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo">
+    
+    <div class="topo-data">
+        <span>DATA APONTAMENTO:</span>
+        <input type="date" id="dataApontamento">
+    </div>
+
+    <button class="btn-scan" onclick="abrirCameraScanner()">📷 ESCANEAR OS</button>
+    <button class="btn-manual" onclick="toggleCampoManual()">+ Digitar OS manualmente</button>
+    
+    <div id="grupo-os-manual" class="form-group hidden">
+        <label for="campoOS">Número da OS</label>
+        <input type="text" id="campoOS" class="form-control" placeholder="Digite a OS aqui...">
+    </div>
+
+    <div class="form-group">
+        <label for="selectTurno">Turno</label>
+        <select id="selectTurno" class="form-control">
+            <option value="Dia">Dia</option>
+            <option value="Noite">Noite</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="selectLote">Lote</label>
+        <select id="selectLote" class="form-control" onchange="verificarLoteParcial(this.value)">
+            <option value="Total">Total</option>
+            <option value="Parcial">Parcial</option>
+        </select>
+    </div>
+
+    <div id="grupo-encaminhado" class="form-group hidden">
+        <label for="selectEncaminhado">Ficou Encaminhado?</label>
+        <select id="selectEncaminhado" class="form-control">
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="campoKgs">Kgs</label>
+        <input type="number" id="campoKgs" class="form-control" step="0.01" min="0" placeholder="0.00" oninput="validarApenasNumeros(this)">
+    </div>
+
+    <button class="btn-salvar" onclick="salvarApontamento()">Salvar Apontamento</button>
+
+    <div>
+        <a href="menu-producao.html" class="btn-voltar">Reset</a>
+    </div>
+
+    <div class="footer">
+        Galvânica Danuta &copy; 2026<br>By Marcelo Dallabarba
+    </div>
+</div>
+
+<script>
+    // Inicializa o campo de data com o dia de hoje no formato correto
+    window.onload = function() {
+        var hoje = new Date();
+        var dia = String(hoje.getDate()).padStart(2, '0');
+        var mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        var ano = hoje.getFullYear();
+        document.getElementById('dataApontamento').value = ano + '-' + mes + '-' + dia;
+    };
+
+    // Controla a exibição do campo de digitação manual
+    function toggleCampoManual() {
+        var grupo = document.getElementById('grupo-os-manual');
+        grupo.classList.toggle('hidden');
+        if(!grupo.classList.contains('hidden')){
+            document.getElementById('campoOS').focus();
+        }
+    }
+
+    // Monitora a seleção do Lote para exibir o campo condicional
+    function verificarLoteParcial(valor) {
+        var grupoEncaminhado = document.getElementById('grupo-encaminhado');
+        if (valor === 'Parcial') {
+            grupoEncaminhado.classList.remove('hidden');
+        } else {
+            grupoEncaminhado.classList.add('hidden');
+            document.getElementById('selectEncaminhado').value = 'Sim'; // Reseta valor padrão
+        }
+    }
+
+    // Impede a digitação de caracteres que não sejam numéricos ou ponto de fração
+    function validarApenasNumeros(input) {
+        input.value = input.value.replace(/[^0-9.]/g, '');
+    }
+
+    // Simulação do leitor de câmera (integra com sua biblioteca de scanner)
+    function abrirCameraScanner() {
+        alert("Câmera do Scanner Iniciada! (Integração com a câmera ativa)");
+        // Sua lógica de leitura injeta o valor lido diretamente no input:
+        document.getElementById('grupo-os-manual').classList.remove('hidden');
+        document.getElementById('campoOS').value = "12345"; 
+    }
+
+    // Estrutura de Envio dos dados para o Google Apps Script
+    function salvarApontamento() {
+        var data = document.getElementById('dataApontamento').value;
+        var os = document.getElementById('campoOS').value;
+        var turno = document.getElementById('selectTurno').value;
+        var lote = document.getElementById('selectLote').value;
+        var encaminhado = lote === 'Parcial' ? document.getElementById('selectEncaminhado').value : 'N/A';
+        var kgs = document.getElementById('campoKgs').value;
+
+        if (!os) {
+            alert("Por favor, faça a leitura ou digite o número da OS!");
+            return;
+        }
+        if (!kgs) {
+            alert("Por favor, preencha o peso em Kgs!");
+            return;
+        }
+
+        var payload = {
+            tipo: "APONTAMENTO_OS",
+            data: data,
+            os: os,
+            turno: turno,
+            lote: lote,
+            encaminhado: encaminhado,
+            kgs: kgs
+        };
+
+        alert("Enviando Apontamento:\n" + JSON.stringify(payload, null, 2));
+        // Aqui entra o seu fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) })
+    }
+</script>
+
+</body>
+</html>
