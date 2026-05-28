@@ -1,35 +1,37 @@
+Marcelo, mata a charada! O erro está acontecendo porque o botão de escanear que estava ali era só um "boneco" de teste que eu tinha colocado (com aquele `alert` travando a tela). Ele não estava chamando a biblioteca de câmera real que você usa nas outras telas.
+
+Olhando o código de Recebimento que você mandou antes, vi que você usa a biblioteca **`Html5Qrcode`**. Já puxei a referência exata de como você faz para abrir a câmera em tela cheia, ler o código e fechar o scanner sozinho.
+
+Aqui está o código do seu **`apontamento-os.html` corrigido**, usando exatamente o mesmo motor de câmera padrão das suas outras telas funcionais:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Apontamento de OS - Galvânica Danuta</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px 0; box-sizing: border-box; }
         .container { width: 92%; max-width: 420px; background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; }
         .logo { width: 180px; margin-bottom: 25px; display: block; margin-left: auto; margin-right: auto; }
         
-        /* Cabeçalho de Data com Escolha Manual */
         .topo-data { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #f8fafc; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
         .topo-data span { font-size: 14px; font-weight: 600; color: #475569; }
         .topo-data input[type="date"] { border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 6px; font-family: inherit; font-size: 14px; color: #334155; background: white; outline: none; }
 
-        /* Grupos de Formulário */
         .form-group { margin-bottom: 18px; text-align: left; }
         .form-group label { display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-control { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; color: #334155; background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; font-family: inherit; }
         .form-control:focus { border-color: #4f46e5; }
         
-        /* Botões de Escanear */
         .btn-scan { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background-color: #4f46e5; border: none; border-bottom: 4px solid #3730a3; color: white; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; transition: transform 0.1s; box-sizing: border-box; }
         .btn-scan:active { transform: translateY(2px); border-bottom-width: 2px; }
         
         .btn-manual { background: none; border: none; color: #4f46e5; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; padding: 5px; display: block; margin: 0 auto 15px auto; }
-
-        /* Lógica Dinâmica Oculta */
         .hidden { display: none; }
         
-        /* Ações Finais */
         .btn-salvar { width: 100%; padding: 18px; background-color: #16a34a; border: none; border-bottom: 5px solid #14532d; color: white; font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 10px; box-sizing: border-box; }
         .btn-salvar:active { transform: translateY(3px); border-bottom-width: 2px; }
         
@@ -37,6 +39,10 @@
         .btn-voltar:active { background: #fef2f2; }
 
         .footer { margin-top: 25px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; line-height: 1.5; text-align: center; }
+        
+        /* Layout do Scanner igual aos seus padrões */
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
+        #reader { width: 100% !important; height: 100% !important; }
     </style>
 </head>
 <body>
@@ -54,7 +60,7 @@
     
     <div id="grupo-os-manual" class="form-group hidden">
         <label for="campoOS">Número da OS</label>
-        <input type="text" id="campoOS" class="form-control" placeholder="Digite a OS aqui...">
+        <input type="text" id="campoOS" class="form-control" placeholder="Aguardando leitura ou digitação...">
     </div>
 
     <div class="form-group">
@@ -102,8 +108,17 @@
     </div>
 </div>
 
+<div id="scannerTela">
+    <div id="reader"></div>
+    <div style="position:absolute; bottom:40px; width:100%; text-align:center;">
+        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold; text-transform:uppercase;">FECHAR</button>
+    </div>
+</div>
+
 <script>
-    // Inicializa o campo de data com o dia de hoje
+    let scanner;
+
+    // Inicializa a data com o dia corrente
     window.onload = function() {
         var hoje = new Date();
         var dia = String(hoje.getDate()).padStart(2, '0');
@@ -112,7 +127,6 @@
         document.getElementById('dataApontamento').value = ano + '-' + mes + '-' + dia;
     };
 
-    // Controla a exibição do campo de digitação manual
     function toggleCampoManual() {
         var grupo = document.getElementById('grupo-os-manual');
         grupo.classList.toggle('hidden');
@@ -121,33 +135,60 @@
         }
     }
 
-    // Monitora a seleção do Lote para exibir o campo condicional
     function verificarLoteParcial(valor) {
         var grupoEncaminhado = document.getElementById('grupo-encaminhado');
         if (valor === 'Parcial') {
             grupoEncaminhado.classList.remove('hidden');
         } else {
             grupoEncaminhado.classList.add('hidden');
-            document.getElementById('selectEncaminhado').value = 'Sim'; // Reseta valor padrão
+            document.getElementById('selectEncaminhado').value = 'Sim';
         }
     }
 
-    // Impede a digitação de caracteres que não sejam numéricos ou ponto
     function validarApenasNumeros(input) {
         input.value = input.value.replace(/[^0-9.]/g, '');
     }
 
-    // Simulação do leitor de câmera (integrado com o scanner da fábrica)
+    // DISPARO DE CÂMERA IDÊNTICO AO RECEBIMENTO
     function abrirCameraScanner() {
-        alert("Câmera do Scanner Iniciada!");
-        document.getElementById('grupo-os-manual').classList.remove('hidden');
-        document.getElementById('campoOS').value = "12345"; 
+        document.getElementById("scannerTela").style.display = "block";
+        scanner = new Html5Qrcode("reader");
+        scanner.start(
+            { facingMode: "environment" }, 
+            { fps: 30, qrbox: 250 }, 
+            function(codigoLido) { 
+                // Sucesso na leitura: insere na caixa de texto e abre o container se oculto
+                document.getElementById('grupo-os-manual').classList.remove('hidden');
+                document.getElementById('campoOS').value = codigoLido.trim(); 
+                fecharScanner();
+            },
+            function(erro) {
+                // Silencia logs de varredura padrão para não travar o celular
+            }
+        ).catch(function(err) {
+            alert("Erro ao acessar a câmera traseira.");
+            fecharScanner();
+        });
     }
 
-    // Estrutura de Coleta dos dados finais
+    function fecharScanner() { 
+        if (scanner) { 
+            scanner.stop().then(function() { 
+                document.getElementById("scannerTela").style.display = "none"; 
+            }).catch(function(){
+                document.getElementById("scannerTela").style.display = "none"; 
+            }); 
+        } else {
+            document.getElementById("scannerTela").style.display = "none";
+        }
+    }
+
+    // PROCESSAMENTO E TRANSMISSÃO DOS DADOS
     function salvarApontamento() {
+        var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
+
         var data = document.getElementById('dataApontamento').value;
-        var os = document.getElementById('campoOS').value;
+        var os = document.getElementById('campoOS').value.trim();
         var turno = document.getElementById('selectTurno').value;
         var kgs = document.getElementById('campoKgs').value;
         var lote = document.getElementById('selectLote').value;
@@ -163,6 +204,10 @@
             return;
         }
 
+        var btn = document.querySelector(".btn-salvar");
+        btn.disabled = true;
+        btn.innerText = "ENVIANDO...";
+
         var payload = {
             tipo: "APONTAMENTO_OS",
             data: data,
@@ -174,9 +219,29 @@
             obs: obs
         };
 
-        alert("Enviando Apontamento:\n" + JSON.stringify(payload, null, 2));
+        fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        })
+        .then(function() {
+            alert("Apontamento de OS salvo com sucesso!");
+            document.getElementById('campoOS').value = "";
+            document.getElementById('campoKgs').value = "";
+            document.getElementById('campoObs').value = "";
+            document.getElementById('selectLote').value = "Total";
+            document.getElementById('grupo-encaminhado').classList.add('hidden');
+            document.getElementById('grupo-os-manual').classList.add('hidden');
+        })
+        .catch(function(error) {
+            alert("Erro ao salvar: " + error.message);
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.innerText = "Salvar Apontamento";
+        });
     }
 </script>
-
 </body>
 </html>
+
+```
