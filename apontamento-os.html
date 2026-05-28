@@ -1,10 +1,3 @@
-Marcelo, mata a charada! O erro está acontecendo porque o botão de escanear que estava ali era só um "boneco" de teste que eu tinha colocado (com aquele `alert` travando a tela). Ele não estava chamando a biblioteca de câmera real que você usa nas outras telas.
-
-Olhando o código de Recebimento que você mandou antes, vi que você usa a biblioteca **`Html5Qrcode`**. Já puxei a referência exata de como você faz para abrir a câmera em tela cheia, ler o código e fechar o scanner sozinho.
-
-Aqui está o código do seu **`apontamento-os.html` corrigido**, usando exatamente o mesmo motor de câmera padrão das suas outras telas funcionais:
-
-```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -243,5 +236,3 @@ Aqui está o código do seu **`apontamento-os.html` corrigido**, usando exatamen
 </script>
 </body>
 </html>
-
-```
