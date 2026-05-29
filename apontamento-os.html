@@ -33,9 +33,48 @@
 
         .footer { margin-top: 25px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; line-height: 1.5; text-align: center; }
         
-        /* Layout do Scanner igual aos seus padrões */
-        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
-        #reader { width: 100% !important; height: 100% !important; }
+        /* Layout Alterado para Câmera Ocupar Tela Inteira Real (Full Screen Mobile) */
+        #scannerTela { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            background: #000; 
+            display: none; 
+            z-index: 9999; 
+        }
+        
+        /* Força a biblioteca de leitura a expandir no tamanho máximo do container */
+        #reader { 
+            width: 100% !important; 
+            height: 100% !important; 
+        }
+
+        /* Garante que o elemento interno de vídeo gerado pela biblioteca use a tela toda sem esticar a imagem */
+        #reader video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        /* Botão Vermelho posicionado de forma fixa e flutuando no topo direito do aparelho */
+        .btn-fechar-camera-suspensa {
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 10000; 
+            background: #dc2626; 
+            color: white; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 15px;
+            text-transform: uppercase;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.4);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -101,11 +140,10 @@
     </div>
 </div>
 
+<!-- CONTAINER DA CÂMERA EM TELA CHEIA REAL COM BOTÃO DE FECHAR SUPERIOR -->
 <div id="scannerTela">
     <div id="reader"></div>
-    <div style="position:absolute; bottom:40px; width:100%; text-align:center;">
-        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold; text-transform:uppercase;">FECHAR</button>
-    </div>
+    <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
 </div>
 
 <script>
