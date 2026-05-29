@@ -168,16 +168,13 @@ function validarCPF(cpf) {
     return true;
 }
 
-// FUNÇÃO ATUALIZADA E OTIMIZADA PARA LER CÓDIGO DE BARRAS DE DANFE LONGO
 function abrirScanner(tipo) {
     destino = tipo;
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
     
-    // Configurações específicas baseadas no que está sendo escaneado
     const configuracaoLeitor = { 
         fps: 30, 
-        // Para a Nota Fiscal, removemos a caixa restritiva (qrbox) para pegar a linha inteira da folha
         qrbox: tipo === 'NF' ? undefined : 260,
         formatsToSupport: [ 
             Html5QrcodeSupportedFormats.CODE_128,
@@ -192,8 +189,23 @@ function abrirScanner(tipo) {
         configuracaoLeitor, 
         (codigo) => {
             let n = codigo.replace(/\D/g, '');
-            // Mantém a regra de negócio exata para obter os 9 dígitos da DANFE
-            let num = (tipo === 'NF' && n.length >= 34) ? n.substring(25, 34) : n;
+            let num = n;
+            
+            // FILTRO BLINDADO DA DANFE: Se for NF e contiver a chave completa (44 dígitos), extrai o número
+            if (tipo === 'NF') {
+                if (n.length >= 44) {
+                    num = n.substring(25, 34);
+                } else if (n.length >= 9) {
+                    // Caso venha uma string parcial longa, garante pegar os últimos 9 dígitos antes do dígito verificador
+                    num = n.slice(-10, -1); 
+                }
+            }
+            
+            // Remove zeros à esquerda desnecessários do número filtrado para exibição limpa
+            if (tipo === 'NF') {
+                num = parseInt(num, 10).toString();
+            }
+            
             adicionarValor(num);
             fecharScanner();
         },
