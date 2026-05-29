@@ -21,9 +21,72 @@
         .btn-foto { background: #e74c3c; color: white; padding: 20px; border-radius: 12px; display: block; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; border: 2px solid #c0392b; text-align: center; text-transform: uppercase; margin-top: 10px; }
         #preview { width: 100%; border-radius: 12px; margin-top: 10px; display: none; border: 2px solid #ccc; }
         .btnSalvar { background: #ff0000; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; border-bottom: 5px solid #b30000; cursor: pointer; }
-        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
-        #reader { width: 100% !important; height: 100% !important; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* ==========================================================================
+           LAYOUT CORRIGIDO: CÂMERA OCUPAR TELA INTEIRA PADRONIZADO (RETRABALHO)
+           ========================================================================== */
+        #scannerTela { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            background: #000; 
+            display: none; 
+            z-index: 9999; 
+            overflow: hidden;
+        }
+        
+        #reader { 
+            width: 100% !important; 
+            height: 100% !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* CORREÇÃO DO VISOR: Preenche totalmente as lacunas pretas na reprodução */
+        #reader video {
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: cover !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Suprime textos automáticos gerados dinamicamente no motor js */
+        #reader img, #reader span, #reader div:not(#reader__scan_region) {
+            display: none !important;
+        }
+
+        #reader #reader__scan_region {
+            display: block !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Botão Vermelho Flutuante e Fixo no Topo Direito */
+        .btn-fechar-camera-suspensa {
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 10005; 
+            background: #dc2626; 
+            color: white; 
+            padding: 14px 28px; 
+            border-radius: 8px; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 15px;
+            text-transform: uppercase;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -68,7 +131,10 @@
     <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR RETRABALHO</button>
 </div>
 
-<div id="scannerTela"><div id="reader"></div><div style="position:absolute;bottom:40px;width:100%;text-align:center;"><button onclick="fecharScanner()" style="width:80%;background:#e74c3c;color:white;padding:15px;border-radius:10px;border:none;">FECHAR</button></div></div>
+<div id="scannerTela">
+    <div id="reader"></div>
+    <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
+</div>
 
 <script>
 let scanner; let listaOS = []; let base64Image = "";
@@ -77,8 +143,33 @@ const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syH
 window.onload = () => { document.getElementById('dataRetrabalho').valueAsDate = new Date(); };
 function verificarOutro(val) { document.getElementById('clienteOutro').style.display = val === 'Outro' ? 'block' : 'none'; }
 function exibirPreview(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { base64Image = e.target.result; const prev = document.getElementById('preview'); prev.src = e.target.result; prev.style.display = 'block'; }; reader.readAsDataURL(input.files[0]); } }
-function abrirScanner() { document.getElementById("scannerTela").style.display = "block"; scanner = new Html5Qrcode("reader"); scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (c) => { if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); } fecharScanner(); }); }
-function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
+
+function abrirScanner() { 
+    document.getElementById("scannerTela").style.display = "block"; 
+    scanner = new Html5Qrcode("reader"); 
+    scanner.start(
+        { facingMode: "environment" }, 
+        { fps: 30, qrbox: 250 }, 
+        (c) => { 
+            if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); } 
+            fecharScanner(); 
+        },
+        (erro) => {
+            // Silencia varredura repetitiva
+        }
+    ).catch(() => { alert("Câmera não disponível."); });
+}
+
+function fecharScanner() { 
+    if (scanner) { 
+        scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }).catch(() => {
+            document.getElementById("scannerTela").style.display = "none";
+        }); 
+    } else {
+        document.getElementById("scannerTela").style.display = "none";
+    }
+}
+
 function addManual() { let n = prompt("Digite o número da OS:"); if (n && !listaOS.includes(n)) { listaOS.push(n); atualizarExibicao(); } }
 function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
 function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
