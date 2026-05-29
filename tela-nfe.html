@@ -7,7 +7,7 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; color: #333; }
-        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; }
+        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; margin-top: 10px; }
         .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo { flex: 1; display: flex; justify-content: flex-start; }
         .logo-topo img { height: 30px; }
@@ -26,7 +26,7 @@
         .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; }
         
         /* ==========================================================================
-           LAYOUT CORRIGIDO: CÂMERA OCUPAR TELA INTEIRA ADAPTADA (TELA-NFE)
+           LAYOUT: CÂMERA OCUPAR TELA INTEIRA PADRONIZADO
            ========================================================================== */
         #scannerTela { 
             position: fixed; 
@@ -48,7 +48,6 @@
             left: 0;
         }
 
-        /* CORREÇÃO DO VISOR: Expande a lente do vídeo para cobrir as tarjas pretas da biblioteca */
         #reader video {
             width: 100vw !important;
             height: 100vh !important;
@@ -58,7 +57,6 @@
             left: 0;
         }
 
-        /* Oculta textos de depuração e interfaces indesejadas geradas dinamicamente */
         #reader img, #reader span, #reader div:not(#reader__scan_region) {
             display: none !important;
         }
@@ -76,15 +74,14 @@
             position: absolute; 
             top: 50%; 
             left: 50%; 
-            width: 80%; 
+            width: 85%; 
             height: 2px; 
-            background: red; 
+            background: rgba(255, 0, 0, 0.7); 
             transform: translate(-50%, -50%); 
             z-index: 10000; 
             pointer-events: none; 
         }
 
-        /* Botão Vermelho Flutuante e Fixo no Topo Direito (Padronizado) */
         .btn-fechar-camera-suspensa {
             position: absolute; 
             top: 20px; 
@@ -171,23 +168,37 @@ function validarCPF(cpf) {
     return true;
 }
 
+// FUNÇÃO ATUALIZADA E OTIMIZADA PARA LER CÓDIGO DE BARRAS DE DANFE LONGO
 function abrirScanner(tipo) {
     destino = tipo;
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
     
+    // Configurações específicas baseadas no que está sendo escaneado
+    const configuracaoLeitor = { 
+        fps: 30, 
+        // Para a Nota Fiscal, removemos a caixa restritiva (qrbox) para pegar a linha inteira da folha
+        qrbox: tipo === 'NF' ? undefined : 260,
+        formatsToSupport: [ 
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.ITF,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.QR_CODE
+        ]
+    };
+    
     scanner.start(
         { facingMode: "environment" }, 
-        { fps: 30, qrbox: 250 }, 
+        configuracaoLeitor, 
         (codigo) => {
             let n = codigo.replace(/\D/g, '');
-            // Mantém rigorosamente intacta a regra de negócio para a extração do número da Danfe
+            // Mantém a regra de negócio exata para obter os 9 dígitos da DANFE
             let num = (tipo === 'NF' && n.length >= 34) ? n.substring(25, 34) : n;
             adicionarValor(num);
             fecharScanner();
         },
         (erro) => {
-            // Silencia varredura repetitiva
+            // Silencia varredura padrão
         }
     ).catch(() => { alert("Câmera não disponível."); });
 }
