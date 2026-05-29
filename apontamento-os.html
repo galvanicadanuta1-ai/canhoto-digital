@@ -33,7 +33,9 @@
 
         .footer { margin-top: 25px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; line-height: 1.5; text-align: center; }
         
-        /* Layout Alterado para Câmera Ocupar Tela Inteira Real (Full Screen Mobile) */
+        /* ==========================================================================
+           LAYOUT CORRIGIDO: CÂMERA OCUPAR TELA INTEIRA REAL (MÓBILE FULL SCREEN)
+           ========================================================================== */
         #scannerTela { 
             position: fixed; 
             top: 0; 
@@ -43,36 +45,57 @@
             background: #000; 
             display: none; 
             z-index: 9999; 
+            overflow: hidden;
         }
         
-        /* Força a biblioteca de leitura a expandir no tamanho máximo do container */
         #reader { 
             width: 100% !important; 
-            height: 100% !important; 
+            height: 100% !important;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
-        /* Garante que o elemento interno de vídeo gerado pela biblioteca use a tela toda sem esticar a imagem */
+        /* CORREÇÃO DO FUNDO PRETO: Força o vídeo nativo a cobrir toda a tela visível */
         #reader video {
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: cover !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Oculta textos automáticos, botões extras e bordas geradas pela biblioteca html5-qrcode */
+        #reader img, #reader span, #reader div:not(#reader__scan_region) {
+            display: none !important;
+        }
+
+        /* Mantém ativa apenas a camada invisível de varredura */
+        #reader #reader__scan_region {
+            display: block !important;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100% !important;
             height: 100% !important;
-            object-fit: cover !important;
         }
 
-        /* Botão Vermelho posicionado de forma fixa e flutuando no topo direito do aparelho */
+        /* Botão Vermelho Flutuante e Fixo no Topo Direito da Tela */
         .btn-fechar-camera-suspensa {
             position: absolute; 
             top: 20px; 
             right: 20px; 
-            z-index: 10000; 
+            z-index: 10005; 
             background: #dc2626; 
             color: white; 
-            padding: 12px 24px; 
+            padding: 14px 28px; 
             border-radius: 8px; 
             border: none; 
             font-weight: bold; 
             font-size: 15px;
             text-transform: uppercase;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.4);
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
             cursor: pointer;
         }
     </style>
@@ -140,7 +163,6 @@
     </div>
 </div>
 
-<!-- CONTAINER DA CÂMERA EM TELA CHEIA REAL COM BOTÃO DE FECHAR SUPERIOR -->
 <div id="scannerTela">
     <div id="reader"></div>
     <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
@@ -243,7 +265,7 @@
             tipo: "APONTAMENTO_OS",
             data: data,
             os: os,
-            turno: turno,
+            turn: turno,
             kgs: kgs,
             lote: lote,
             encaminhado: encaminhado,
