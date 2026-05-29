@@ -24,9 +24,83 @@
         input { width: 100%; padding: 15px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
         #assinatura { border: 2px solid #0f4c81; width: 100%; height: 200px; background: white; border-radius: 10px; margin-top: 10px; touch-action: none; }
         .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; }
-        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
-        #reader { width: 100% !important; height: 100% !important; }
-        .linha-guia { position: absolute; top: 50%; left: 50%; width: 80%; height: 2px; background: red; transform: translate(-50%, -50%); z-index: 10000; pointer-events: none; }
+        
+        /* ==========================================================================
+           LAYOUT CORRIGIDO: CÂMERA OCUPAR TELA INTEIRA ADAPTADA (TELA-NFE)
+           ========================================================================== */
+        #scannerTela { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            background: #000; 
+            display: none; 
+            z-index: 9999; 
+            overflow: hidden;
+        }
+        
+        #reader { 
+            width: 100% !important; 
+            height: 100% !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* CORREÇÃO DO VISOR: Expande a lente do vídeo para cobrir as tarjas pretas da biblioteca */
+        #reader video {
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: cover !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Oculta textos de depuração e interfaces indesejadas geradas dinamicamente */
+        #reader img, #reader span, #reader div:not(#reader__scan_region) {
+            display: none !important;
+        }
+
+        #reader #reader__scan_region {
+            display: block !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .linha-guia { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            width: 80%; 
+            height: 2px; 
+            background: red; 
+            transform: translate(-50%, -50%); 
+            z-index: 10000; 
+            pointer-events: none; 
+        }
+
+        /* Botão Vermelho Flutuante e Fixo no Topo Direito (Padronizado) */
+        .btn-fechar-camera-suspensa {
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 10005; 
+            background: #dc2626; 
+            color: white; 
+            padding: 14px 28px; 
+            border-radius: 8px; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 15px;
+            text-transform: uppercase;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -63,9 +137,7 @@
 <div id="scannerTela">
     <div id="reader"></div>
     <div class="linha-guia"></div>
-    <div style="position:absolute; bottom:40px; width:100%; text-align:center; z-index:10001;">
-        <button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; font-weight:bold;">CANCELAR</button>
-    </div>
+    <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
 </div>
 
 <script>
@@ -109,16 +181,24 @@ function abrirScanner(tipo) {
         { fps: 30, qrbox: 250 }, 
         (codigo) => {
             let n = codigo.replace(/\D/g, '');
+            // Mantém rigorosamente intacta a regra de negócio para a extração do número da Danfe
             let num = (tipo === 'NF' && n.length >= 34) ? n.substring(25, 34) : n;
             adicionarValor(num);
             fecharScanner();
+        },
+        (erro) => {
+            // Silencia varredura repetitiva
         }
     ).catch(() => { alert("Câmera não disponível."); });
 }
 
 function fecharScanner() {
     if (scanner) {
-        scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; });
+        scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }).catch(() => {
+            document.getElementById("scannerTela").style.display = "none";
+        });
+    } else {
+        document.getElementById("scannerTela").style.display = "none";
     }
 }
 
