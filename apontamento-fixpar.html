@@ -1,1 +1,230 @@
 
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Apontamento Fixpar - Galvânica Danuta</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px 0; box-sizing: border-box; }
+        .container { width: 92%; max-width: 420px; background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; }
+        .logo { width: 180px; margin-bottom: 25px; display: block; margin-left: auto; margin-right: auto; }
+        
+        .topo-data { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #f8fafc; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .topo-data span { font-size: 14px; font-weight: 600; color: #475569; }
+        .topo-data input[type="date"] { border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 6px; font-family: inherit; font-size: 14px; color: #334155; background: white; outline: none; }
+
+        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 15px; color: #334155; background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; font-family: inherit; }
+        .form-control:focus { border-color: #0284c7; }
+        
+        .btn-scan { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px; background-color: #0284c7; border: none; border-bottom: 4px solid #0369a1; color: white; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px; transition: transform 0.1s; box-sizing: border-box; }
+        .btn-scan:active { transform: translateY(2px); border-bottom-width: 2px; }
+        
+        .btn-manual { background: none; border: none; color: #0284c7; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; padding: 5px; display: block; margin: 0 auto 15px auto; }
+        .hidden { display: none; }
+        
+        .btn-salvar { width: 100%; padding: 18px; background-color: #16a34a; border: none; border-bottom: 5px solid #14532d; color: white; font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 10px; box-sizing: border-box; }
+        .btn-salvar:active { transform: translateY(3px); border-bottom-width: 2px; }
+        
+        .btn-voltar { display: inline-block; margin-top: 20px; padding: 8px 18px; font-size: 13px; font-weight: 600; color: #dc2626; text-decoration: none; border: 1px solid #fca5a5; border-radius: 6px; background: #fff; transition: background 0.2s; text-transform: uppercase; }
+        .btn-voltar:active { background: #fef2f2; }
+
+        .footer { margin-top: 25px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; line-height: 1.5; text-align: center; }
+        
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; overflow: hidden; }
+        #reader { width: 100% !important; height: 100% !important; position: absolute; top: 0; left: 0; }
+        #reader video { width: 100vw !important; height: 100vh !important; object-fit: cover !important; position: absolute; top: 0; left: 0; }
+        #reader img, #reader span, #reader div:not(#reader__scan_region) { display: none !important; }
+        #reader #reader__scan_region { display: block !important; position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+        .btn-fechar-camera-suspensa { position: absolute; top: 20px; right: 20px; z-index: 10005; background: #dc2626; color: white; padding: 14px 28px; border-radius: 8px; border: none; font-weight: bold; font-size: 15px; text-transform: uppercase; box-shadow: 0px 4px 12px rgba(0,0,0,0.5); cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo">
+    
+    <div class="topo-data">
+        <span>DATA APONTAMENTO:</span>
+        <input type="date" id="dataApontamento">
+    </div>
+
+    <button class="btn-scan" onclick="abrirCameraScanner()">📷 ESCANEAR OS</button>
+    <button class="btn-manual" onclick="toggleCampoManual()">+ Digitar OS manualmente</button>
+    
+    <div id="grupo-os-manual" class="form-group hidden">
+        <label for="campoOS">Número da OS</label>
+        <input type="text" id="campoOS" class="form-control" placeholder="Aguardando leitura ou digitação...">
+    </div>
+
+    <div class="form-group">
+        <label for="selectTurno">Turno</label>
+        <select id="selectTurno" class="form-control">
+            <option value="Dia">Dia</option>
+            <option value="Noite">Noite</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="campoKgs">Kgs. Prod.</label>
+        <input type="number" id="campoKgs" class="form-control" step="0.01" min="0" placeholder="0.00" oninput="validarApenasNumeros(this)">
+    </div>
+
+    <div class="form-group">
+        <label for="selectLote">Lote</label>
+        <select id="selectLote" class="form-control" onchange="verificarLoteParcial(this.value)">
+            <option value="Total">Total</option>
+            <option value="Parcial">Parcial</option>
+        </select>
+    </div>
+
+    <div id="grupo-encaminhado" class="form-group hidden">
+        <label for="selectEncaminhado">Ficou Encaminhado?</label>
+        <select id="selectEncaminhado" class="form-control">
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="campoObs">Obs.</label>
+        <textarea id="campoObs" class="form-control" rows="3" placeholder="Digite observações sobre o apontamento se houver..." style="resize: none;"></textarea>
+    </div>
+
+    <button class="btn-salvar" onclick="salvarApontamento()">Apontar OP Fixpar</button>
+
+    <div>
+        <a href="menu-producao.html" class="btn-voltar">Reset</a>
+    </div>
+
+    <div class="footer">
+        Galvânica Danuta &copy; 2026<br>By Marcelo Dallabarba
+    </div>
+</div>
+
+<div id="scannerTela">
+    <div id="reader"></div>
+    <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
+</div>
+
+<script>
+    let scanner;
+
+    window.onload = function() {
+        var hoje = new Date();
+        var dia = String(hoje.getDate()).padStart(2, '0');
+        var mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        var ano = hoje.getFullYear();
+        document.getElementById('dataApontamento').value = ano + '-' + mes + '-' + dia;
+    };
+
+    defineAcoesCampos()
+
+    function toggleCampoManual() {
+        var grupo = document.getElementById('grupo-os-manual');
+        grupo.classList.toggle('hidden');
+        if(!grupo.classList.contains('hidden')){
+            document.getElementById('campoOS').focus();
+        }
+    }
+
+    function verificarLoteParcial(valor) {
+        var grupoEncaminhado = document.getElementById('grupo-encaminhado');
+        if (valor === 'Parcial') {
+            grupoEncaminhado.classList.remove('hidden');
+        } else {
+            grupoEncaminhado.classList.add('hidden');
+            document.getElementById('selectEncaminhado').value = 'Sim';
+        }
+    }
+
+    function validarApenasNumeros(input) {
+        input.value = input.value.replace(/[^0-9.]/g, '');
+    }
+
+    function abrirCameraScanner() {
+        document.getElementById("scannerTela").style.display = "block";
+        scanner = new Html5Qrcode("reader");
+        scanner.start(
+            { facingMode: "environment" }, 
+            { fps: 30, qrbox: 250 }, 
+            function(codigoLido) { 
+                document.getElementById('grupo-os-manual').classList.remove('hidden');
+                document.getElementById('campoOS').value = codigoLido.trim(); 
+                fecharScanner();
+            },
+            function(erro) {}
+        ).catch(function(err) {
+            alert("Erro ao acessar a câmera traseira.");
+            fecharScanner();
+        });
+    }
+
+    function fecharScanner() { 
+        if (scanner) { 
+            scanner.stop().then(function() { 
+                document.getElementById("scannerTela").style.display = "none"; 
+            }).catch(function(){
+                document.getElementById("scannerTela").style.display = "none"; 
+            }); 
+        } else {
+            document.getElementById("scannerTela").style.display = "none";
+        }
+    }
+
+    function salvarApontamento() {
+        var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
+
+        var data = document.getElementById('dataApontamento').value;
+        var os = document.getElementById('campoOS').value.trim();
+        var turno = document.getElementById('selectTurno').value;
+        var kgs = document.getElementById('campoKgs').value;
+        var lote = document.getElementById('selectLote').value;
+        var encaminhado = lote === 'Parcial' ? document.getElementById('selectEncaminhado').value : 'N/A';
+        var obs = document.getElementById('campoObs').value;
+
+        if (!os) { alert("Por favor, faça a leitura ou digite o número da OS!"); return; }
+        if (!kgs) { alert("Por favor, preencha o peso em Kgs. Prod.!"); return; }
+
+        var btn = document.querySelector(".btn-salvar");
+        btn.disabled = true;
+        btn.innerText = "ENVIANDO...";
+
+        var payload = {
+            tipo: "APONTAMENTO_FIXPAR",
+            data: data,
+            os: os,
+            turno: turno,
+            kgs: kgs,
+            lote: lote,
+            encaminhado: encaminhado,
+            obs: obs
+        };
+
+        fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        })
+        .then(function() {
+            alert("Apontamento Fixpar salvo com sucesso!");
+            document.getElementById('campoOS').value = "";
+            document.getElementById('campoKgs').value = "";
+            document.getElementById('campoObs').value = "";
+            document.getElementById('selectLote').value = "Total";
+            document.getElementById('grupo-encaminhado').classList.add('hidden');
+            document.getElementById('grupo-os-manual').classList.add('hidden');
+        })
+        .catch(function(error) {
+            alert("Erro ao salvar: " + error.message);
+        })
+        .finally(function() {
+            btn.disabled = false;
+            btn.innerText = "Apontar OP Fixpar";
+        });
+    }
+</script>
+</body>
+</html>
