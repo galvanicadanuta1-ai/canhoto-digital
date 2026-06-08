@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Produção - Galvânica Danuta</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .container { width: 90%; max-width: 400px; text-align: center; background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .logo { width: 220px; margin-bottom: 40px; }
-        .btn-menu { display: flex; align-items: center; justify-content: center; width: 100%; padding: 25px 0; margin-bottom: 20px; font-size: 18px; font-weight: bold; color: white; text-decoration: none; border-radius: 12px; border: none; cursor: pointer; transition: transform 0.1s ease; box-sizing: border-box; text-transform: uppercase; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px 0; box-sizing: border-box; }
+        .container { width: 90%; max-width: 400px; text-align: center; background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .logo { width: 220px; margin-bottom: 35px; display: block; margin-left: auto; margin-right: auto; }
+        .btn-menu { display: flex; align-items: center; justify-content: center; width: 100%; padding: 22px 0; margin-bottom: 18px; font-size: 16px; font-weight: bold; color: white; text-decoration: none; border-radius: 12px; border: none; cursor: pointer; transition: transform 0.1s ease; box-sizing: border-box; text-transform: uppercase; }
         
-        /* Cor do Botão de Apontamento */
+        /* Cores dos Botões do Menu */
         .btn-apontamento { background-color: #4f46e5; border-bottom: 5px solid #3730a3; }
+        .btn-fixpar { background-color: #0284c7; border-bottom: 5px solid #0369a1; }
+        .btn-macrosul { background-color: #0f766e; border-bottom: 5px solid #115e59; }
         
         /* Botão Voltar Profissional e Sem Exageros */
-        .btn-voltar { display: inline-block; margin-top: 10px; padding: 10px 20px; font-size: 14px; font-weight: 600; color: #64748b; text-decoration: none; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; transition: background 0.2s; }
+        .btn-voltar { display: inline-block; margin-top: 10px; padding: 10px 20px; font-size: 14px; font-weight: 600; color: #64748b; text-decoration: none; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; transition: background 0.2s; text-transform: uppercase; }
         .btn-voltar:active { background: #f8fafc; }
         
         .btn-menu:active { transform: translateY(3px); border-bottom-width: 2px; }
@@ -26,6 +28,8 @@
         <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo">
         
         <a href="apontamento-os.html" class="btn-menu btn-apontamento">⚙️ Apontamento de OS</a>
+        <a href="apontamento-fixpar.html" class="btn-menu btn-fixpar">🔩 Apontamento Fixpar</a>
+        <a href="apontamento-macrosul.html" class="btn-menu btn-macrosul">🛠️ Apontamento Macrosul</a>
         
         <a href="index.html" class="btn-voltar">Reset</a>
         
