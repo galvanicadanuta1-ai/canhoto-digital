@@ -60,6 +60,11 @@
     </div>
 
     <div class="form-group">
+        <label for="campoKgs">Kgs. Prod.</label>
+        <input type="number" id="campoKgs" class="form-control" step="0.01" placeholder="Digite o peso em quilos...">
+    </div>
+
+    <div class="form-group">
         <label for="selectTurno">Turno</label>
         <select id="selectTurno" class="form-control">
             <option value="Dia">Dia</option>
@@ -168,12 +173,14 @@
 
         var data = document.getElementById('dataApontamento').value;
         var os = document.getElementById('campoOS').value.trim();
+        var kgs = document.getElementById('campoKgs').value.trim();
         var turno = document.getElementById('selectTurno').value;
         var lote = document.getElementById('selectLote').value;
         var encaminhado = lote === 'Parcial' ? document.getElementById('selectEncaminhado').value : 'N/A';
         var obs = document.getElementById('campoObs').value;
 
         if (!os) { alert("Por favor, faça a leitura ou digite o número da OP!"); return; }
+        if (!kgs) { alert("Por favor, insira o peso em Kgs!"); return; }
 
         var btn = document.querySelector(".btn-salvar");
         btn.disabled = true;
@@ -184,7 +191,7 @@
             data: data,
             os: os,
             turno: turno,
-            kgs: "0", // Fixo para manter alinhamento das colunas sem quebrar a estrutura existente
+            kgs: kgs,
             lote: lote,
             encaminhado: encaminhado,
             obs: obs
@@ -197,6 +204,7 @@
         .then(function() {
             alert("Apontamento Macrosul salvo com sucesso!");
             document.getElementById('campoOS').value = "";
+            document.getElementById('campoKgs').value = "";
             document.getElementById('campoObs').value = "";
             document.getElementById('selectLote').value = "Total";
             document.getElementById('grupo-encaminhado').classList.add('hidden');
