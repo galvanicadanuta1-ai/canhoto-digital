@@ -35,8 +35,72 @@
 
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; }
         .btn-buscar { background: #0f4c81; color: white; padding: 12px; font-weight: bold; border: none; border-radius: 8px; margin-top: 8px; width: 100%; cursor: pointer; font-size: 16px; }
-        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
-        #reader { width: 100% !important; height: 100% !important; }
+
+        /* ==========================================================================
+           LAYOUT CORRIGIDO: CÂMERA OCUPAR TELA INTEIRA REAL (MÓBILE FULL SCREEN)
+           ========================================================================== */
+        #scannerTela { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            background: #000; 
+            display: none; 
+            z-index: 9999; 
+            overflow: hidden;
+        }
+        
+        #reader { 
+            width: 100% !important; 
+            height: 100% !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* CORREÇÃO DO FUNDO PRETO: Força o vídeo nativo a cobrir toda a tela visível */
+        #reader video {
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: cover !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Oculta textos automáticos, botões extras e bordas geradas pela biblioteca html5-qrcode */
+        #reader img, #reader span, #reader div:not(#reader__scan_region) {
+            display: none !important;
+        }
+
+        /* Mantém ativa apenas a camada invisível de varredura */
+        #reader #reader__scan_region {
+            display: block !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Botão Vermelho Flutuante e Fixo no Topo Direito da Tela */
+        .btn-fechar-camera-suspensa {
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 10005; 
+            background: #dc2626; 
+            color: white; 
+            padding: 14px 28px; 
+            border-radius: 8px; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 15px;
+            text-transform: uppercase;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -137,7 +201,10 @@
 
 </div>
 
-<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
+<div id="scannerTela">
+    <div id="reader"></div>
+    <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
+</div>
 
 <script>
 let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = ""; let modoAtual = "INSERIR";
@@ -181,7 +248,7 @@ function voltarParaEscolha() {
     document.getElementById("btnNavegacaoVoltar").href = "index.html";
 }
 
-async function executarConsultaOS() {
+async function ejecutarConsultaOS() {
     const os = document.getElementById("osBuscaInput").value.trim();
     if (!os) { alert("⚠️ Digite um número de OS válido!"); return; }
 
@@ -190,7 +257,6 @@ async function executarConsultaOS() {
     btn.innerText = "BUSCANDO NA PLANILHA...";
 
     try {
-        // Para receber dados de volta da API, usamos um redirecionamento CORS padrão
         const resposta = await fetch(apiUrl, {
             method: "POST",
             body: JSON.stringify({ tipo: "BUSCAR_OS", os: os })
@@ -204,12 +270,10 @@ async function executarConsultaOS() {
             document.getElementById("textoMenuTopo").innerText = "Editar Registro";
             document.getElementById("btnSalvar").innerText = "SALVAR ALTERAÇÕES";
             
-            // Oculta os botões de adicionar novas OS na edição para não quebrar a chave da busca
             document.getElementById("btnScanOS").style.display = "none";
             document.getElementById("btnManualOS").style.display = "none";
             document.getElementById("tituloFoto").innerHTML = 'Substituir Fotografia (Opcional)';
 
-            // Preenche os campos vindos da planilha
             document.getElementById("linhaPlanilhaEdicao").value = dados.linha;
             document.getElementById("dataRecebimento").value = dados.data;
             listaOS = dados.ordens;
@@ -246,7 +310,7 @@ async function executarConsultaOS() {
             } else {
                 document.getElementById("previewContainer").style.display = "none";
             }
-            fotoBase64 = ""; // Reseta para só subir se o usuário tirar uma nova foto
+            fotoBase64 = "";
 
         } else {
             alert("❌ Alerta: " + dados.msg);
@@ -283,16 +347,40 @@ function limparFormulario() {
     fotoBase64 = "";
 }
 
+// ATUALIZADO: DISPARO DE DISPOSITIVO COM LAYOUT CORRIGIDO DE CÂMERA IMERSIVA
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
-    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (c) => { 
-        if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); }
+    scanner.start(
+        { facingMode: "environment" }, 
+        { fps: 30, qrbox: 250 }, 
+        (c) => { 
+            if(!listaOS.includes(c)) { 
+                listaOS.push(c); 
+                atualizarExibicao(); 
+            }
+            fecharScanner();
+        },
+        (erro) => {
+            // Silencia varreduras vazias em tempo real para otimizar processamento móbile
+        }
+    ).catch((err) => {
+        alert("Erro ao acessar a câmera traseira.");
         fecharScanner();
     });
 }
 
-function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
+function fecharScanner() { 
+    if (scanner) { 
+        scanner.stop().then(() => { 
+            document.getElementById("scannerTela").style.display = "none"; 
+        }).catch(() => {
+            document.getElementById("scannerTela").style.display = "none";
+        }); 
+    } else {
+        document.getElementById("scannerTela").style.display = "none";
+    }
+}
 
 function addManual() { 
     let n = prompt("Digite o número da OS (Apenas números):"); 
@@ -305,7 +393,7 @@ function addManual() {
 }
 
 function removerItem(val) { 
-    if (modoAtual === "EDITAR") return; // Bloqueia remoção de OS na edição
+    if (modoAtual === "EDITAR") return;
     listaOS = listaOS.filter(i => i !== val); 
     atualizarExibicao(); 
 }
