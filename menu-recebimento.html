@@ -36,9 +36,7 @@
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; }
         .btn-buscar { background: #0f4c81; color: white; padding: 12px; font-weight: bold; border: none; border-radius: 8px; margin-top: 8px; width: 100%; cursor: pointer; font-size: 16px; }
 
-        /* ==========================================================================
-           LAYOUT CORRIGIDO: CÂMERA OCUPAR TELA INTEIRA REAL (MÓBILE FULL SCREEN)
-           ========================================================================== */
+        /* CÂMERA EM TELA CHEIA (MÓBILE FULL SCREEN) */
         #scannerTela { 
             position: fixed; 
             top: 0; 
@@ -59,7 +57,6 @@
             left: 0;
         }
 
-        /* CORREÇÃO DO FUNDO PRETO: Força o vídeo nativo a cobrir toda a tela visível */
         #reader video {
             width: 100vw !important;
             height: 100vh !important;
@@ -69,12 +66,11 @@
             left: 0;
         }
 
-        /* Oculta textos automáticos, botões extras e bordas geradas pela biblioteca html5-qrcode */
+        /* Oculta textos automáticos e botões nativos da biblioteca html5-qrcode */
         #reader img, #reader span, #reader div:not(#reader__scan_region) {
             display: none !important;
         }
 
-        /* Mantém ativa apenas a camada invisível de varredura */
         #reader #reader__scan_region {
             display: block !important;
             position: absolute;
@@ -84,7 +80,7 @@
             height: 100% !important;
         }
 
-        /* Botão Vermelho Flutuante e Fixo no Topo Direito da Tela */
+        /* Botão Vermelho Superior Direito para Fechar o Scanner */
         .btn-fechar-camera-suspensa {
             position: absolute; 
             top: 20px; 
@@ -248,7 +244,8 @@ function voltarParaEscolha() {
     document.getElementById("btnNavegacaoVoltar").href = "index.html";
 }
 
-async function ejecutarConsultaOS() {
+// CORRIGIDO: Modificado de "ejecutar" para "executar" para alinhar perfeitamente com o botão HTML
+async function executarConsultaOS() {
     const os = document.getElementById("osBuscaInput").value.trim();
     if (!os) { alert("⚠️ Digite um número de OS válido!"); return; }
 
@@ -347,7 +344,6 @@ function limparFormulario() {
     fotoBase64 = "";
 }
 
-// ATUALIZADO: DISPARO DE DISPOSITIVO COM LAYOUT CORRIGIDO DE CÂMERA IMERSIVA
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
@@ -361,9 +357,7 @@ function abrirScanner() {
             }
             fecharScanner();
         },
-        (erro) => {
-            // Silencia varreduras vazias em tempo real para otimizar processamento móbile
-        }
+        (erro) => { }
     ).catch((err) => {
         alert("Erro ao acessar a câmera traseira.");
         fecharScanner();
