@@ -25,7 +25,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             box-sizing: border-box; 
             text-align: center;
-            position: relative;
         }
         .logo img { 
             height: 55px; 
@@ -58,6 +57,7 @@
             justify-content: space-between; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.03); 
             transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-decoration: none;
             box-sizing: border-box;
         }
         .btn-menu:active {
@@ -65,50 +65,18 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
-        /* Cores customizadas */
+        /* Cores dos botões */
         .btn-recebimento { background: #16a34a; color: white; }
         .btn-producao { background: #eab308; color: #1e293b; }
         .btn-qualidade { background: #dc2626; color: white; }
         .btn-expedicao { background: #0f4c81; color: white; }
 
         .seta { font-size: 18px; opacity: 0.8; }
-
-        /* Estilo para embutir os sistemas (iframes) */
-        .tela-sistema {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: white;
-            z-index: 99999;
-            border: none;
-        }
-        .btn-voltar-painel {
-            position: fixed;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100000;
-            background: #1e293b;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            text-transform: uppercase;
-            display: none;
-        }
     </style>
 </head>
 <body>
 
-<!-- Conteúdo Principal do Painel -->
-<div class="container" id="painelMenu">
+<div class="container">
     <div class="logo">
         <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" alt="Galvânica Danuta">
     </div>
@@ -116,75 +84,30 @@
     
     <div class="menu-botoes">
         <!-- 1. RECEBIMENTO -->
-        <button onclick="abrirModulo('recebimento')" class="btn-menu btn-recebimento">
+        <a href="menu-recebimento.html" class="btn-menu btn-recebimento">
             <span>🟢 1. Recebimento</span>
             <span class="seta">➔</span>
-        </button>
+        </a>
 
         <!-- 2. PRODUÇÃO -->
-        <button onclick="abrirModulo('producao')" class="btn-menu btn-producao">
-            <span>🟡 2. Production</span>
+        <a href="menu-producao.html" class="btn-menu btn-producao">
+            <span>🟡 2. Produção</span>
             <span class="seta">➔</span>
-        </button>
+        </a>
 
         <!-- 3. QUALIDADE -->
-        <button onclick="abrirModulo('qualidade')" class="btn-menu btn-qualidade">
+        <a href="menu-qualidade.html" class="btn-menu btn-qualidade">
             <span>🔴 3. Qualidade</span>
             <span class="seta">➔</span>
-        </button>
+        </a>
 
         <!-- 4. EXPEDIÇÃO -->
-        <button onclick="abrirModulo('expedicao')" class="btn-menu btn-expedicao">
+        <a href="menu-expedicao.html" class="btn-menu btn-expedicao">
             <span>🔵 4. Expedição</span>
             <span class="seta">➔</span>
-        </button>
+        </a>
     </div>
 </div>
-
-<!-- IFRAMES QUE CARREGAM OS LINKS DO GOOGLE APPS SCRIPT -->
-<iframe id="iframeSistema" class="tela-sistema"></iframe>
-
-<!-- Botão flutuante profissional para retornar ao menu principal -->
-<button id="btnVoltarMenu" class="btn-voltar-painel" onclick="fecharModulo()">⬅ Sair do Módulo</button>
-
-<script>
-    // IMPORTANTE: Insira aqui as URLs de execução (Macros / Execução Web) geradas no seu Google Apps Script para cada formulário.
-    const urlsSistemas = {
-        recebimento: "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec",
-        producao:    "SUA_URL_DO_APPS_SCRIPT_DA_PRODUCAO_AQUI",
-        qualidade:   "SUA_URL_DO_APPS_SCRIPT_DA_QUALIDADE_AQUI",
-        expedicao:   "SUA_URL_DO_APPS_SCRIPT_DA_EXPEDICAO_AQUI"
-    };
-
-    function abrirModulo(modulo) {
-        const url = urlsSistemas[modulo];
-        
-        if (!url || url.startsWith("SUA_URL")) {
-            alert("⚠️ Link do módulo " + modulo.toUpperCase() + " ainda não configurado no código do script.");
-            return;
-        }
-
-        const iframe = document.getElementById("iframeSistema");
-        const btnVoltar = document.getElementById("btnVoltarMenu");
-
-        // Carrega o link do Google Apps Script direto na tela cheia
-        iframe.src = url;
-        iframe.style.display = "block";
-        btnVoltar.style.display = "block";
-        document.getElementById("painelMenu").style.display = "none";
-    }
-
-    function fecharModulo() {
-        const iframe = document.getElementById("iframeSistema");
-        const btnVoltar = document.getElementById("btnVoltarMenu");
-
-        // Reseta o iframe e volta para o menu principal
-        iframe.src = "";
-        iframe.style.display = "none";
-        btnVoltar.style.display = "none";
-        document.getElementById("painelMenu").style.display = "block";
-    }
-</script>
 
 </body>
 </html>
