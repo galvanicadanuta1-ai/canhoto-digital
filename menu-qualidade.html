@@ -15,8 +15,8 @@
         
         .menu-escolha { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
         .btn-opcao { width: 100%; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); color: white; }
-        .btn-retrabalho { background: #7c3aed; }
-        .btn-coleta { background: #2563eb; }
+        .btn-coleta { background: #2563eb; } /* Azul */
+        .btn-retrabalho { background: #dc2626; } /* Vermelho conforme solicitado */
         
         .sub-tela { display: none; }
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
@@ -53,10 +53,10 @@
         <div class="titulo-topo" id="textoMenuTopo">Qualidade</div>
     </div>
     
-    <!-- MENU SELEÇÃO -->
+    <!-- MENU SELEÇÃO COM ORDEM INVERTIDA -->
     <div id="telaEscolhaInicial" class="menu-escolha">
-        <button class="btn-opcao btn-retrabalho" onclick="abrirSubTela('registroRetrabalho')">🔄 + Registro de Retrabalho</button>
         <button class="btn-opcao btn-coleta" onclick="abrirSubTela('liberadoColeta')">📦 + Liberado para Coleta</button>
+        <button class="btn-opcao btn-retrabalho" onclick="abrirSubTela('registroRetrabalho')">🔄 + Registro de Retrabalho</button>
     </div>
 
     <!-- FORMULÁRIO UNIFICADO -->
@@ -107,10 +107,10 @@ function abrirSubTela(tela) {
     limparFormulario();
 
     if (tela === 'registroRetrabalho') {
-        moduloAtual = "RETRABALHO";
+        moduloAtual = "Retrabalho"; // Nome exato da aba na Planilha
         document.getElementById("textoMenuTopo").innerText = "Retrabalho";
     } else if (tela === 'liberadoColeta') {
-        moduloAtual = "LIBERADO_COLETA";
+        moduloAtual = "Liberado para Coleta"; // Nome exato da aba na Planilha
         document.getElementById("textoMenuTopo").innerText = "Liberado Coleta";
     }
 }
@@ -210,7 +210,7 @@ async function salvar() {
     btn.innerText = "SALVANDO DADOS...";
 
     const payload = { 
-        tipo: moduloAtual, // Envia "RETRABALHO" ou "LIBERADO_COLETA"
+        tipo: moduloAtual, // Passará exatamente "Liberado para Coleta" ou "Retrabalho"
         data: dataReg, 
         status: statusQualidade,
         conferente: conferente,
