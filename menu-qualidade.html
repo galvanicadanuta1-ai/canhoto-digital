@@ -22,7 +22,8 @@
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
         .obrigatorio { color: #dc2626; font-weight: bold; margin-left: 3px; }
         
-        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; }
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; font-family: inherit; }
+        textarea { resize: vertical; height: 90px; }
         
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #16a34a; color: white; cursor: pointer; }
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
@@ -34,6 +35,9 @@
         .btn-nok-ativo { background: #dc2626 !important; color: white !important; border-color: #991b1b !important; }
 
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; }
+
+        .area-foto { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
+        .preview-foto { max-width: 100%; height: auto; border-radius: 8px; display: none; border: 1px solid #ccc; }
 
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; overflow: hidden; }
         #reader { width: 100% !important; height: 100% !important; position: absolute; top: 0; left: 0; }
@@ -61,12 +65,12 @@
     <!-- TELA 1: LIBERADO PARA COLETA -->
     <div id="telaLiberadoColeta" class="sub-tela">
         <label class="secao-titulo">Data</label>
-        <input type="date" class="dataQualidadeInput">
+        <input type="date" id="coletaData" class="dataQualidadeInput">
 
         <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
         <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
         <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
-        <div class="badge-container contOSBox"></div>
+        <div class="badge-container idContOSBoxColeta"></div>
 
         <label class="secao-titulo">Qualidade Status<span class="obrigatorio">*</span></label>
         <div style="display: flex; gap: 10px; margin-top: 5px;">
@@ -75,25 +79,54 @@
         </div>
 
         <label class="secao-titulo">Nome do Conferente<span class="obrigatorio">*</span></label>
-        <input type="text" class="nomeConferenteInput" placeholder="Digite o nome do conferente">
+        <input type="text" id="coletaConferente" placeholder="Digite o nome do conferente">
 
-        <button class="btnSalvar" onclick="salvar()">SALVAR REGISTRO</button>
+        <button class="btnSalvar" onclick="salvarColeta()">SALVAR REGISTRO</button>
     </div>
 
-    <!-- TELA 2: REGISTRO DE RETRABALHO (SEM OS BOTÕES OK/NOK) -->
+    <!-- TELA 2: REGISTRO DE RETRABALHO (ORIGINAL COMPLETO) -->
     <div id="telaRegistroRetrabalho" class="sub-tela">
-        <label class="secao-titulo">Data</label>
-        <input type="date" class="dataQualidadeInput">
+        <label class="secao-titulo">Data Ocorrência</label>
+        <input type="date" id="retData" class="dataQualidadeInput">
+
+        <label class="secao-titulo">Cliente<span class="obrigatorio">*</span></label>
+        <input type="text" id="retCliente" placeholder="Nome do cliente">
 
         <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
         <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
         <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
-        <div class="badge-container contOSBox"></div>
+        <div class="badge-container idContOSBoxRetrabalho"></div>
 
-        <label class="secao-titulo">Nome do Conferente<span class="obrigatorio">*</span></label>
-        <input type="text" class="nomeConferenteInput" placeholder="Digite o nome do conferente">
+        <label class="secao-titulo">Lote<span class="obrigatorio">*</span></label>
+        <input type="text" id="retLote" placeholder="Número do lote">
 
-        <button class="btnSalvar" onclick="salvar()">SALVAR REGISTRO</button>
+        <label class="secao-titulo">Quantidade peças<span class="obrigatorio">*</span></label>
+        <input type="number" id="retQuantidade" placeholder="Qtd de peças">
+
+        <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
+        <input type="number" step="0.01" id="retKgs" placeholder="Peso em Kg">
+
+        <label class="secao-titulo">Turno Produção<span class="obrigatorio">*</span></label>
+        <select id="retTurno">
+            <option value="">Selecione o Turno</option>
+            <option value="1° Turno">1° Turno</option>
+            <option value="2° Turno">2° Turno</option>
+            <option value="3° Turno">3° Turno</option>
+        </select>
+
+        <label class="secao-titulo">Causa do Retrabalho<span class="obrigatorio">*</span></label>
+        <textarea id="retCausa" placeholder="Descreva a causa..."></textarea>
+
+        <label class="secao-titulo">Plano de Ação<span class="obrigatorio">*</span></label>
+        <textarea id="retPlano" placeholder="Descreva o plano de ação..."></textarea>
+
+        <label class="secao-titulo">Foto da Ocorrência</label>
+        <div class="area-foto">
+            <input type="file" id="retFotoInput" accept="image/*" capture="environment" onchange="processarFoto(this)">
+            <img id="retPreview" class="preview-foto" alt="Preview da Foto">
+        </div>
+
+        <button class="btnSalvar" onclick="salvarRetrabalho()">SALVAR RETRABALHO</button>
     </div>
 
 </div>
@@ -105,7 +138,7 @@
 </div>
 
 <script>
-let scanner; let listaOS = []; let statusQualidade = ""; let moduloAtual = "";
+let scanner; let listaOS = []; let statusQualidade = ""; let moduloAtual = ""; let fotoBase64 = "";
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 window.onload = () => { resetarDataHoje(); };
@@ -143,13 +176,25 @@ function voltarParaEscolha() {
 function limparFormulario() {
     resetarDataHoje();
     listaOS = [];
+    fotoBase64 = "";
     atualizarExibicao();
-    document.querySelectorAll(".nomeConferenteInput").forEach(el => el.value = "");
-    const btnOK = document.getElementById("statusOK");
-    const btnNOK = document.getElementById("statusNOK");
-    if(btnOK) btnOK.className = "btn-status";
-    if(btnNOK) btnNOK.className = "btn-status";
+    
+    // Limpa Coleta
+    document.getElementById("coletaConferente").value = "";
+    document.getElementById("statusOK").className = "btn-status";
+    document.getElementById("statusNOK").className = "btn-status";
     statusQualidade = "";
+
+    // Limpa Retrabalho
+    document.getElementById("retCliente").value = "";
+    document.getElementById("retLote").value = "";
+    document.getElementById("retQuantidade").value = "";
+    document.getElementById("retKgs").value = "";
+    document.getElementById("retTurno").value = "";
+    document.getElementById("retCausa").value = "";
+    document.getElementById("retPlano").value = "";
+    document.getElementById("retFotoInput").value = "";
+    document.getElementById("retPreview").style.display = "none";
 }
 
 function abrirScanner() {
@@ -200,16 +245,14 @@ function removerItem(val) {
 }
 
 function atualizarExibicao() { 
-    document.querySelectorAll('.contOSBox').forEach(el => {
-        el.innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join('');
-    });
+    const htmlBadge = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join('');
+    document.querySelectorAll('.idContOSBoxColeta, .idContOSBoxRetrabalho').forEach(el => el.innerHTML = htmlBadge);
 }
 
 function selecionarStatus(opcao) {
     statusQualidade = opcao;
     const btnOK = document.getElementById("statusOK");
     const btnNOK = document.getElementById("statusNOK");
-
     if (opcao === "OK") {
         btnOK.className = "btn-status btn-ok-ativo";
         btnNOK.className = "btn-status";
@@ -219,40 +262,88 @@ function selecionarStatus(opcao) {
     }
 }
 
-async function salvar() {
-    let conferente = "";
-    let dataReg = "";
-    
-    if(moduloAtual === "Liberado para Coleta") {
-        conferente = document.querySelector("#telaLiberadoColeta .nomeConferenteInput").value.trim();
-        dataReg = document.querySelector("#telaLiberadoColeta .dataQualidadeInput").value;
-    } else {
-        conferente = document.querySelector("#telaRegistroRetrabalho .nomeConferenteInput").value.trim();
-        dataReg = document.querySelector("#telaRegistroRetrabalho .dataQualidadeInput").value;
+function processarFoto(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            fotoBase64 = e.target.result;
+            const preview = document.getElementById("retPreview");
+            preview.src = fotoBase64;
+            preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
     }
+}
+
+// SALVAR 1: LIBERADO PARA COLETA
+async function salvarColeta() {
+    const conferente = document.getElementById("coletaConferente").value.trim();
+    const dataReg = document.getElementById("coletaData").value;
 
     if (listaOS.length === 0) { alert("⚠️ Campo Obrigatório: Defina ao menos uma OS!"); return; }
-    if (moduloAtual === "Liberado para Coleta" && !statusQualidade) { alert("⚠️ Campo Obrigatório: Selecione o Status (OK ou NOK)!"); return; }
+    if (!statusQualidade) { alert("⚠️ Campo Obrigatório: Selecione o Status (OK ou NOK)!"); return; }
     if (!conferente) { alert("⚠️ Campo Obrigatório: Digite o Nome do Conferente!"); return; }
     
-    // Desativa todos os botões salvar durante o envio
-    document.querySelectorAll(".btnSalvar").forEach(b => { b.disabled = true; b.innerText = "SALVANDO..."; });
+    const btn = document.querySelector("#telaLiberadoColeta .btnSalvar");
+    btn.disabled = true; btn.innerText = "SALVANDO...";
 
     const payload = { 
-        tipo: moduloAtual, 
+        tipo: "Liberado para Coleta", 
         data: dataReg, 
-        status: moduloAtual === "Retrabalho" ? "RETRABALHO" : statusQualidade,
+        status: statusQualidade,
         conferente: conferente,
         ordens: listaOS
     };
     
+    enviarDados(payload, btn);
+}
+
+// SALVAR 2: REGISTRO DE RETRABALHO
+async function salvarRetrabalho() {
+    const dataReg = document.getElementById("retData").value;
+    const cliente = document.getElementById("retCliente").value.trim();
+    const lote = document.getElementById("retLote").value.trim();
+    const qtd = document.getElementById("retQuantidade").value.trim();
+    const kgs = document.getElementById("retKgs").value.trim();
+    const turno = document.getElementById("retTurno").value;
+    const causa = document.getElementById("retCausa").value.trim();
+    const plano = document.getElementById("retPlano").value.trim();
+
+    if (!cliente || listaOS.length === 0 || !lote || !qtd || !kgs || !turno || !causa || !plano) {
+        alert("⚠️ Por favor, preencha todos os campos obrigatórios do retrabalho!");
+        return;
+    }
+
+    const btn = document.querySelector("#telaRegistroRetrabalho .btnSalvar");
+    btn.disabled = true; btn.innerText = "SALVANDO...";
+
+    const payload = { 
+        tipo: "RETRABALHO", // Dispara a regra de produção correta no Code.gs
+        data: dataReg, 
+        cliente: cliente,
+        ordens: listaOS,
+        lote: lote,
+        quantidade: qtd,
+        kgs: kgs,
+        turno: turno,
+        causa: causa,
+        plano: plano,
+        foto: fotoBase64
+    };
+
+    enviarDados(payload, btn);
+}
+
+async function enviarDados(payload, btnComponente) {
     try {
         await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
         alert("✅ Registro enviado com sucesso!");
         location.reload();
     } catch (e) {
         alert("❌ Erro ao tentar transmitir os dados. Verifique a rede.");
-        document.querySelectorAll(".btnSalvar").forEach(b => { b.disabled = false; b.innerText = "SALVAR REGISTRO"; });
+        btnComponente.disabled = false; 
+        btnComponente.innerText = "SALVAR REGISTRO";
     }
 }
 </script>
