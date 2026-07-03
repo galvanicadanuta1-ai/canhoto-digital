@@ -2,36 +2,112 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Home - Galvânica Danuta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Painel Principal - Galvânica Danuta</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .container { width: 90%; max-width: 400px; text-align: center; background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .logo { width: 220px; margin-bottom: 40px; }
-        .btn-home { display: flex; align-items: center; justify-content: center; width: 100%; padding: 22px 0; margin-bottom: 15px; font-size: 18px; font-weight: bold; color: white; text-decoration: none; border-radius: 12px; border: none; cursor: pointer; transition: transform 0.1s ease; box-sizing: border-box; text-transform: uppercase; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            background: #f0f2f5; 
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container { 
+            width: 100%;
+            max-width: 500px; 
+            background: #fff;
+            padding: 30px 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-sizing: border-box; 
+            text-align: center;
+        }
+        .logo img { 
+            height: 55px; 
+            margin-bottom: 10px;
+        }
+        .subtitulo {
+            font-size: 14px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 35px;
+        }
+        .menu-botoes { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+        }
+        .btn-menu { 
+            width: 100%; 
+            padding: 18px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03); 
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+        .btn-menu:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
         
-        /* Cores e Bordas dos Botões na Sequência Correta */
-        .btn-rec { background-color: #16a34a; border-bottom: 5px solid #14532d; } /* Recebimento */
-        .btn-pro { background-color: #4f46e5; border-bottom: 5px solid #3730a3; } /* Produção (Nova Cor) */
-        .btn-exp { background-color: #0f4c81; border-bottom: 5px solid #082d4d; } /* Expedição */
-        .btn-qua { background-color: #334155; border-bottom: 5px solid #1e293b; } /* Qualidade */
-        
-        .btn-home:active { transform: translateY(3px); border-bottom-width: 2px; }
-        .footer { margin-top: 25px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; line-height: 1.5; }
+        /* Cores customizadas para cada setor do fluxo */
+        .btn-recebimento { background: #16a34a; color: white; }
+        .btn-producao { background: #eab308; color: #1e293b; }
+        .btn-qualidade { background: #dc2626; color: white; }
+        .btn-expedicao { background: #0f4c81; color: white; }
+
+        .seta { font-size: 18px; opacity: 0.8; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo">
-        
-        <a href="menu-recebimento.html" class="btn-home btn-rec">📥 RECEBIMENTO</a>
-        <a href="menu-producao.html" class="btn-home btn-pro">⚙️ PRODUÇÃO</a>
-        <a href="menu-expedicao.html" class="btn-home btn-exp">📦 EXPEDIÇÃO</a>
-        <a href="menu-qualidade.html" class="btn-home btn-qua">🛡️ QUALIDADE</a>
-        
-        <div class="footer">
-            Galvânica Danuta &copy; 2026<br>By Marcelo Dallabarba
-        </div>
+
+<div class="container">
+    <div class="logo">
+        <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" alt="Galvânica Danuta">
     </div>
+    <div class="subtitulo">Sistema de Fluxo Industrial</div>
+    
+    <div class="menu-botoes">
+        <!-- 1. RECEBIMENTO -->
+        <a href="recebimento.html" class="btn-menu btn-recebimento">
+            <span>🟢 1. Recebimento</span>
+            <span class="seta">➔</span>
+        </a>
+
+        <!-- 2. PRODUÇÃO -->
+        <a href="producao.html" class="btn-menu btn-producao">
+            <span>🟡 2. Produção</span>
+            <span class="seta">➔</span>
+        </a>
+
+        <!-- 3. QUALIDADE -->
+        <a href="qualidade.html" class="btn-menu btn-qualidade">
+            <span>🔴 3. Qualidade</span>
+            <span class="seta">➔</span>
+        </a>
+
+        <!-- 4. EXPEDIÇÃO -->
+        <a href="expedicao.html" class="btn-menu btn-expedicao">
+            <span>🔵 4. Expedição</span>
+            <span class="seta">➔</span>
+        </a>
+    </div>
+</div>
+
 </body>
 </html>
