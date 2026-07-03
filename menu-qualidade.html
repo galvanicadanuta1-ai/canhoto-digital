@@ -15,8 +15,8 @@
         
         .menu-escolha { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
         .btn-opcao { width: 100%; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); color: white; }
-        .btn-coleta { background: #2563eb; } /* Azul */
-        .btn-retrabalho { background: #dc2626; } /* Vermelho */
+        .btn-coleta { background: #2563eb; }
+        .btn-retrabalho { background: #dc2626; }
         
         .sub-tela { display: none; }
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
@@ -35,7 +35,6 @@
 
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; }
 
-        /* CÂMERA EM TELA CHEIA */
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; overflow: hidden; }
         #reader { width: 100% !important; height: 100% !important; position: absolute; top: 0; left: 0; }
         #reader video { width: 100vw !important; height: 100vh !important; object-fit: cover !important; position: absolute; top: 0; left: 0; }
@@ -59,29 +58,42 @@
         <button class="btn-opcao btn-retrabalho" onclick="abrirSubTela('registroRetrabalho')">🔄 + Registro de Retrabalho</button>
     </div>
 
-    <!-- FORMULÁRIO UNIFICADO -->
-    <div id="telaFormulario" class="sub-tela">
+    <!-- TELA 1: LIBERADO PARA COLETA -->
+    <div id="telaLiberadoColeta" class="sub-tela">
         <label class="secao-titulo">Data</label>
-        <input type="date" id="dataQualidade">
+        <input type="date" class="dataQualidadeInput">
 
         <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
         <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
         <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
-        <div class="badge-container" id="contOS"></div>
+        <div class="badge-container contOSBox"></div>
 
-        <!-- DIV DE STATUS - OCULTA/EXIBE DINAMICAMENTE -->
-        <div id="wrapperStatusQualidade">
-            <label class="secao-titulo">Qualidade Status<span class="obrigatorio">*</span></label>
-            <div style="display: flex; gap: 10px; margin-top: 5px;">
-                <button type="button" id="statusOK" class="btn-status" onclick="selecionarStatus('OK')" style="color: #16a34a;">OK</button>
-                <button type="button" id="statusNOK" class="btn-status" onclick="selecionarStatus('NOK')" style="color: #dc2626;">NOK</button>
-            </div>
+        <label class="secao-titulo">Qualidade Status<span class="obrigatorio">*</span></label>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <button type="button" id="statusOK" class="btn-status" onclick="selecionarStatus('OK')" style="color: #16a34a;">OK</button>
+            <button type="button" id="statusNOK" class="btn-status" onclick="selecionarStatus('NOK')" style="color: #dc2626;">NOK</button>
         </div>
 
         <label class="secao-titulo">Nome do Conferente<span class="obrigatorio">*</span></label>
-        <input type="text" id="nomeConferente" placeholder="Digite o nome do conferente">
+        <input type="text" class="nomeConferenteInput" placeholder="Digite o nome do conferente">
 
-        <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR REGISTRO</button>
+        <button class="btnSalvar" onclick="salvar()">SALVAR REGISTRO</button>
+    </div>
+
+    <!-- TELA 2: REGISTRO DE RETRABALHO (SEM OS BOTÕES OK/NOK) -->
+    <div id="telaRegistroRetrabalho" class="sub-tela">
+        <label class="secao-titulo">Data</label>
+        <input type="date" class="dataQualidadeInput">
+
+        <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
+        <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
+        <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
+        <div class="badge-container contOSBox"></div>
+
+        <label class="secao-titulo">Nome do Conferente<span class="obrigatorio">*</span></label>
+        <input type="text" class="nomeConferenteInput" placeholder="Digite o nome do conferente">
+
+        <button class="btnSalvar" onclick="salvar()">SALVAR REGISTRO</button>
     </div>
 
 </div>
@@ -100,28 +112,29 @@ window.onload = () => { resetarDataHoje(); };
 
 function resetarDataHoje() {
     const hoje = new Date();
-    document.getElementById('dataQualidade').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+    const dataFormatada = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+    document.querySelectorAll('.dataQualidadeInput').forEach(el => el.value = dataFormatada);
 }
 
 function abrirSubTela(tela) {
     document.getElementById("telaEscolhaInicial").style.display = "none";
     document.getElementById("btnNavegacaoVoltar").href = "javascript:voltarParaEscolha()";
-    document.getElementById("telaFormulario").style.display = "block";
     limparFormulario();
 
     if (tela === 'registroRetrabalho') {
         moduloAtual = "Retrabalho";
         document.getElementById("textoMenuTopo").innerText = "Retrabalho";
-        document.getElementById("wrapperStatusQualidade").style.display = "none"; // Esconde os botões OK/NOK
+        document.getElementById("telaRegistroRetrabalho").style.display = "block";
     } else if (tela === 'liberadoColeta') {
         moduloAtual = "Liberado para Coleta";
         document.getElementById("textoMenuTopo").innerText = "Liberado Coleta";
-        document.getElementById("wrapperStatusQualidade").style.display = "block"; // Mostra os botões OK/NOK
+        document.getElementById("telaLiberadoColeta").style.display = "block";
     }
 }
 
 function voltarParaEscolha() {
-    document.getElementById("telaFormulario").style.display = "none";
+    document.getElementById("telaLiberadoColeta").style.display = "none";
+    document.getElementById("telaRegistroRetrabalho").style.display = "none";
     document.getElementById("telaEscolhaInicial").style.display = "flex";
     document.getElementById("textoMenuTopo").innerText = "Qualidade";
     document.getElementById("btnNavegacaoVoltar").href = "index.html";
@@ -131,9 +144,11 @@ function limparFormulario() {
     resetarDataHoje();
     listaOS = [];
     atualizarExibicao();
-    document.getElementById("nomeConferente").value = "";
-    document.getElementById("statusOK").className = "btn-status";
-    document.getElementById("statusNOK").className = "btn-status";
+    document.querySelectorAll(".nomeConferenteInput").forEach(el => el.value = "");
+    const btnOK = document.getElementById("statusOK");
+    const btnNOK = document.getElementById("statusNOK");
+    if(btnOK) btnOK.className = "btn-status";
+    if(btnNOK) btnNOK.className = "btn-status";
     statusQualidade = "";
 }
 
@@ -185,7 +200,9 @@ function removerItem(val) {
 }
 
 function atualizarExibicao() { 
-    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); 
+    document.querySelectorAll('.contOSBox').forEach(el => {
+        el.innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join('');
+    });
 }
 
 function selecionarStatus(opcao) {
@@ -203,27 +220,28 @@ function selecionarStatus(opcao) {
 }
 
 async function salvar() {
-    const conferente = document.getElementById("nomeConferente").value.trim();
-    const dataReg = document.getElementById("dataQualidade").value;
+    let conferente = "";
+    let dataReg = "";
+    
+    if(moduloAtual === "Liberado para Coleta") {
+        conferente = document.querySelector("#telaLiberadoColeta .nomeConferenteInput").value.trim();
+        dataReg = document.querySelector("#telaLiberadoColeta .dataQualidadeInput").value;
+    } else {
+        conferente = document.querySelector("#telaRegistroRetrabalho .nomeConferenteInput").value.trim();
+        dataReg = document.querySelector("#telaRegistroRetrabalho .dataQualidadeInput").value;
+    }
 
     if (listaOS.length === 0) { alert("⚠️ Campo Obrigatório: Defina ao menos uma OS!"); return; }
+    if (moduloAtual === "Liberado para Coleta" && !statusQualidade) { alert("⚠️ Campo Obrigatório: Selecione o Status (OK ou NOK)!"); return; }
+    if (!conferente) { alert("⚠️ Campo Obrigatório: Digite o Nome do Conferente!"); return; }
     
-    // Validação do Status apenas se for a tela Liberado para Coleta
-    if (moduloAtual === "Liberado para Coleta" && !statusQualidade) { 
-        alert("⚠️ Campo Obrigatório: Selecione o Status (OK ou NOK)!"); 
-        return; 
-    }
-    
-    if (!conferente) { alert("⚠️ Campo Obrigatório: Digite o Nome do Conferente!"); document.getElementById("nomeConferente").focus(); return; }
-    
-    const btn = document.getElementById("btnSalvar");
-    btn.disabled = true;
-    btn.innerText = "SALVANDO DADOS...";
+    // Desativa todos os botões salvar durante o envio
+    document.querySelectorAll(".btnSalvar").forEach(b => { b.disabled = true; b.innerText = "SALVANDO..."; });
 
     const payload = { 
         tipo: moduloAtual, 
         data: dataReg, 
-        status: moduloAtual === "Retrabalho" ? "" : statusQualidade, // Deixa em branco caso seja Retrabalho
+        status: moduloAtual === "Retrabalho" ? "RETRABALHO" : statusQualidade,
         conferente: conferente,
         ordens: listaOS
     };
@@ -234,8 +252,7 @@ async function salvar() {
         location.reload();
     } catch (e) {
         alert("❌ Erro ao tentar transmitir os dados. Verifique a rede.");
-        btn.disabled = false;
-        btn.innerText = "SALVAR REGISTRO";
+        document.querySelectorAll(".btnSalvar").forEach(b => { b.disabled = false; b.innerText = "SALVAR REGISTRO"; });
     }
 }
 </script>
