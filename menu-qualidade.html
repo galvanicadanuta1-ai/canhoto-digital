@@ -2,29 +2,231 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <title>Qualidade - Galvânica Danuta</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; position: relative; }
-        .btn-voltar-topo { position: absolute; top: 20px; right: 20px; color: #e74c3c; text-decoration: none; font-weight: bold; font-size: 16px; }
-        .container { width: 90%; max-width: 400px; text-align: center; background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .logo { width: 160px; margin-bottom: 25px; }
-        h1 { color: #0f4c81; font-size: 18px; margin-bottom: 25px; text-transform: uppercase; }
-        .btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 22px 0; margin-bottom: 15px; font-size: 18px; font-weight: bold; color: white; text-decoration: none; border-radius: 12px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
+        .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
+        .btn-voltar { position: absolute; top: 15px; right: 15px; color: #64748b; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .logo-topo img { height: 30px; }
+        .titulo-topo { flex: 1; text-align: center; color: #dc2626; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
         
-        /* Botão Registro de Retrabalho em Vermelho Intenso */
-        .btn-retrabalho { background-color: #ff0000 !important; border-bottom: 5px solid #b30000; }
-        .btn:active { transform: translateY(2px); border-bottom-width: 2px; }
+        .menu-escolha { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        .btn-opcao { width: 100%; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); color: white; }
+        .btn-retrabalho { background: #7c3aed; }
+        .btn-coleta { background: #2563eb; }
+        
+        .sub-tela { display: none; }
+        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        .obrigatorio { color: #dc2626; font-weight: bold; margin-left: 3px; }
+        
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; }
+        
+        .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #16a34a; color: white; cursor: pointer; }
+        .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
+        .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #dc2626; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .badge-item { background: #fef2f2; color: #991b1b; border: 1px solid #991b1b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        
+        .btn-status { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; text-transform: uppercase; }
+        .btn-ok-ativo { background: #16a34a !important; color: white !important; border-color: #14532d !important; }
+        .btn-nok-ativo { background: #dc2626 !important; color: white !important; border-color: #991b1b !important; }
+
+        .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; }
+
+        /* CÂMERA EM TELA CHEIA */
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; overflow: hidden; }
+        #reader { width: 100% !important; height: 100% !important; position: absolute; top: 0; left: 0; }
+        #reader video { width: 100vw !important; height: 100vh !important; object-fit: cover !important; position: absolute; top: 0; left: 0; }
+        #reader img, #reader span, #reader div:not(#reader__scan_region) { display: none !important; }
+        #reader #reader__scan_region { display: block !important; position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+        .btn-fechar-camera-suspensa { position: absolute; top: 20px; right: 20px; z-index: 10005; background: #dc2626; color: white; padding: 14px 28px; border-radius: 8px; border: none; font-weight: bold; font-size: 15px; text-transform: uppercase; box-shadow: 0px 4px 12px rgba(0,0,0,0.5); cursor: pointer; }
     </style>
 </head>
 <body>
-    <a href="index.html" class="btn-voltar-topo">< Voltar</a>
-    <div class="container">
-        <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" class="logo">
-        <h1>Qualidade</h1>
-        <a href="tela-retrabalho.html" class="btn btn-retrabalho">
-            + Registro de Retrabalho
-        </a>
+<div class="container">
+    <a href="index.html" id="btnNavegacaoVoltar" class="btn-voltar">< Voltar</a>
+
+    <div class="topo">
+        <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
+        <div class="titulo-topo" id="textoMenuTopo">Qualidade</div>
     </div>
+    
+    <!-- MENU SELEÇÃO -->
+    <div id="telaEscolhaInicial" class="menu-escolha">
+        <button class="btn-opcao btn-retrabalho" onclick="abrirSubTela('registroRetrabalho')">🔄 + Registro de Retrabalho</button>
+        <button class="btn-opcao btn-coleta" onclick="abrirSubTela('liberadoColeta')">📦 + Liberado para Coleta</button>
+    </div>
+
+    <!-- FORMULÁRIO UNIFICADO -->
+    <div id="telaFormulario" class="sub-tela">
+        <label class="secao-titulo">Data</label>
+        <input type="date" id="dataQualidade">
+
+        <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
+        <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
+        <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
+        <div class="badge-container" id="contOS"></div>
+
+        <label class="secao-titulo">Qualidade Status<span class="obrigatorio">*</span></label>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <button type="button" id="statusOK" class="btn-status" onclick="selecionarStatus('OK')" style="color: #16a34a;">OK</button>
+            <button type="button" id="statusNOK" class="btn-status" onclick="selecionarStatus('NOK')" style="color: #dc2626;">NOK</button>
+        </div>
+
+        <label class="secao-titulo">Nome do Conferente<span class="obrigatorio">*</span></label>
+        <input type="text" id="nomeConferente" placeholder="Digite o nome do conferente">
+
+        <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR REGISTRO</button>
+    </div>
+
+</div>
+
+<!-- AREA DO SCANNER -->
+<div id="scannerTela">
+    <div id="reader"></div>
+    <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
+</div>
+
+<script>
+let scanner; let listaOS = []; let statusQualidade = ""; let moduloAtual = "";
+const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
+
+window.onload = () => { resetarDataHoje(); };
+
+function resetarDataHoje() {
+    const hoje = new Date();
+    document.getElementById('dataQualidade').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+}
+
+function abrirSubTela(tela) {
+    document.getElementById("telaEscolhaInicial").style.display = "none";
+    document.getElementById("btnNavegacaoVoltar").href = "javascript:voltarParaEscolha()";
+    document.getElementById("telaFormulario").style.display = "block";
+    limparFormulario();
+
+    if (tela === 'registroRetrabalho') {
+        moduloAtual = "RETRABALHO";
+        document.getElementById("textoMenuTopo").innerText = "Retrabalho";
+    } else if (tela === 'liberadoColeta') {
+        moduloAtual = "LIBERADO_COLETA";
+        document.getElementById("textoMenuTopo").innerText = "Liberado Coleta";
+    }
+}
+
+function voltarParaEscolha() {
+    document.getElementById("telaFormulario").style.display = "none";
+    document.getElementById("telaEscolhaInicial").style.display = "flex";
+    document.getElementById("textoMenuTopo").innerText = "Qualidade";
+    document.getElementById("btnNavegacaoVoltar").href = "index.html";
+}
+
+function limparFormulario() {
+    resetarDataHoje();
+    listaOS = [];
+    atualizarExibicao();
+    document.getElementById("nomeConferente").value = "";
+    document.getElementById("statusOK").classList.remove("btn-ok-ativo");
+    document.getElementById("statusNOK").classList.remove("btn-nok-ativo");
+    statusQualidade = "";
+}
+
+function abrirScanner() {
+    document.getElementById("scannerTela").style.display = "block";
+    scanner = new Html5Qrcode("reader");
+    scanner.start(
+        { facingMode: "environment" }, 
+        { fps: 30, qrbox: 250 }, 
+        (c) => { 
+            if(!listaOS.includes(c)) { 
+                listaOS.push(c); 
+                atualizarExibicao(); 
+            }
+            fecharScanner();
+        },
+        (erro) => { }
+    ).catch((err) => {
+        alert("Erro ao acessar a câmera.");
+        fecharScanner();
+    });
+}
+
+function fecharScanner() { 
+    if (scanner) { 
+        scanner.stop().then(() => { 
+            document.getElementById("scannerTela").style.display = "none"; 
+        }).catch(() => {
+            document.getElementById("scannerTela").style.display = "none";
+        }); 
+    } else {
+        document.getElementById("scannerTela").style.display = "none";
+    }
+}
+
+function addManual() { 
+    let n = prompt("Digite o número da OS (Apenas números):"); 
+    if (n) {
+        n = n.trim();
+        if (/^\d+$/.test(n)) {
+            if (!listaOS.includes(n)) { listaOS.push(n); atualizarExibicao(); }
+        } else { alert("⚠️ Erro: O número da OS deve conter apenas números!"); }
+    } 
+}
+
+function removerItem(val) { 
+    listaOS = listaOS.filter(i => i !== val); 
+    atualizarExibicao(); 
+}
+
+function atualizarExibicao() { 
+    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); 
+}
+
+function selecionarStatus(opcao) {
+    statusQualidade = opcao;
+    const btnOK = document.getElementById("statusOK");
+    const btnNOK = document.getElementById("statusNOK");
+
+    if (opcao === "OK") {
+        btnOK.className = "btn-status btn-ok-ativo";
+        btnNOK.className = "btn-status";
+    } else {
+        btnNOK.className = "btn-status btn-nok-ativo";
+        btnOK.className = "btn-status";
+    }
+}
+
+async function salvar() {
+    const conferente = document.getElementById("nomeConferente").value.trim();
+    const dataReg = document.getElementById("dataQualidade").value;
+
+    if (listaOS.length === 0) { alert("⚠️ Campo Obrigatório: Defina ao menos uma OS!"); return; }
+    if (!statusQualidade) { alert("⚠️ Campo Obrigatório: Selecione o Status (OK ou NOK)!"); return; }
+    if (!conferente) { alert("⚠️ Campo Obrigatório: Digite o Nome do Conferente!"); document.getElementById("nomeConferente").focus(); return; }
+    
+    const btn = document.getElementById("btnSalvar");
+    btn.disabled = true;
+    btn.innerText = "SALVANDO DADOS...";
+
+    const payload = { 
+        tipo: moduloAtual, // Envia "RETRABALHO" ou "LIBERADO_COLETA"
+        data: dataReg, 
+        status: statusQualidade,
+        conferente: conferente,
+        ordens: listaOS
+    };
+    
+    try {
+        await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
+        alert("✅ Registro enviado com sucesso!");
+        location.reload();
+    } catch (e) {
+        alert("❌ Erro ao tentar transmitir os dados. Verifique a rede.");
+        btn.disabled = false;
+        btn.innerText = "SALVAR REGISTRO";
+    }
+}
+</script>
 </body>
 </html>
