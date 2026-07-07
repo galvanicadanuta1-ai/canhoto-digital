@@ -19,7 +19,7 @@
         .btn-retrabalho { background: #dc2626; }
         
         .sub-tela { display: none; }
-        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; text-transform: uppercase; }
         .obrigatorio { color: #dc2626; font-weight: bold; margin-left: 3px; }
         
         input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; font-family: inherit; }
@@ -35,9 +35,10 @@
         .btn-nok-ativo { background: #dc2626 !important; color: white !important; border-color: #991b1b !important; }
 
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        .area-foto { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
-        .preview-foto { max-width: 100%; height: auto; border-radius: 8px; display: none; border: 1px solid #ccc; }
+        .btn-foto { background: #dc2626; color: white; padding: 15px; border-radius: 10px; display: block; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; border: 1px solid #991b1b; text-align: center; text-transform: uppercase; margin-top: 10px; box-sizing: border-box; }
+        .preview-foto { max-width: 100%; height: auto; border-radius: 8px; display: none; border: 1px solid #ccc; margin-top: 10px; }
 
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; overflow: hidden; }
         #reader { width: 100% !important; height: 100% !important; position: absolute; top: 0; left: 0; }
@@ -56,13 +57,11 @@
         <div class="titulo-topo" id="textoMenuTopo">Qualidade</div>
     </div>
     
-    <!-- MENU SELEÇÃO -->
     <div id="telaEscolhaInicial" class="menu-escolha">
         <button class="btn-opcao btn-coleta" onclick="abrirSubTela('liberadoColeta')">📦 + Liberado para Coleta</button>
         <button class="btn-opcao btn-retrabalho" onclick="abrirSubTela('registroRetrabalho')">🔄 + Registro de Retrabalho</button>
     </div>
 
-    <!-- TELA 1: LIBERADO PARA COLETA -->
     <div id="telaLiberadoColeta" class="sub-tela">
         <label class="secao-titulo">Data</label>
         <input type="date" id="coletaData" class="dataQualidadeInput">
@@ -84,35 +83,53 @@
         <button class="btnSalvar" onclick="salvarColeta()">SALVAR REGISTRO</button>
     </div>
 
-    <!-- TELA 2: REGISTRO DE RETRABALHO (ORIGINAL COMPLETO) -->
     <div id="telaRegistroRetrabalho" class="sub-tela">
         <label class="secao-titulo">Data Ocorrência</label>
         <input type="date" id="retData" class="dataQualidadeInput">
 
         <label class="secao-titulo">Cliente<span class="obrigatorio">*</span></label>
-        <input type="text" id="retCliente" placeholder="Nome do cliente">
+        <select id="retClienteSel" onchange="verificarOutroCliente(this.value)">
+            <option value="">Selecione</option>
+            <option value="Fixpar">Fixpar</option>
+            <option value="Macrosul">Macrosul</option>
+            <option value="Outro">Outro...</option>
+        </select>
+        <input type="text" id="retClienteOutro" style="display:none; margin-top: 8px;" placeholder="Qual cliente?">
 
         <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
         <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
         <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
         <div class="badge-container idContOSBoxRetrabalho"></div>
 
-        <label class="secao-titulo">Lote<span class="obrigatorio">*</span></label>
-        <input type="text" id="retLote" placeholder="Número do lote">
+        <div class="grid-2">
+            <div>
+                <label class="secao-titulo">Lote<span class="obrigatorio">*</span></label>
+                <select id="retLote">
+                    <option value="Total">Total</option>
+                    <option value="Parcial">Parcial</option>
+                </select>
+            </div>
+            <div>
+                <label class="secao-titulo">Turno Produção<span class="obrigatorio">*</span></label>
+                <select id="retTurno">
+                    <option value="">Selecione</option>
+                    <option value="Dia">Dia</option>
+                    <option value="Noite">Noite</option>
+                    <option value="Ambos">Ambos</option>
+                </select>
+            </div>
+        </div>
 
-        <label class="secao-titulo">Quantidade peças<span class="obrigatorio">*</span></label>
-        <input type="number" id="retQuantidade" placeholder="Qtd de peças">
-
-        <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
-        <input type="number" step="0.01" id="retKgs" placeholder="Peso em Kg">
-
-        <label class="secao-titulo">Turno Produção<span class="obrigatorio">*</span></label>
-        <select id="retTurno">
-            <option value="">Selecione o Turno</option>
-            <option value="1° Turno">1° Turno</option>
-            <option value="2° Turno">2° Turno</option>
-            <option value="3° Turno">3° Turno</option>
-        </select>
+        <div class="grid-2">
+            <div>
+                <label class="secao-titulo">Quantidade peças<span class="obrigatorio">*</span></label>
+                <input type="number" id="retQuantidade" placeholder="Qtd de peças">
+            </div>
+            <div>
+                <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
+                <input type="number" step="0.01" id="retKgs" placeholder="Peso em Kg">
+            </div>
+        </div>
 
         <label class="secao-titulo">Causa do Retrabalho<span class="obrigatorio">*</span></label>
         <textarea id="retCausa" placeholder="Descreva a causa..."></textarea>
@@ -120,18 +137,16 @@
         <label class="secao-titulo">Plano de Ação<span class="obrigatorio">*</span></label>
         <textarea id="retPlano" placeholder="Descreva o plano de ação..."></textarea>
 
-        <label class="secao-titulo">Foto da Ocorrência</label>
-        <div class="area-foto">
-            <input type="file" id="retFotoInput" accept="image/*" capture="environment" onchange="processarFoto(this)">
-            <img id="retPreview" class="preview-foto" alt="Preview da Foto">
-        </div>
+        <label class="secao-titulo">Foto da Ocorrência<span class="obrigatorio">*</span></label>
+        <label for="retFotoInput" class="btn-foto">📸 ABRIR CÂMERA</label>
+        <input type="file" id="retFotoInput" accept="image/*" capture="environment" onchange="processarFoto(this)" style="display:none;">
+        <img id="retPreview" class="preview-foto" alt="Preview da Foto">
 
         <button class="btnSalvar" onclick="salvarRetrabalho()">SALVAR RETRABALHO</button>
     </div>
 
 </div>
 
-<!-- AREA DO SCANNER -->
 <div id="scannerTela">
     <div id="reader"></div>
     <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
@@ -173,6 +188,10 @@ function voltarParaEscolha() {
     document.getElementById("btnNavegacaoVoltar").href = "index.html";
 }
 
+function verificarOutroCliente(val) {
+    document.getElementById('retClienteOutro').style.display = val === 'Outro' ? 'block' : 'none';
+}
+
 function limparFormulario() {
     resetarDataHoje();
     listaOS = [];
@@ -186,8 +205,10 @@ function limparFormulario() {
     statusQualidade = "";
 
     // Limpa Retrabalho
-    document.getElementById("retCliente").value = "";
-    document.getElementById("retLote").value = "";
+    document.getElementById("retClienteSel").value = "";
+    document.getElementById("retClienteOutro").value = "";
+    document.getElementById("retClienteOutro").style.display = "none";
+    document.getElementById("retLote").value = "Total";
     document.getElementById("retQuantidade").value = "";
     document.getElementById("retKgs").value = "";
     document.getElementById("retTurno").value = "";
@@ -263,8 +284,7 @@ function selecionarStatus(opcao) {
 }
 
 function processarFoto(input) {
-    const file = input.files[0];
-    if (file) {
+    if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
             fotoBase64 = e.target.result;
@@ -272,11 +292,10 @@ function processarFoto(input) {
             preview.src = fotoBase64;
             preview.style.display = "block";
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(input.files[0]);
     }
 }
 
-// SALVAR 1: LIBERADO PARA COLETA
 async function salvarColeta() {
     const conferente = document.getElementById("coletaConferente").value.trim();
     const dataReg = document.getElementById("coletaData").value;
@@ -299,19 +318,22 @@ async function salvarColeta() {
     enviarDados(payload, btn);
 }
 
-// SALVAR 2: REGISTRO DE RETRABALHO
 async function salvarRetrabalho() {
     const dataReg = document.getElementById("retData").value;
-    const cliente = document.getElementById("retCliente").value.trim();
-    const lote = document.getElementById("retLote").value.trim();
+    const clienteSel = document.getElementById("retClienteSel").value;
+    const clienteOutro = document.getElementById("retClienteOutro").value.trim();
+    const lote = document.getElementById("retLote").value;
     const qtd = document.getElementById("retQuantidade").value.trim();
     const kgs = document.getElementById("retKgs").value.trim();
     const turno = document.getElementById("retTurno").value;
     const causa = document.getElementById("retCausa").value.trim();
     const plano = document.getElementById("retPlano").value.trim();
 
-    if (!cliente || listaOS.length === 0 || !lote || !qtd || !kgs || !turno || !causa || !plano) {
-        alert("⚠️ Por favor, preencha todos os campos obrigatórios do retrabalho!");
+    // Define o valor correto do cliente baseado na seleção
+    const clienteFinal = clienteSel === 'Outro' ? clienteOutro : clienteSel;
+
+    if (!clienteFinal || listaOS.length === 0 || !lote || !qtd || !kgs || !turno || !causa || !plano || !fotoBase64) {
+        alert("⚠️ Por favor, preencha todos os campos obrigatórios do retrabalho e tire a foto!");
         return;
     }
 
@@ -319,9 +341,9 @@ async function salvarRetrabalho() {
     btn.disabled = true; btn.innerText = "SALVANDO...";
 
     const payload = { 
-        tipo: "RETRABALHO", // Dispara a regra de produção correta no Code.gs
+        tipo: "RETRABALHO", 
         data: dataReg, 
-        cliente: cliente,
+        cliente: clienteFinal,
         ordens: listaOS,
         lote: lote,
         quantidade: qtd,
@@ -337,6 +359,7 @@ async function salvarRetrabalho() {
 
 async function enviarDados(payload, btnComponente) {
     try {
+        // Envio limpo sem restrições de CORS
         await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
         alert("✅ Registro enviado com sucesso!");
         location.reload();
