@@ -25,6 +25,11 @@
         #assinatura { border: 2px solid #0f4c81; width: 100%; height: 200px; background: white; border-radius: 10px; margin-top: 10px; touch-action: none; }
         .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; }
         
+        /* Implementação do Layout de Link de Visualização Segura */
+        .box-link-foto { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1; margin-top: 12px; text-align: center; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-abrir-foto { display: inline-block; background: #0284c7; color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-top: 8px; box-shadow: 0 2px 5px rgba(2,132,199,0.3); }
+        .loading-foto { font-size: 12px; color: #7f8c8d; font-style: italic; margin-top: 5px; display: none; }
+
         /* ==========================================================================
            LAYOUT: CÂMERA OCUPAR TELA INTEIRA PADRONIZADO
            ========================================================================== */
@@ -126,6 +131,12 @@
     <div class="btn-manual" onclick="addManual('OS')">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
 
+    <div id="loadingFoto" class="loading-foto">⏳ Verificando imagem no recebimento...</div>
+    <div id="boxLinkRecebimento" class="box-link-foto">
+        <span style="font-size: 13px; font-weight: bold; color: #334155; display: block;">📸 Foto de Entrada Encontrada!</span>
+        <a id="btnLinkFoto" href="#" target="_blank" class="btn-abrir-foto">👁️ VER FOTO DO RECEBIMENTO</a>
+    </div>
+
     <label class="secao-titulo">5. Expedição</label>
     <input id="expedidor" type="text" placeholder="Nome do Expedidor">
     <button class="btn-scan btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
@@ -196,7 +207,6 @@ function abrirScanner(tipo) {
                 if (n.length >= 44) {
                     num = n.substring(25, 34);
                 } else if (n.length >= 9) {
-                    // Caso venha uma string parcial longa, garante pegar os últimos 9 dígitos antes do dígito verificador
                     num = n.slice(-10, -1); 
                 }
             }
@@ -209,9 +219,7 @@ function abrirScanner(tipo) {
             adicionarValor(num);
             fecharScanner();
         },
-        (erro) => {
-            // Silencia varredura padrão
-        }
+        (erro) => {}
     ).catch(() => { alert("Câmera não disponível."); });
 }
 
@@ -236,20 +244,69 @@ function addManual(tipo) {
 
 function adicionarValor(val) {
     if (!val) return;
-    if (destino === 'NF') { if (!listaNF.includes(val)) listaNF.push(val); }
-    else { if (!listaOS.includes(val)) listaOS.push(val); }
+    if (destino === 'NF') { 
+        if (!listaNF.includes(val)) listaNF.push(val); 
+    } else { 
+        if (!listaOS.includes(val)) {
+            listaOS.push(val);
+            buscarFotoDoRecebimento(val); // Aciona pesquisa automática ao adicionar OS
+        }
+    }
     atualizarExibicao();
 }
 
 function removerItem(tipo, val) {
-    if (tipo === 'NF') { listaNF = listaNF.filter(i => i !== val); }
-    else { listaOS = listaOS.filter(i => i !== val); }
+    if (tipo === 'NF') { 
+        listaNF = listaNF.filter(i => i !== val); 
+    } else { 
+        listaOS = listaOS.filter(i => i !== val); 
+        if(listaOS.length === 0) {
+            ocultarBoxFoto();
+        } else {
+            buscarFotoDoRecebimento(listaOS[listaOS.length - 1]); // Busca foto da última OS restante
+        }
+    }
     atualizarExibicao();
 }
 
 function atualizarExibicao() {
     document.getElementById('contNF').innerHTML = listaNF.map(i => `<div class="badge-item" onclick="removerItem('NF', '${i}')">NF: ${i} <span class="btn-excluir-item">X</span></div>`).join('');
     document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('OS', '${i}')">OS: ${i} <span class="btn-excluir-item">X</span></div>`).join('');
+}
+
+function ocultarBoxFoto() {
+    document.getElementById("boxLinkRecebimento").style.display = "none";
+    document.getElementById("btnLinkFoto").href = "#";
+    document.getElementById("loadingFoto").style.display = "none";
+}
+
+async function buscarFotoDoRecebimento(numeroOS) {
+    if (!numeroOS) return;
+    
+    const loader = document.getElementById("loadingFoto");
+    const boxLink = document.getElementById("boxLinkRecebimento");
+    const btnFoto = document.getElementById("btnLinkFoto");
+
+    loader.style.display = "block";
+
+    try {
+        const resposta = await fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify({ tipo: "BUSCAR_OS", os: numeroOS })
+        });
+        const dados = await resposta.json();
+
+        loader.style.display = "none";
+
+        if (dados.sucesso && dados.linkFoto && dados.linkFoto !== "Sem foto") {
+            btnFoto.href = dados.linkFoto;
+            boxLink.style.display = "block";
+        } else {
+            ocultarBoxFoto();
+        }
+    } catch (err) {
+        loader.style.display = "none";
+    }
 }
 
 const canvas = document.getElementById("assinatura");
