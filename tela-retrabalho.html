@@ -23,9 +23,6 @@
         .btnSalvar { background: #ff0000; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; border-bottom: 5px solid #b30000; cursor: pointer; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        /* ==========================================================================
-           LAYOUT CORRIGIDO: CÂMERA OCUPAR TELA INTEIRA PADRONIZADO (RETRABALHO)
-           ========================================================================== */
         #scannerTela { 
             position: fixed; 
             top: 0; 
@@ -46,7 +43,6 @@
             left: 0;
         }
 
-        /* CORREÇÃO DO VISOR: Preenche totalmente as lacunas pretas na reprodução */
         #reader video {
             width: 100vw !important;
             height: 100vh !important;
@@ -56,7 +52,6 @@
             left: 0;
         }
 
-        /* Suprime textos automáticos gerados dinamicamente no motor js */
         #reader img, #reader span, #reader div:not(#reader__scan_region) {
             display: none !important;
         }
@@ -70,7 +65,6 @@
             height: 100% !important;
         }
 
-        /* Botão Vermelho Flutuante e Fixo no Topo Direito */
         .btn-fechar-camera-suspensa {
             position: absolute; 
             top: 20px; 
@@ -108,13 +102,39 @@
     <div class="badge-container" id="contOS"></div>
 
     <div class="grid-2">
-        <div><label class="secao-titulo">Lote</label><select id="loteSel"><option value="Total">Total</option><option value="Parcial">Parcial</option></select></div>
-        <div><label class="secao-titulo">Turno que Produziu</label><select id="turnoSel"><option value="Dia">Dia</option><option value="Noite">Noite</option><option value="Ambos">Ambos</option></select></div>
+        <div>
+            <label class="secao-titulo">Lote</label>
+            <select id="loteSel">
+                <option value="">Selecione</option>
+                <option value="Total">Total</option>
+                <option value="Parcial">Parcial</option>
+            </select>
+        </div>
+        <div>
+            <label class="secao-titulo">Turno que Produziu</label>
+            <select id="turnoSel">
+                <option value="">Selecione</option>
+                <option value="Dia">Dia</option>
+                <option value="Noite">Noite</option>
+            </select>
+        </div>
     </div>
 
     <div class="grid-2">
-        <div><label class="secao-titulo">Quantidade</label><input type="number" id="qtd"></div>
-        <div><label class="secao-titulo">Kgs</label><input type="number" id="kgs"></div>
+        <div>
+            <label class="secao-titulo">Quantidade</label>
+            <select id="tipoQtdSel" onchange="verificarTipoQtd(this.value)">
+                <option value="">Selecione Tipo</option>
+                <option value="Qtd. Peças">Qtd. Peças</option>
+                <option value="Qtd. Volumes">Qtd. Volumes</option>
+            </select>
+        </div>
+        <div><label class="secao-titulo">Kgs</label><input type="number" id="kgs" placeholder="0.00"></div>
+    </div>
+
+    <div id="campoQtdDinamico" style="display: none;">
+        <label class="secao-titulo" id="labelQtdDinamica">Valor da Quantidade</label>
+        <input type="number" id="qtd" placeholder="Digite o valor">
     </div>
 
     <label class="secao-titulo">Causa do Retrabalho</label>
@@ -142,6 +162,19 @@ const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syH
 
 window.onload = () => { document.getElementById('dataRetrabalho').valueAsDate = new Date(); };
 function verificarOutro(val) { document.getElementById('clienteOutro').style.display = val === 'Outro' ? 'block' : 'none'; }
+
+// Controla a exibição do campo de digitação com base na escolha (Peças ou Volumes)
+function verificarTipoQtd(val) {
+    const blocoInput = document.getElementById('campoQtdDinamico');
+    const label = document.getElementById('labelQtdDinamica');
+    if (val === '') {
+        blocoInput.style.display = 'none';
+    } else {
+        blocoInput.style.display = 'block';
+        label.innerText = "Inserir " + val;
+    }
+}
+
 function exibirPreview(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { base64Image = e.target.result; const prev = document.getElementById('preview'); prev.src = e.target.result; prev.style.display = 'block'; }; reader.readAsDataURL(input.files[0]); } }
 
 function abrirScanner() { 
@@ -154,9 +187,7 @@ function abrirScanner() {
             if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); } 
             fecharScanner(); 
         },
-        (erro) => {
-            // Silencia varredura repetitiva
-        }
+        (erro) => { /* Silencia varredura repetitiva */ }
     ).catch(() => { alert("Câmera não disponível."); });
 }
 
@@ -176,21 +207,30 @@ function atualizarExibicao() { document.getElementById('contOS').innerHTML = lis
 
 function salvar() {
     const btn = document.getElementById("btnSalvar");
-    if (listaOS.length === 0 || !base64Image) { alert("⚠️ OS ou Foto faltando!"); return; }
+    const tipoQtd = document.getElementById("tipoQtdSel").value;
+    const qtdValor = document.getElementById("qtd").value;
+
+    if (listaOS.length === 0 || !base64Image || !tipoQtd || !qtdValor) { 
+        alert("⚠️ OS, Foto ou campos de Quantidade faltando!"); return; 
+    }
+    
     btn.innerText = "SALVANDO..."; btn.disabled = true;
+    
     const payload = {
         tipo: "RETRABALHO",
         data: document.getElementById("dataRetrabalho").value,
         cliente: document.getElementById("clienteSel").value === 'Outro' ? document.getElementById("clienteOutro").value : document.getElementById("clienteSel").value,
         ordens: listaOS,
         lote: document.getElementById("loteSel").value,
-        quantidade: document.getElementById("qtd").value,
+        // Junta o valor digitado com o tipo (ex: "50 Qtd. Peças" ou "12 Qtd. Volumes")
+        quantidade: qtdValor + " " + tipoQtd,
         kgs: document.getElementById("kgs").value,
         turno: document.getElementById("turnoSel").value,
         causa: document.getElementById("causa").value,
         plano: document.getElementById("plano").value,
         foto: base64Image
     };
+    
     fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { alert("✅ Salvo com sucesso!"); location.reload(); });
 }
 </script>
