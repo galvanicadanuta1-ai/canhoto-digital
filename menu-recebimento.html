@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Qualidade - Galvânica Danuta</title>
+    <title>Recebimento - Galvânica Danuta</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
@@ -11,41 +11,32 @@
         .btn-voltar { position: absolute; top: 15px; right: 15px; color: #64748b; text-decoration: none; font-weight: bold; font-size: 14px; }
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
-        .titulo-topo { flex: 1; text-align: center; color: #dc2626; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
+        .titulo-topo { flex: 1; text-align: center; color: #16a34a; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
         
         .menu-escolha { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
-        .btn-opcao { width: 100%; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); color: white; }
-        .btn-coleta { background: #2563eb; }
-        .btn-retrabalho { background: #dc2626; }
+        .btn-opcao { width: 100%; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .btn-novo-rec { background: #16a34a; color: white; }
+        .btn-consulta-os { background: #0f4c81; color: white; }
         
         .sub-tela { display: none; }
-        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; text-transform: uppercase; }
+        .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
         .obrigatorio { color: #dc2626; font-weight: bold; margin-left: 3px; }
         
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; font-family: inherit; }
-        textarea { resize: vertical; height: 90px; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; margin-top: 5px; background: #fff; }
         
         .btn-scan { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; background: #16a34a; color: white; cursor: pointer; }
         .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 6px; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
-        .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #dc2626; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .badge-item { background: #fef2f2; color: #991b1b; border: 1px solid #991b1b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .badge-container { background: #fff; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px dashed #16a34a; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .badge-item { background: #e8f5e9; color: #1b5e20; border: 1px solid #1b5e20; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         
-        .btn-status { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; text-transform: uppercase; }
-        .btn-ok-ativo { background: #16a34a !important; color: white !important; border-color: #14532d !important; }
-        .btn-nok-ativo { background: #dc2626 !important; color: white !important; border-color: #991b1b !important; }
+        .btn-lote { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+        .btn-ok-ativo { background: #27ae60 !important; color: white !important; border-color: #27ae60 !important; }
+        .btn-nok-ativo { background: #c0392b !important; color: white !important; border-color: #c0392b !important; }
 
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        .area-foto { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
-        .preview-foto { max-width: 100%; height: auto; border-radius: 8px; display: none; border: 1px solid #ccc; }
-
-        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; overflow: hidden; }
-        #reader { width: 100% !important; height: 100% !important; position: absolute; top: 0; left: 0; }
-        #reader video { width: 100vw !important; height: 100vh !important; object-fit: cover !important; position: absolute; top: 0; left: 0; }
-        #reader img, #reader span, #reader div:not(#reader__scan_region) { display: none !important; }
-        #reader #reader__scan_region { display: block !important; position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
-        .btn-fechar-camera-suspensa { position: absolute; top: 20px; right: 20px; z-index: 10005; background: #dc2626; color: white; padding: 14px 28px; border-radius: 8px; border: none; font-weight: bold; font-size: 15px; text-transform: uppercase; box-shadow: 0px 4px 12px rgba(0,0,0,0.5); cursor: pointer; }
+        .btn-buscar { background: #0f4c81; color: white; padding: 12px; font-weight: bold; border: none; border-radius: 8px; margin-top: 8px; width: 100%; cursor: pointer; font-size: 16px; }
+        #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
+        #reader { width: 100% !important; height: 100% !important; }
     </style>
 </head>
 <body>
@@ -54,213 +45,254 @@
 
     <div class="topo">
         <div class="logo-topo"><img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png"></div>
-        <div class="titulo-topo" id="textoMenuTopo">Qualidade</div>
+        <div class="titulo-topo" id="textoMenuTopo">Recebimento</div>
     </div>
     
     <div id="telaEscolhaInicial" class="menu-escolha">
-        <button class="btn-opcao btn-coleta" onclick="abrirSubTela('liberadoColeta')">📦 + Liberado para Coleta</button>
-        <button class="btn-opcao btn-retrabalho" onclick="abrirSubTela('registroRetrabalho')">🔄 + Registro de Retrabalho</button>
+        <button class="btn-opcao btn-novo-rec" onclick="abrirSubTela('novoRecebimento')">🟢 + Novo Recebimento</button>
+        <button class="btn-opcao btn-consulta-os" onclick="abrirSubTela('consultaOS')">🔍 Consulta OS</button>
     </div>
 
-    <div id="telaLiberadoColeta" class="sub-tela">
-        <label class="secao-titulo">Data</label>
-        <input type="date" id="coletaData" class="dataQualidadeInput">
+    <div id="telaFormulario" class="sub-tela">
+        <input type="hidden" id="linhaPlanilhaEdicao" value="">
+        
+        <label class="secao-titulo">Data de Recebimento</label>
+        <input type="date" id="dataRecebimento">
 
         <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
-        <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
-        <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
-        <div class="badge-container idContOSBoxColeta"></div>
+        <button class="btn-scan" id="btnScanOS" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
+        <div class="btn-manual" id="btnManualOS" onclick="addManual()">+ Digitar OS Manualmente</div>
+        <div class="badge-container" id="contOS"></div>
 
-        <label class="secao-titulo">Qualidade Status<span class="obrigatorio">*</span></label>
+        <label class="secao-titulo">Nome do Cliente<span class="obrigatorio">*</span></label>
+        <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
+
+        <label class="secao-titulo">N° Nota Fiscal</label>
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="notaFiscal" placeholder="Apenas números">
+
+        <label class="secao-titulo">OP do Cliente</label>
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="opCliente" placeholder="Apenas números">
+
+        <label class="secao-titulo">Cromato<span class="obrigatorio">*</span></label>
+        <select id="cromato" onchange="verificarCromato(this.value)">
+            <option value="">-- Selecione o Cromato --</option>
+            <option value="Azul Trivalente (Branco)">Azul Trivalente (Branco)</option>
+            <option value="Amarelo Hexavalente">Amarelo Hexavalente</option>
+            <option value="Amarelo Trivalente">Amarelo Trivalente</option>
+            <option value="Preto">Preto</option>
+            <option value="Verde Oliva">Verde Oliva</option>
+            <option value="Outro">Outro</option>
+        </select>
+        <input type="text" id="cromatoOutro" placeholder="Digite o tipo de Cromato*" style="display: none; margin-top: 8px;">
+
+        <label class="secao-titulo">Linha de Banho<span class="obrigatorio">*</span></label>
+        <select id="linhaBanho">
+            <option value="">-- Selecione a Linha --</option>
+            <option value="Parado">Parado</option>
+            <option value="Rotativo">Rotativo</option>
+        </select>
+
         <div style="display: flex; gap: 10px; margin-top: 5px;">
-            <button type="button" id="statusOK" class="btn-status" onclick="selecionarStatus('OK')" style="color: #16a34a;">OK</button>
-            <button type="button" id="statusNOK" class="btn-status" onclick="selecionarStatus('NOK')" style="color: #dc2626;">NOK</button>
+            <div style="flex: 1;">
+                <label class="secao-titulo" style="margin-top: 10px;">Qtd. de Peças<span class="obrigatorio">*</span></label>
+                <input type="number" inputmode="numeric" pattern="[0-9]*" id="quantidade" placeholder="Apenas números" style="margin-top: 5px;">
+            </div>
+            <div style="flex: 1;">
+                <label class="secao-titulo" style="margin-top: 10px;">Volumes<span class="obrigatorio">*</span></label>
+                <input type="number" inputmode="numeric" pattern="[0-9]*" id="volumes" placeholder="Apenas números" style="margin-top: 5px;">
+            </div>
         </div>
 
-        <label class="secao-titulo">Nome do Conferente<span class="obrigatorio">*</span></label>
-        <input type="text" id="coletaConferente" placeholder="Digite o nome do conferente">
+        <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
+        <input type="number" inputmode="decimal" step="0.01" id="kgs" placeholder="Digite o peso (Apenas números)">
 
-        <button class="btnSalvar" onclick="salvarColeta()">SALVAR REGISTRO</button>
+        <label class="secao-titulo">Lote Aprovado?<span class="obrigatorio">*</span></label>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <button type="button" id="loteOK" class="btn-lote" onclick="selecionarLote('OK')" style="color: #27ae60;">OK</button>
+            <button type="button" id="loteNOK" class="btn-lote" onclick="selecionarLote('NOK')" style="color: #c0392b;">NOK</button>
+        </div>
+
+        <div id="boxMotivo" style="display: none; margin-top: 10px;">
+            <label class="secao-titulo">Motivo Reprovação<span class="obrigatorio">*</span></label>
+            <input type="text" id="motivoReprovacao" placeholder="Digite o motivo da reprovação">
+        </div>
+
+        <label class="secao-titulo" id="tituloFoto">Fotografia do Recebimento<span class="obrigatorio">*</span></label>
+        <button type="button" class="btn-scan" style="background: #7f8c8d;" onclick="document.getElementById('fotoInput').click()">📷 REGISTRAR FOTOGRAFIA</button>
+        <input type="file" accept="image/*" capture="environment" id="fotoInput" style="display: none;" onchange="capturarFoto(this)">
+        
+        <div id="previewContainer" style="display: none; text-align: center; margin-top: 10px;">
+            <img id="imgPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #ccc;">
+            <div id="linkFotoExistente" style="margin-top:5px; font-size:12px;"></div>
+        </div>
+
+        <button class="btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR RECEBIMENTO</button>
     </div>
 
-    <div id="telaRegistroRetrabalho" class="sub-tela">
-        <label class="secao-titulo">Data Ocorrência</label>
-        <input type="date" id="retData" class="dataQualidadeInput">
-
-        <label class="secao-titulo">Cliente<span class="obrigatorio">*</span></label>
-        <input type="text" id="retCliente" placeholder="Nome do cliente">
-
-        <label class="secao-titulo">Ordem de Serviço (OS)<span class="obrigatorio">*</span></label>
-        <button class="btn-scan" onclick="abrirScanner()">📷 ESCANEAR ORDEM DE SERVIÇO</button>
-        <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
-        <div class="badge-container idContOSBoxRetrabalho"></div>
-
-        <div class="grid-2">
-            <div>
-                <label class="secao-titulo">Lote<span class="obrigatorio">*</span></label>
-                <select id="retLote">
-                    <option value="">Selecione</option>
-                    <option value="Total">Total</option>
-                    <option value="Parcial">Parcial</option>
-                </select>
-            </div>
-            <div>
-                <label class="secao-titulo">Turno Produção<span class="obrigatorio">*</span></label>
-                <select id="retTurno">
-                    <option value="">Selecione</option>
-                    <option value="Dia">Dia</option>
-                    <option value="Noite">Noite</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="grid-2">
-            <div>
-                <label class="secao-titulo">Quantidade<span class="obrigatorio">*</span></label>
-                <select id="retTipoQtd" onchange="verificarTipoQtdDinamico(this.value)">
-                    <option value="">Selecione Tipo</option>
-                    <option value="Qtd. Peças">Qtd. Peças</option>
-                    <option value="Qtd. Volumes">Qtd. Volumes</option>
-                </select>
-            </div>
-            <div>
-                <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
-                <input type="number" step="0.01" id="retKgs" placeholder="Peso em Kg">
-            </div>
-        </div>
-
-        <div id="blocoQtdDinamico" style="display: none;">
-            <label class="secao-titulo" id="labelQtdDinamica">Valor do Campo</label>
-            <input type="number" id="retQuantidade" placeholder="Digite a quantidade">
-        </div>
-
-        <label class="secao-titulo">Causa do Retrabalho<span class="obrigatorio">*</span></label>
-        <textarea id="retCausa" placeholder="Descreva a causa..."></textarea>
-
-        <label class="secao-titulo">Plano de Ação<span class="obrigatorio">*</span></label>
-        <textarea id="retPlano" placeholder="Descreva o plano de ação..."></textarea>
-
-        <label class="secao-titulo">Foto da Ocorrência</label>
-        <div class="area-foto">
-            <input type="file" id="retFotoInput" accept="image/*" capture="environment" onchange="processarFoto(this)">
-            <img id="retPreview" class="preview-foto" alt="Preview da Foto">
-        </div>
-
-        <button class="btnSalvar" onclick="salvarRetrabalho()">SALVAR RETRABALHO</button>
+    <div id="telaConsultaOS" class="sub-tela">
+        <label class="secao-titulo">Digite o Número da OS para Buscar</label>
+        <input type="number" inputmode="numeric" id="osBuscaInput" placeholder="Ex: 12345">
+        <button class="btn-buscar" id="btnEfetuarBusca" onclick="executarConsultaOS()">BUSCAR ORDEM DE SERVIÇO</button>
     </div>
 
 </div>
 
-<div id="scannerTela">
-    <div id="reader"></div>
-    <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
-</div>
+<div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
 
 <script>
-let scanner; let listaOS = []; let statusQualidade = ""; let moduloAtual = ""; let fotoBase64 = "";
+let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = ""; let modoAtual = "INSERIR";
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 window.onload = () => { resetarDataHoje(); };
 
 function resetarDataHoje() {
     const hoje = new Date();
-    const dataFormatada = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
-    document.querySelectorAll('.dataQualidadeInput').forEach(el => el.value = dataFormatada);
+    document.getElementById('dataRecebimento').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
 }
 
 function abrirSubTela(tela) {
     document.getElementById("telaEscolhaInicial").style.display = "none";
-    document.getElementById("btnNavegacaoVoltar").href = "javascript:voltarParaEscolha()";
-    limparFormulario();
+    const btnVoltar = document.getElementById("btnNavegacaoVoltar");
+    btnVoltar.href = "javascript:voltarParaEscolha()";
 
-    if (tela === 'registroRetrabalho') {
-        moduloAtual = "Retrabalho";
-        document.getElementById("textoMenuTopo").innerText = "Retrabalho";
-        document.getElementById("telaRegistroRetrabalho").style.display = "block";
-    } else if (tela === 'liberadoColeta') {
-        moduloAtual = "Liberado para Coleta";
-        document.getElementById("textoMenuTopo").innerText = "Liberado Coleta";
-        document.getElementById("telaLiberadoColeta").style.display = "block";
+    if (tela === 'novoRecebimento') {
+        modoAtual = "INSERIR";
+        document.getElementById("linhaPlanilhaEdicao").value = "";
+        document.getElementById("telaFormulario").style.display = "block";
+        document.getElementById("textoMenuTopo").innerText = "Novo Recebimento";
+        document.getElementById("btnSalvar").innerText = "SALVAR RECEBIMENTO";
+        document.getElementById("btnScanOS").style.display = "block";
+        document.getElementById("btnManualOS").style.display = "block";
+        document.getElementById("tituloFoto").innerHTML = 'Fotografia do Recebimento<span class="obrigatorio">*</span>';
+        limparFormulario();
+    } else if (tela === 'consultaOS') {
+        document.getElementById("telaConsultaOS").style.display = "block";
+        document.getElementById("textoMenuTopo").innerText = "Consulta OS";
+        document.getElementById("osBuscaInput").value = "";
+        document.getElementById("osBuscaInput").focus();
     }
 }
 
 function voltarParaEscolha() {
-    document.getElementById("telaLiberadoColeta").style.display = "none";
-    document.getElementById("telaRegistroRetrabalho").style.display = "none";
+    document.getElementById("telaFormulario").style.display = "none";
+    document.getElementById("telaConsultaOS").style.display = "none";
     document.getElementById("telaEscolhaInicial").style.display = "flex";
-    document.getElementById("textoMenuTopo").innerText = "Qualidade";
+    document.getElementById("textoMenuTopo").innerText = "Recebimento";
     document.getElementById("btnNavegacaoVoltar").href = "index.html";
 }
 
-// Controla se exibe Inserir Qtd. Peças ou Inserir Qtd. Volumes
-function verificarTipoQtdDinamico(val) {
-    const bloco = document.getElementById("blocoQtdDinamico");
-    const label = document.getElementById("labelQtdDinamica");
-    if (val === "") {
-        bloco.style.display = "none";
-    } else {
-        bloco.style.display = "block";
-        label.innerText = "Inserir " + val + " *";
+async function executarConsultaOS() {
+    const os = document.getElementById("osBuscaInput").value.trim();
+    if (!os) { alert("⚠️ Digite um número de OS válido!"); return; }
+
+    const btn = document.getElementById("btnEfetuarBusca");
+    btn.disabled = true;
+    btn.innerText = "BUSCANDO NA PLANILHA...";
+
+    try {
+        // Para receber dados de volta da API, usamos um redirecionamento CORS padrão
+        const resposta = await fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify({ tipo: "BUSCAR_OS", os: os })
+        });
+        const dados = await resposta.json();
+
+        if (dados.sucesso) {
+            modoAtual = "EDITAR";
+            document.getElementById("telaConsultaOS").style.display = "none";
+            document.getElementById("telaFormulario").style.display = "block";
+            document.getElementById("textoMenuTopo").innerText = "Editar Registro";
+            document.getElementById("btnSalvar").innerText = "SALVAR ALTERAÇÕES";
+            
+            // Oculta os botões de adicionar novas OS na edição para não quebrar a chave da busca
+            document.getElementById("btnScanOS").style.display = "none";
+            document.getElementById("btnManualOS").style.display = "none";
+            document.getElementById("tituloFoto").innerHTML = 'Substituir Fotografia (Opcional)';
+
+            // Preenche os campos vindos da planilha
+            document.getElementById("linhaPlanilhaEdicao").value = dados.linha;
+            document.getElementById("dataRecebimento").value = dados.data;
+            listaOS = dados.ordens;
+            atualizarExibicao();
+            
+            document.getElementById("nomeCliente").value = dados.cliente;
+            document.getElementById("notaFiscal").value = dados.notaFiscal;
+            document.getElementById("opCliente").value = dados.opCliente;
+            
+            const cromatoField = document.getElementById("cromato");
+            if ([...cromatoField.options].some(o => o.value === dados.cromato)) {
+                cromatoField.value = dados.cromato;
+                document.getElementById("cromatoOutro").style.display = "none";
+            } else {
+                cromatoField.value = "Outro";
+                document.getElementById("cromatoOutro").style.display = "block";
+                document.getElementById("cromatoOutro").value = dados.cromato;
+            }
+
+            document.getElementById("linhaBanho").value = dados.linhaBanho;
+            document.getElementById("quantidade").value = dados.quantidade;
+            document.getElementById("volumes").value = dados.volumes;
+            document.getElementById("kgs").value = dados.kgs;
+            
+            selecionarLote(dados.loteAprovado);
+            if(dados.loteAprovado === "NOK") {
+                document.getElementById("motivoReprovacao").value = dados.motivoReprovacao;
+            }
+
+            if (dados.linkFoto && dados.linkFoto !== "Sem foto") {
+                document.getElementById("imgPreview").src = dados.linkFoto;
+                document.getElementById("previewContainer").style.display = "block";
+                document.getElementById("linkFotoExistente").innerHTML = `<a href="${dados.linkFoto}" target="_blank">Ver imagem atual original ↗</a>`;
+            } else {
+                document.getElementById("previewContainer").style.display = "none";
+            }
+            fotoBase64 = ""; // Reseta para só subir se o usuário tirar uma nova foto
+
+        } else {
+            alert("❌ Alerta: " + dados.msg);
+        }
+    } catch(err) {
+        alert("❌ Erro ao consultar a planilha. Verifique a internet.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "BUSCAR ORDEM DE SERVIÇO";
     }
 }
 
 function limparFormulario() {
     resetarDataHoje();
     listaOS = [];
-    fotoBase64 = "";
     atualizarExibicao();
-    
-    // Limpa Coleta
-    document.getElementById("coletaConferente").value = "";
-    document.getElementById("statusOK").className = "btn-status";
-    document.getElementById("statusNOK").className = "btn-status";
-    statusQualidade = "";
-
-    // Limpa Retrabalho
-    document.getElementById("retCliente").value = "";
-    document.getElementById("retLote").value = "";
-    document.getElementById("retTipoQtd").value = "";
-    document.getElementById("retQuantidade").value = "";
-    document.getElementById("blocoQtdDinamico").style.display = "none";
-    document.getElementById("retKgs").value = "";
-    document.getElementById("retTurno").value = "";
-    document.getElementById("retCausa").value = "";
-    document.getElementById("retPlano").value = "";
-    document.getElementById("retFotoInput").value = "";
-    document.getElementById("retPreview").style.display = "none";
+    document.getElementById("nomeCliente").value = "";
+    document.getElementById("notaFiscal").value = "";
+    document.getElementById("opCliente").value = "";
+    document.getElementById("cromato").value = "";
+    document.getElementById("cromatoOutro").value = "";
+    document.getElementById("cromatoOutro").style.display = "none";
+    document.getElementById("linhaBanho").value = "";
+    document.getElementById("quantidade").value = "";
+    document.getElementById("volumes").value = "";
+    document.getElementById("kgs").value = "";
+    document.getElementById("motivoReprovacao").value = "";
+    document.getElementById("boxMotivo").style.display = "none";
+    document.getElementById("loteOK").classList.remove("btn-ok-ativo");
+    document.getElementById("loteNOK").classList.remove("btn-nok-ativo");
+    document.getElementById("previewContainer").style.display = "none";
+    document.getElementById("linkFotoExistente").innerHTML = "";
+    statusLote = "";
+    fotoBase64 = "";
 }
 
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
-    scanner.start(
-        { facingMode: "environment" }, 
-        { fps: 30, qrbox: 250 }, 
-        (c) => { 
-            if(!listaOS.includes(c)) { 
-                listaOS.push(c); 
-                atualizarExibicao(); 
-            }
-            fecharScanner();
-        },
-        (erro) => { }
-    ).catch((err) => {
-        alert("Erro ao acessar a câmera.");
+    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (c) => { 
+        if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); }
         fecharScanner();
     });
 }
 
-function fecharScanner() { 
-    if (scanner) { 
-        scanner.stop().then(() => { 
-            document.getElementById("scannerTela").style.display = "none"; 
-        }).catch(() => {
-            document.getElementById("scannerTela").style.display = "none";
-        }); 
-    } else {
-        document.getElementById("scannerTela").style.display = "none";
-    }
-}
+function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
 
 function addManual() { 
     let n = prompt("Digite o número da OS (Apenas números):"); 
@@ -273,109 +305,108 @@ function addManual() {
 }
 
 function removerItem(val) { 
+    if (modoAtual === "EDITAR") return; // Bloqueia remoção de OS na edição
     listaOS = listaOS.filter(i => i !== val); 
     atualizarExibicao(); 
 }
 
 function atualizarExibicao() { 
-    const htmlBadge = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join('');
-    document.querySelectorAll('.idContOSBoxColeta, .idContOSBoxRetrabalho').forEach(el => el.innerHTML = htmlBadge);
+    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} ${modoAtual==='INSERIR'?'X':''}</div>`).join(''); 
 }
 
-function selecionarStatus(opcao) {
-    statusQualidade = opcao;
-    const btnOK = document.getElementById("statusOK");
-    const btnNOK = document.getElementById("statusNOK");
+function verificarCromato(val) {
+    const campoOutro = document.getElementById("cromatoOutro");
+    if (val === "Outro") { campoOutro.style.display = "block"; campoOutro.focus(); } 
+    else { campoOutro.style.display = "none"; campoOutro.value = ""; }
+}
+
+function selecionarLote(opcao) {
+    statusLote = opcao;
+    const btnOK = document.getElementById("loteOK");
+    const btnNOK = document.getElementById("loteNOK");
+    const boxMotivo = document.getElementById("boxMotivo");
+
     if (opcao === "OK") {
-        btnOK.className = "btn-status btn-ok-ativo";
-        btnNOK.className = "btn-status";
+        btnOK.classList.add("btn-ok-ativo");
+        btnNOK.classList.remove("btn-nok-ativo");
+        boxMotivo.style.display = "none";
+        document.getElementById("motivoReprovacao").value = "";
     } else {
-        btnNOK.className = "btn-status btn-nok-ativo";
-        btnOK.className = "btn-status";
+        btnNOK.classList.add("btn-nok-ativo");
+        btnOK.classList.remove("btn-ok-ativo");
+        boxMotivo.style.display = "block";
     }
 }
 
-function processarFoto(input) {
-    const file = input.files[0];
-    if (file) {
+function capturarFoto(input) {
+    if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             fotoBase64 = e.target.result;
-            const preview = document.getElementById("retPreview");
-            preview.src = fotoBase64;
-            preview.style.display = "block";
+            document.getElementById("imgPreview").src = e.target.result;
+            document.getElementById("previewContainer").style.display = "block";
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(input.files[0]);
     }
 }
 
-async function salvarColeta() {
-    const conferente = document.getElementById("coletaConferente").value.trim();
-    const dataReg = document.getElementById("coletaData").value;
+async function salvar() {
+    const cli = document.getElementById("nomeCliente").value.trim();
+    const nf = document.getElementById("notaFiscal").value.trim();
+    const op = document.getElementById("opCliente").value.trim();
+    const cromatoSel = document.getElementById("cromato").value;
+    const cromatoOutroValor = document.getElementById("cromatoOutro").value.trim();
+    const cromatoFinal = cromatoSel === "Outro" ? cromatoOutroValor : cromatoSel;
+    const linha = document.getElementById("linhaBanho").value;
+    const qtd = document.getElementById("quantidade").value;
+    const vols = document.getElementById("volumes").value;
+    const peso = document.getElementById("kgs").value;
+    const motivo = document.getElementById("motivoReprovacao").value.trim();
 
     if (listaOS.length === 0) { alert("⚠️ Campo Obrigatório: Defina ao menos uma OS!"); return; }
-    if (!statusQualidade) { alert("⚠️ Campo Obrigatório: Selecione o Status (OK ou NOK)!"); return; }
-    if (!conferente) { alert("⚠️ Campo Obrigatório: Digite o Nome do Conferente!"); return; }
+    if (!cli) { alert("⚠️ Campo Obrigatório: Digite o Nome do Cliente!"); document.getElementById("nomeCliente").focus(); return; }
+    if (nf && !/^\d+$/.test(nf)) { alert("⚠️ O campo N° Nota Fiscal deve conter apenas números!"); document.getElementById("notaFiscal").focus(); return; }
+    if (op && !/^\d+$/.test(op)) { alert("⚠️ O campo OP do Cliente deve conter apenas números!"); document.getElementById("opCliente").focus(); return; }
+    if (!cromatoSel) { alert("⚠️ Campo Obrigatório: Selecione o Cromato!"); document.getElementById("cromato").focus(); return; }
+    if (cromatoSel === "Outro" && !cromatoOutroValor) { alert("⚠️ Campo Obrigatório: Especifique o tipo de Cromato!"); document.getElementById("cromatoOutro").focus(); return; }
+    if (!linha) { alert("⚠️ Campo Obrigatório: Selecione a Linha de Banho!"); document.getElementById("linhaBanho").focus(); return; }
+    if (!qtd || isNaN(qtd)) { alert("⚠️ Campo Obrigatório: Digite uma Qtd. de Peças válida!"); document.getElementById("quantidade").focus(); return; }
+    if (!vols || isNaN(vols)) { alert("⚠️ Campo Obrigatório: Digite um Volume válido!"); document.getElementById("volumes").focus(); return; }
+    if (!peso || isNaN(peso)) { alert("⚠️ Campo Obrigatório: Digite o peso em Kgs válido!"); document.getElementById("kgs").focus(); return; }
+    if (!statusLote) { alert("⚠️ Campo Obrigatório: Selecione se o Lote foi Aprovado!"); return; }
+    if (statusLote === "NOK" && !motivo) { alert("⚠️ Campo Obrigatório: Digite o Motivo da Reprovação!"); document.getElementById("motivoReprovacao").focus(); return; }
+    if (modoAtual === "INSERIR" && !fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa Registrar a Fotografia do lote!"); return; }
     
-    const btn = document.querySelector("#telaLiberadoColeta .btnSalvar");
-    btn.disabled = true; btn.innerText = "SALVANDO...";
+    const btn = document.getElementById("btnSalvar");
+    btn.disabled = true;
+    btn.innerText = "SALVANDO DADOS...";
 
     const payload = { 
-        tipo: "Liberado para Coleta", 
-        data: dataReg, 
-        status: statusQualidade,
-        conferente: conferente,
-        ordens: listaOS
-    };
-    
-    enviarDados(payload, btn);
-}
-
-async function salvarRetrabalho() {
-    const dataReg = document.getElementById("retData").value;
-    const cliente = document.getElementById("retCliente").value.trim();
-    const lote = document.getElementById("retLote").value;
-    const tipoQtd = document.getElementById("retTipoQtd").value;
-    const qtdValor = document.getElementById("retQuantidade").value.trim();
-    const kgs = document.getElementById("retKgs").value.trim();
-    const turno = document.getElementById("retTurno").value;
-    const causa = document.getElementById("retCausa").value.trim();
-    const plano = document.getElementById("retPlano").value.trim();
-
-    if (!cliente || listaOS.length === 0 || !lote || !tipoQtd || !qtdValor || !kgs || !turno || !causa || !plano) {
-        alert("⚠️ Por favor, preencha todos os campos obrigatórios do retrabalho!");
-        return;
-    }
-
-    const btn = document.querySelector("#telaRegistroRetrabalho .btnSalvar");
-    btn.disabled = true; btn.innerText = "SALVANDO...";
-
-    const payload = { 
-        tipo: "RETRABALHO", 
-        data: dataReg, 
-        cliente: cliente,
+        tipo: modoAtual === "INSERIR" ? "RECEBIMENTO" : "EDITAR_RECEBIMENTO",
+        linha: document.getElementById("linhaPlanilhaEdicao").value,
+        data: document.getElementById("dataRecebimento").value, 
+        cliente: cli,
+        notaFiscal: nf,
+        opCliente: op,
+        cromato: cromatoFinal,
+        linhaBanho: linha,
+        quantidade: qtd,
+        volumes: vols,
+        kgs: peso,
+        loteAprovado: statusLote,
+        motivoReprovacao: statusLote === "NOK" ? motivo : "",
         ordens: listaOS,
-        lote: lote,
-        quantidade: qtdValor + " " + tipoQtd, // Envia para a planilha como "150 Qtd. Peças"
-        kgs: kgs,
-        turno: turno,
-        causa: causa,
-        plano: plano,
         foto: fotoBase64
     };
-
-    enviarDados(payload, btn);
-}
-
-async function enviarDados(payload, btnComponente) {
+    
     try {
         await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
-        alert("✅ Registro enviado com sucesso!");
+        alert(modoAtual === "INSERIR" ? "✅ Registro enviado com sucesso!" : "✅ Registro atualizado com sucesso!");
         location.reload();
     } catch (e) {
         alert("❌ Erro ao tentar transmitir os dados. Verifique a rede.");
-        btnComponente.disabled = false; 
-        btnComponente.innerText = "SALVAR REGISTRO";
+        btn.disabled = false;
+        btn.innerText = modoAtual === "INSERIR" ? "SALVAR RECEBIMENTO" : "SALVAR ALTERAÇÕES";
     }
 }
 </script>
