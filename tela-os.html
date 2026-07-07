@@ -22,7 +22,7 @@
         
         /* Area para o Preview das fotos encontradas no Recebimento */
         .preview-recebimento-box { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; text-align: center; display: none; }
-        .preview-recebimento-box img { max-width: 100%; max-height: 220px; border-radius: 6px; border: 1px solid #ccc; margin-top: 5px; }
+        .preview-recebimento-box img { max-width: 100%; max-height: 250px; border-radius: 6px; border: 1px solid #ccc; margin-top: 8px; object-fit: contain; }
         .loading-foto { font-size: 12px; color: #7f8c8d; font-style: italic; margin-top: 5px; display: none; }
 
         /* ==========================================================================
@@ -112,7 +112,7 @@
     </div>
 
     <label class="secao-titulo">Recebedor</label>
-    <input type="text" id="recebedor" placeholder="Nome Completo de quem recebeu">
+    <input type="text" id="recebedor" placeholder="Nome de quem recebeu">
 
     <label class="secao-titulo">Expedidor</label>
     <input type="text" id="expedidor" placeholder="Nome de quem entregou">
@@ -145,7 +145,7 @@ function abrirScanner() {
             if(!listaOS.includes(c)) { 
                 listaOS.push(c); 
                 atualizarExibicao();
-                buscarFotoDoRecebimento(c); // Puxa a foto assim que lê o código
+                buscarFotoDoRecebimento(c);
             }
             fecharScanner();
         },
@@ -170,7 +170,7 @@ function addManual() {
         if (!listaOS.includes(n)) { 
             listaOS.push(n); 
             atualizarExibicao(); 
-            buscarFotoDoRecebimento(n); // Puxa a foto assim que digita a OS
+            buscarFotoDoRecebimento(n); 
         } 
     }
 }
@@ -181,7 +181,6 @@ function removerItem(val) {
     if(listaOS.length === 0) {
         ocultarBoxFoto();
     } else {
-        // Se ainda sobrarem OS na lista, busca a foto da última adicionada
         buscarFotoDoRecebimento(listaOS[listaOS.length - 1]);
     }
 }
@@ -196,6 +195,23 @@ function ocultarBoxFoto() {
     document.getElementById("loadingFoto").style.display = "none";
 }
 
+// Converte links normais do Drive em links diretos para exibição em <img>
+function ajustarLinkDrive(url) {
+    if (!url) return "";
+    if (url.includes("drive.google.com")) {
+        let id = "";
+        if (url.includes("id=")) {
+            id = url.split("id=")[1].split("&")[0];
+        } else if (url.includes("/d/")) {
+            id = url.split("/d/")[1].split("/")[0];
+        }
+        if (id) {
+            return "https://docs.google.com/uc?export=view&id=" + id;
+        }
+    }
+    return url;
+}
+
 async function buscarFotoDoRecebimento(numeroOS) {
     if (!numeroOS) return;
     
@@ -206,7 +222,6 @@ async function buscarFotoDoRecebimento(numeroOS) {
     loader.style.display = "block";
 
     try {
-        // Aproveita o motor da API de busca que você já possui configurada no Apps Script
         const resposta = await fetch(apiUrl, {
             method: "POST",
             body: JSON.stringify({ tipo: "BUSCAR_OS", os: numeroOS })
@@ -216,14 +231,13 @@ async function buscarFotoDoRecebimento(numeroOS) {
         loader.style.display = "none";
 
         if (dados.sucesso && dados.linkFoto && dados.linkFoto !== "Sem foto") {
-            imgTag.src = dados.linkFoto;
+            // Aplica o ajuste de link aqui antes de renderizar
+            imgTag.src = ajustarLinkDrive(dados.linkFoto);
             boxPreview.style.display = "block";
         } else {
-            // Se essa OS específica não tiver foto, não exibe nada ou mantém oculto
             ocultarBoxFoto();
         }
     } catch (err) {
-        // Abafa o erro de rede de forma limpa para não atrapalhar o operador
         loader.style.display = "none";
     }
 }
