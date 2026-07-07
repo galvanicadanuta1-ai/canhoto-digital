@@ -163,7 +163,7 @@ const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syH
 window.onload = () => { document.getElementById('dataRetrabalho').valueAsDate = new Date(); };
 function verificarOutro(val) { document.getElementById('clienteOutro').style.display = val === 'Outro' ? 'block' : 'none'; }
 
-// Controla a exibição do campo de digitação com base na escolha (Peças ou Volumes)
+// Mostra o campo de entrada e atualiza o texto (Inserir Qtd. Peças / Inserir Qtd. Volumes)
 function verificarTipoQtd(val) {
     const blocoInput = document.getElementById('campoQtdDinamico');
     const label = document.getElementById('labelQtdDinamica');
@@ -222,8 +222,7 @@ function salvar() {
         cliente: document.getElementById("clienteSel").value === 'Outro' ? document.getElementById("clienteOutro").value : document.getElementById("clienteSel").value,
         ordens: listaOS,
         lote: document.getElementById("loteSel").value,
-        // Junta o valor digitado com o tipo (ex: "50 Qtd. Peças" ou "12 Qtd. Volumes")
-        quantidade: qtdValor + " " + tipoQtd,
+        quantidade: qtdValor + " " + tipoQtd, // Envia formatado para a planilha
         kgs: document.getElementById("kgs").value,
         turno: document.getElementById("turnoSel").value,
         causa: document.getElementById("causa").value,
@@ -231,7 +230,16 @@ function salvar() {
         foto: base64Image
     };
     
-    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }).then(() => { alert("✅ Salvo com sucesso!"); location.reload(); });
+    fetch(apiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
+    .then(() => { 
+        alert("✅ Salvo com sucesso!"); 
+        location.reload(); 
+    })
+    .catch(() => {
+        alert("❌ Erro ao salvar.");
+        btn.innerText = "SALVAR RETRABALHO";
+        btn.disabled = false;
+    });
 }
 </script>
 </body>
