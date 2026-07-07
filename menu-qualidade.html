@@ -122,13 +122,22 @@
 
         <div class="grid-2">
             <div>
-                <label class="secao-titulo">Quantidade peças<span class="obrigatorio">*</span></label>
-                <input type="number" id="retQuantidade" placeholder="Qtd de peças">
+                <label class="secao-titulo">Quantidade por:<span class="obrigatorio">*</span></label>
+                <select id="retUnidadeMedida" onchange="alternarCampoQuantidade(this.value)">
+                    <option value="">Selecione</option>
+                    <option value="Peças">Peças</option>
+                    <option value="Volumes">Volumes</option>
+                </select>
             </div>
             <div>
                 <label class="secao-titulo">Kgs<span class="obrigatorio">*</span></label>
                 <input type="number" step="0.01" id="retKgs" placeholder="Peso em Kg">
             </div>
+        </div>
+
+        <div id="blocoQtdDinamica" style="display: none;">
+            <label class="secao-titulo" id="labelQtdDinamica">Inserir Quantidade</label>
+            <input type="number" id="retQuantidade" placeholder="Digite o valor numérico">
         </div>
 
         <label class="secao-titulo">Causa do Retrabalho<span class="obrigatorio">*</span></label>
@@ -192,6 +201,21 @@ function verificarOutroCliente(val) {
     document.getElementById('retClienteOutro').style.display = val === 'Outro' ? 'block' : 'none';
 }
 
+function alternarCampoQuantidade(val) {
+    const bloco = document.getElementById("blocoQtdDinamica");
+    const label = document.getElementById("labelQtdDinamica");
+    const inputQtd = document.getElementById("retQuantidade");
+    
+    if (!val) {
+        bloco.style.display = "none";
+        inputQtd.value = "";
+    } else {
+        bloco.style.display = "block";
+        label.innerHTML = `Quantidade em ${val}<span class="obrigatorio">*</span>`;
+        inputQtd.placeholder = `Digite a quantidade de ${val.toLowerCase()}`;
+    }
+}
+
 function limparFormulario() {
     resetarDataHoje();
     listaOS = [];
@@ -209,7 +233,9 @@ function limparFormulario() {
     document.getElementById("retClienteOutro").value = "";
     document.getElementById("retClienteOutro").style.display = "none";
     document.getElementById("retLote").value = "Total";
+    document.getElementById("retUnidadeMedida").value = "";
     document.getElementById("retQuantidade").value = "";
+    document.getElementById("blocoQtdDinamica").style.display = "none";
     document.getElementById("retKgs").value = "";
     document.getElementById("retTurno").value = "";
     document.getElementById("retCausa").value = "";
@@ -323,16 +349,16 @@ async function salvarRetrabalho() {
     const clienteSel = document.getElementById("retClienteSel").value;
     const clienteOutro = document.getElementById("retClienteOutro").value.trim();
     const lote = document.getElementById("retLote").value;
-    const qtd = document.getElementById("retQuantidade").value.trim();
+    const unidadeMedida = document.getElementById("retUnidadeMedida").value;
+    const valorQtd = document.getElementById("retQuantidade").value.trim();
     const kgs = document.getElementById("retKgs").value.trim();
     const turno = document.getElementById("retTurno").value;
     const causa = document.getElementById("retCausa").value.trim();
     const plano = document.getElementById("retPlano").value.trim();
 
-    // Define o valor correto do cliente baseado na seleção
     const clienteFinal = clienteSel === 'Outro' ? clienteOutro : clienteSel;
 
-    if (!clienteFinal || listaOS.length === 0 || !lote || !qtd || !kgs || !turno || !causa || !plano || !fotoBase64) {
+    if (!clienteFinal || listaOS.length === 0 || !lote || !unidadeMedida || !valorQtd || !kgs || !turno || !causa || !plano || !fotoBase64) {
         alert("⚠️ Por favor, preencha todos os campos obrigatórios do retrabalho e tire a foto!");
         return;
     }
@@ -340,13 +366,16 @@ async function salvarRetrabalho() {
     const btn = document.querySelector("#telaRegistroRetrabalho .btnSalvar");
     btn.disabled = true; btn.innerText = "SALVANDO...";
 
+    // Concatena ex: "150 Peças" ou "12 Volumes" para manter conformidade com a coluna da planilha
+    const quantidadeFormatada = `${valorQtd} ${unidadeMedida}`;
+
     const payload = { 
         tipo: "RETRABALHO", 
         data: dataReg, 
         cliente: clienteFinal,
         ordens: listaOS,
         lote: lote,
-        quantidade: qtd,
+        quantidade: quantidadeFormatada,
         kgs: kgs,
         turno: turno,
         causa: causa,
@@ -359,7 +388,6 @@ async function salvarRetrabalho() {
 
 async function enviarDados(payload, btnComponente) {
     try {
-        // Envio limpo sem restrições de CORS
         await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
         alert("✅ Registro enviado com sucesso!");
         location.reload();
