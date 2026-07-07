@@ -37,6 +37,10 @@
         .btn-buscar { background: #0f4c81; color: white; padding: 12px; font-weight: bold; border: none; border-radius: 8px; margin-top: 8px; width: 100%; cursor: pointer; font-size: 16px; }
         #scannerTela { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; display: none; z-index: 9999; }
         #reader { width: 100% !important; height: 100% !important; }
+
+        /* Estilos para o fluxo dinâmico do WhatsApp */
+        .btn-whats { background: #25d366 !important; color: white !important; font-weight: bold; text-transform: uppercase; margin-top: 10px; border: none; padding: 15px; width: 100%; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-anexo-whats { background: #34495e !important; color: white !important; }
     </style>
 </head>
 <body>
@@ -65,7 +69,12 @@
         <div class="badge-container" id="contOS"></div>
 
         <label class="secao-titulo">Nome do Cliente<span class="obrigatorio">*</span></label>
-        <input type="text" id="nomeCliente" placeholder="Digite o nome do cliente">
+        <select id="nomeClienteSel" onchange="verificarClienteEspecial(this.value)">
+            <option value="">-- Selecione o Cliente --</option>
+            <option value="RHC">RHC</option>
+            <option value="Outro">Outro...</option>
+        </select>
+        <input type="text" id="nomeClienteOutro" placeholder="Digite o nome do cliente*" style="display: none; margin-top: 8px;">
 
         <label class="secao-titulo">N° Nota Fiscal</label>
         <input type="number" inputmode="numeric" pattern="[0-9]*" id="notaFiscal" placeholder="Apenas números">
@@ -118,7 +127,14 @@
         </div>
 
         <label class="secao-titulo" id="tituloFoto">Fotografia do Recebimento<span class="obrigatorio">*</span></label>
-        <button type="button" class="btn-scan" style="background: #7f8c8d;" onclick="document.getElementById('fotoInput').click()">📷 REGISTRAR FOTOGRAFIA</button>
+        
+        <button type="button" id="btnFotoPadrao" class="btn-scan" style="background: #7f8c8d;" onclick="document.getElementById('fotoInput').click()">📷 REGISTRAR FOTOGRAFIA</button>
+        
+        <div id="blocoFotoRHC" style="display: none;">
+            <button type="button" class="btn-whats" onclick="abrirWhatsRHC()">💬 1º ENVIAR FOTO NO WHATSAPP</button>
+            <button type="button" class="btn-scan btn-anexo-whats" onclick="document.getElementById('fotoInput').click()">📁 2º CARREGAR ESSA FOTO NA PLANILHA</button>
+        </div>
+
         <input type="file" accept="image/*" capture="environment" id="fotoInput" style="display: none;" onchange="capturarFoto(this)">
         
         <div id="previewContainer" style="display: none; text-align: center; margin-top: 10px;">
@@ -181,6 +197,40 @@ function voltarParaEscolha() {
     document.getElementById("btnNavegacaoVoltar").href = "index.html";
 }
 
+function verificarClienteEspecial(val) {
+    const campoOutro = document.getElementById("nomeClienteOutro");
+    const btnNormal = document.getElementById("btnFotoPadrao");
+    const blocoRHC = document.getElementById("blocoFotoRHC");
+
+    if (val === "Outro") {
+        campoOutro.style.display = "block";
+        campoOutro.focus();
+    } else {
+        campoOutro.style.display = "none";
+        campoOutro.value = "";
+    }
+
+    // Altera a exibição dos botões de foto caso o cliente seja RHC
+    if (val === "RHC") {
+        btnNormal.style.display = "none";
+        blocoRHC.style.display = "block";
+    } else {
+        btnNormal.style.display = "block";
+        blocoRHC.style.display = "none";
+    }
+}
+
+function abrirWhatsRHC() {
+    if (listaOS.length === 0) {
+        alert("⚠️ Por favor, escaneie ou digite ao menos uma OS antes de abrir o WhatsApp!");
+        return;
+    }
+    // Texto pré-definido para facilitar a mensagem do operador
+    const texto = encodeURIComponent(`Galvânica Danuta: Registro de Entrada referente à(s) OS: ${listaOS.join(', ')}. Segue imagem em anexo:`);
+    // Abre o WhatsApp. O operador escolhe o contato/grupo do RHC lá dentro e envia a foto diretamente
+    window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+}
+
 async function executarConsultaOS() {
     const os = document.getElementById("osBuscaInput").value.trim();
     if (!os) { alert("⚠️ Digite um número de OS válido!"); return; }
@@ -190,7 +240,6 @@ async function executarConsultaOS() {
     btn.innerText = "BUSCANDO NA PLANILHA...";
 
     try {
-        // Para receber dados de volta da API, usamos um redirecionamento CORS padrão
         const resposta = await fetch(apiUrl, {
             method: "POST",
             body: JSON.stringify({ tipo: "BUSCAR_OS", os: os })
@@ -204,18 +253,25 @@ async function executarConsultaOS() {
             document.getElementById("textoMenuTopo").innerText = "Editar Registro";
             document.getElementById("btnSalvar").innerText = "SALVAR ALTERAÇÕES";
             
-            // Oculta os botões de adicionar novas OS na edição para não quebrar a chave da busca
             document.getElementById("btnScanOS").style.display = "none";
             document.getElementById("btnManualOS").style.display = "none";
             document.getElementById("tituloFoto").innerHTML = 'Substituir Fotografia (Opcional)';
 
-            // Preenche os campos vindos da planilha
             document.getElementById("linhaPlanilhaEdicao").value = dados.linha;
             document.getElementById("dataRecebimento").value = dados.data;
             listaOS = dados.ordens;
             atualizarExibicao();
             
-            document.getElementById("nomeCliente").value = dados.cliente;
+            const cliSel = document.getElementById("nomeClienteSel");
+            if (dados.cliente === "RHC") {
+                cliSel.value = "RHC";
+                verificarClienteEspecial("RHC");
+            } else {
+                cliSel.value = "Outro";
+                verificarClienteEspecial("Outro");
+                document.getElementById("nomeClienteOutro").value = dados.cliente;
+            }
+
             document.getElementById("notaFiscal").value = dados.notaFiscal;
             document.getElementById("opCliente").value = dados.opCliente;
             
@@ -246,7 +302,7 @@ async function executarConsultaOS() {
             } else {
                 document.getElementById("previewContainer").style.display = "none";
             }
-            fotoBase64 = ""; // Reseta para só subir se o usuário tirar uma nova foto
+            fotoBase64 = "";
 
         } else {
             alert("❌ Alerta: " + dados.msg);
@@ -263,7 +319,11 @@ function limparFormulario() {
     resetarDataHoje();
     listaOS = [];
     atualizarExibicao();
-    document.getElementById("nomeCliente").value = "";
+    document.getElementById("nomeClienteSel").value = "";
+    document.getElementById("nomeClienteOutro").value = "";
+    document.getElementById("nomeClienteOutro").style.display = "none";
+    document.getElementById("btnFotoPadrao").style.display = "block";
+    document.getElementById("blocoFotoRHC").style.display = "none";
     document.getElementById("notaFiscal").value = "";
     document.getElementById("opCliente").value = "";
     document.getElementById("cromato").value = "";
@@ -305,7 +365,7 @@ function addManual() {
 }
 
 function removerItem(val) { 
-    if (modoAtual === "EDITAR") return; // Bloqueia remoção de OS na edição
+    if (modoAtual === "EDITAR") return;
     listaOS = listaOS.filter(i => i !== val); 
     atualizarExibicao(); 
 }
@@ -351,7 +411,10 @@ function capturarFoto(input) {
 }
 
 async function salvar() {
-    const cli = document.getElementById("nomeCliente").value.trim();
+    const cliSel = document.getElementById("nomeClienteSel").value;
+    const cliOutro = document.getElementById("nomeClienteOutro").value.trim();
+    const cliFinal = cliSel === "Outro" ? cliOutro : cliSel;
+
     const nf = document.getElementById("notaFiscal").value.trim();
     const op = document.getElementById("opCliente").value.trim();
     const cromatoSel = document.getElementById("cromato").value;
@@ -364,7 +427,7 @@ async function salvar() {
     const motivo = document.getElementById("motivoReprovacao").value.trim();
 
     if (listaOS.length === 0) { alert("⚠️ Campo Obrigatório: Defina ao menos uma OS!"); return; }
-    if (!cli) { alert("⚠️ Campo Obrigatório: Digite o Nome do Cliente!"); document.getElementById("nomeCliente").focus(); return; }
+    if (!cliFinal) { alert("⚠️ Campo Obrigatório: Selecione ou digite o Nome do Cliente!"); return; }
     if (nf && !/^\d+$/.test(nf)) { alert("⚠️ O campo N° Nota Fiscal deve conter apenas números!"); document.getElementById("notaFiscal").focus(); return; }
     if (op && !/^\d+$/.test(op)) { alert("⚠️ O campo OP do Cliente deve conter apenas números!"); document.getElementById("opCliente").focus(); return; }
     if (!cromatoSel) { alert("⚠️ Campo Obrigatório: Selecione o Cromato!"); document.getElementById("cromato").focus(); return; }
@@ -375,7 +438,7 @@ async function salvar() {
     if (!peso || isNaN(peso)) { alert("⚠️ Campo Obrigatório: Digite o peso em Kgs válido!"); document.getElementById("kgs").focus(); return; }
     if (!statusLote) { alert("⚠️ Campo Obrigatório: Selecione se o Lote foi Aprovado!"); return; }
     if (statusLote === "NOK" && !motivo) { alert("⚠️ Campo Obrigatório: Digite o Motivo da Reprovação!"); document.getElementById("motivoReprovacao").focus(); return; }
-    if (modoAtual === "INSERIR" && !fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa Registrar a Fotografia do lote!"); return; }
+    if (modoAtual === "INSERIR" && !fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa anexar a Fotografia do lote!"); return; }
     
     const btn = document.getElementById("btnSalvar");
     btn.disabled = true;
@@ -385,7 +448,7 @@ async function salvar() {
         tipo: modoAtual === "INSERIR" ? "RECEBIMENTO" : "EDITAR_RECEBIMENTO",
         linha: document.getElementById("linhaPlanilhaEdicao").value,
         data: document.getElementById("dataRecebimento").value, 
-        cliente: cli,
+        cliente: cliFinal,
         notaFiscal: nf,
         opCliente: op,
         cromato: cromatoFinal,
