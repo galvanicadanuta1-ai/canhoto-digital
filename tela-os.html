@@ -20,9 +20,9 @@
         .badge-item { background: #e1f5fe; color: #01579b; border: 1px solid #01579b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; }
         
-        /* Area para o Preview das fotos encontradas no Recebimento */
-        .preview-recebimento-box { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; text-align: center; display: none; }
-        .preview-recebimento-box img { max-width: 100%; max-height: 250px; border-radius: 6px; border: 1px solid #ccc; margin-top: 8px; object-fit: contain; }
+        /* Novo Bloco de Link Direto Seguro */
+        .box-link-foto { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1; margin-top: 12px; text-align: center; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-abrir-foto { display: inline-block; background: #0284c7; color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-top: 8px; box-shadow: 0 2px 5px rgba(2,132,199,0.3); }
         .loading-foto { font-size: 12px; color: #7f8c8d; font-style: italic; margin-top: 5px; display: none; }
 
         /* ==========================================================================
@@ -105,10 +105,10 @@
     <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
 
-    <div id="loadingFoto" class="loading-foto">⏳ Buscando imagem do recebimento...</div>
-    <div id="boxPreviewRecebimento" class="preview-recebimento-box">
-        <span style="font-size: 12px; font-weight: bold; color: #2c3e50; display: block;">📸 Imagem do Recebimento (Entrada):</span>
-        <img id="imgRecebimento" src="">
+    <div id="loadingFoto" class="loading-foto">⏳ Verificando imagem no recebimento...</div>
+    <div id="boxLinkRecebimento" class="box-link-foto">
+        <span style="font-size: 13px; font-weight: bold; color: #334155; display: block;">📸 Foto de Entrada Encontrada!</span>
+        <a id="btnLinkFoto" href="#" target="_blank" class="btn-abrir-foto">👁️ VER FOTO DO RECEBIMENTO</a>
     </div>
 
     <label class="secao-titulo">Recebedor</label>
@@ -190,34 +190,17 @@ function atualizarExibicao() {
 }
 
 function ocultarBoxFoto() {
-    document.getElementById("boxPreviewRecebimento").style.display = "none";
-    document.getElementById("imgRecebimento").src = "";
+    document.getElementById("boxLinkRecebimento").style.display = "none";
+    document.getElementById("btnLinkFoto").href = "#";
     document.getElementById("loadingFoto").style.display = "none";
-}
-
-// Converte links normais do Drive em links diretos para exibição em <img>
-function ajustarLinkDrive(url) {
-    if (!url) return "";
-    if (url.includes("drive.google.com")) {
-        let id = "";
-        if (url.includes("id=")) {
-            id = url.split("id=")[1].split("&")[0];
-        } else if (url.includes("/d/")) {
-            id = url.split("/d/")[1].split("/")[0];
-        }
-        if (id) {
-            return "https://docs.google.com/uc?export=view&id=" + id;
-        }
-    }
-    return url;
 }
 
 async function buscarFotoDoRecebimento(numeroOS) {
     if (!numeroOS) return;
     
     const loader = document.getElementById("loadingFoto");
-    const boxPreview = document.getElementById("boxPreviewRecebimento");
-    const imgTag = document.getElementById("imgRecebimento");
+    const boxLink = document.getElementById("boxLinkRecebimento");
+    const btnFoto = document.getElementById("btnLinkFoto");
 
     loader.style.display = "block";
 
@@ -231,9 +214,9 @@ async function buscarFotoDoRecebimento(numeroOS) {
         loader.style.display = "none";
 
         if (dados.sucesso && dados.linkFoto && dados.linkFoto !== "Sem foto") {
-            // Aplica o ajuste de link aqui antes de renderizar
-            imgTag.src = ajustarLinkDrive(dados.linkFoto);
-            boxPreview.style.display = "block";
+            // Vincula o link original do Drive diretamente ao botão de abertura segura
+            btnFoto.href = dados.linkFoto;
+            boxLink.style.display = "block";
         } else {
             ocultarBoxFoto();
         }
