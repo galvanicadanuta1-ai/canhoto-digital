@@ -8,7 +8,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; }
         .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; position: relative; }
-        .btn-voltar { position: absolute; top: 15px; right: 15px; color: #e74c3c; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .btn-voltar { position: absolute; top: 15px; right: 15px; color: #64748b; text-decoration: none; font-weight: bold; font-size: 14px; }
         .topo { display: flex; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo img { height: 30px; }
         .titulo-topo { flex: 1; text-align: center; color: #0f4c81; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-right: 40px; }
@@ -20,8 +20,13 @@
         .badge-item { background: #e1f5fe; color: #01579b; border: 1px solid #01579b; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         .btnSalvar { background: #27ae60; color: white; margin-top: 25px; font-size: 18px; font-weight: bold; width: 100%; padding: 18px; border: none; border-radius: 12px; cursor: pointer; }
         
+        /* Area para o Preview das fotos encontradas no Recebimento */
+        .preview-recebimento-box { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; text-align: center; display: none; }
+        .preview-recebimento-box img { max-width: 100%; max-height: 220px; border-radius: 6px; border: 1px solid #ccc; margin-top: 5px; }
+        .loading-foto { font-size: 12px; color: #7f8c8d; font-style: italic; margin-top: 5px; display: none; }
+
         /* ==========================================================================
-           LAYOUT CORRIGIDO: CÂMERA OCUPAR TELA INTEIRA PADRONIZADO (TELA-OS)
+           LAYOUT CÂMERA OCUPAR TELA INTEIRA PADRONIZADO (TELA-OS)
            ========================================================================== */
         #scannerTela { 
             position: fixed; 
@@ -43,7 +48,6 @@
             left: 0;
         }
 
-        /* CORREÇÃO DO VISOR: Expande o vídeo nativo por cima das tarjas pretas */
         #reader video {
             width: 100vw !important;
             height: 100vh !important;
@@ -53,7 +57,6 @@
             left: 0;
         }
 
-        /* Remove interfaces sobressalentes e textos injetados pela biblioteca */
         #reader img, #reader span, #reader div:not(#reader__scan_region) {
             display: none !important;
         }
@@ -67,7 +70,6 @@
             height: 100% !important;
         }
 
-        /* Botão Vermelho Flutuante e Fixo no Topo Direito (Idêntico aos anteriores) */
         .btn-fechar-camera-suspensa {
             position: absolute; 
             top: 20px; 
@@ -103,8 +105,14 @@
     <div class="btn-manual" onclick="addManual()">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
 
+    <div id="loadingFoto" class="loading-foto">⏳ Buscando imagem do recebimento...</div>
+    <div id="boxPreviewRecebimento" class="preview-recebimento-box">
+        <span style="font-size: 12px; font-weight: bold; color: #2c3e50; display: block;">📸 Imagem do Recebimento (Entrada):</span>
+        <img id="imgRecebimento" src="">
+    </div>
+
     <label class="secao-titulo">Recebedor</label>
-    <input type="text" id="recebedor" placeholder="Nome de quem recebeu">
+    <input type="text" id="recebedor" placeholder="Nome Completo de quem recebeu">
 
     <label class="secao-titulo">Expedidor</label>
     <input type="text" id="expedidor" placeholder="Nome de quem entregou">
@@ -134,12 +142,14 @@ function abrirScanner() {
         { facingMode: "environment" }, 
         { fps: 30, qrbox: 250 }, 
         (c) => { 
-            if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); }
+            if(!listaOS.includes(c)) { 
+                listaOS.push(c); 
+                atualizarExibicao();
+                buscarFotoDoRecebimento(c); // Puxa a foto assim que lê o código
+            }
             fecharScanner();
         },
-        (erro) => {
-            // Silencia varredura padrão
-        }
+        (erro) => {}
     ).catch(() => { alert("Câmera não disponível."); });
 }
 
@@ -153,13 +163,74 @@ function fecharScanner() {
     }
 }
 
-function addManual() { let n = prompt("Digite o número da OS:"); if (n && !listaOS.includes(n)) { listaOS.push(n); atualizarExibicao(); } }
-function removerItem(val) { listaOS = listaOS.filter(i => i !== val); atualizarExibicao(); }
-function atualizarExibicao() { document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); }
+function addManual() { 
+    let n = prompt("Digite o número da OS:"); 
+    if (n) {
+        n = n.trim();
+        if (!listaOS.includes(n)) { 
+            listaOS.push(n); 
+            atualizarExibicao(); 
+            buscarFotoDoRecebimento(n); // Puxa a foto assim que digita a OS
+        } 
+    }
+}
+
+function removerItem(val) { 
+    listaOS = listaOS.filter(i => i !== val); 
+    atualizarExibicao(); 
+    if(listaOS.length === 0) {
+        ocultarBoxFoto();
+    } else {
+        // Se ainda sobrarem OS na lista, busca a foto da última adicionada
+        buscarFotoDoRecebimento(listaOS[listaOS.length - 1]);
+    }
+}
+
+function atualizarExibicao() { 
+    document.getElementById('contOS').innerHTML = listaOS.map(i => `<div class="badge-item" onclick="removerItem('${i}')">OS: ${i} X</div>`).join(''); 
+}
+
+function ocultarBoxFoto() {
+    document.getElementById("boxPreviewRecebimento").style.display = "none";
+    document.getElementById("imgRecebimento").src = "";
+    document.getElementById("loadingFoto").style.display = "none";
+}
+
+async function buscarFotoDoRecebimento(numeroOS) {
+    if (!numeroOS) return;
+    
+    const loader = document.getElementById("loadingFoto");
+    const boxPreview = document.getElementById("boxPreviewRecebimento");
+    const imgTag = document.getElementById("imgRecebimento");
+
+    loader.style.display = "block";
+
+    try {
+        // Aproveita o motor da API de busca que você já possui configurada no Apps Script
+        const resposta = await fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify({ tipo: "BUSCAR_OS", os: numeroOS })
+        });
+        const dados = await resposta.json();
+
+        loader.style.display = "none";
+
+        if (dados.sucesso && dados.linkFoto && dados.linkFoto !== "Sem foto") {
+            imgTag.src = dados.linkFoto;
+            boxPreview.style.display = "block";
+        } else {
+            // Se essa OS específica não tiver foto, não exibe nada ou mantém oculto
+            ocultarBoxFoto();
+        }
+    } catch (err) {
+        // Abafa o erro de rede de forma limpa para não atrapalhar o operador
+        loader.style.display = "none";
+    }
+}
 
 function salvar() {
-    const rec = document.getElementById("recebedor").value;
-    const exp = document.getElementById("expedidor").value;
+    const rec = document.getElementById("recebedor").value.trim();
+    const exp = document.getElementById("expedidor").value.trim();
     
     if (listaOS.length === 0 || !rec || !exp) { alert("Preencha todos os campos e escaneie a OS!"); return; }
     
