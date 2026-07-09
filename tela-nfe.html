@@ -6,47 +6,29 @@
     <title>Canhoto Digital - Galvânica Danuta</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        /* TEMA ESCURO: Fundo geral e cores de texto principais */
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #121824; padding-bottom: 40px; color: #f1f5f9; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 40px; color: #333; }
         .container { max-width: 500px; margin: auto; padding: 15px; box-sizing: border-box; margin-top: 10px; }
-        
-        /* Topo adaptado para o tema escuro */
-        .topo { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 20px; border: 1px solid #334155; }
+        .topo { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .logo-topo { flex: 1; display: flex; justify-content: flex-start; }
-        .logo-topo img { height: 30px; filter: drop-shadow(0px 0px 1px #fff); } /* Leve realce no logo se necessário */
-        .titulo-topo { flex: 2; text-align: center; color: #38bdf8; font-size: 18px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
-        .reset-topo { flex: 1; text-align: right; color: #ef4444; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        
-        /* Botões permanecem no mesmo tamanho, apenas com contraste ajustado */
-        .btn-scan { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+        .logo-topo img { height: 30px; }
+        .titulo-topo { flex: 2; text-align: center; color: #0f4c81; font-size: 18px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
+        .reset-topo { flex: 1; text-align: right; color: #e74c3c; font-size: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-scan { width: 100%; padding: 16px; margin-top: 10px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-nf { background: #0f4c81; color: white; }
-        .btn-os { background: #475569; color: white; }
+        .btn-os { background: #2c3e50; color: white; }
+        .btn-manual { background: #ebf0f5; color: #444; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 6px; width: auto; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
+        .badge-container { background: #fff; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #0f4c81; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .badge-item { background: #e7f1ff; color: #0f4c81; border: 1px solid #0f4c81; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .btn-excluir-item { color: #e74c3c; font-weight: 900; font-size: 14px; }
+        .secao-titulo { font-size: 14px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
+        input { width: 100%; padding: 15px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        #assinatura { border: 2px solid #0f4c81; width: 100%; height: 200px; background: white; border-radius: 10px; margin-top: 10px; touch-action: none; }
+        .btnSalvar { background: #27ae60; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; }
         
-        /* Botão manual mais visível no escuro */
-        .btn-manual { background: #334155; color: #e2e8f0; padding: 8px; font-size: 13px; border: 1px solid #475569; border-radius: 6px; width: auto; display: inline-block; margin-top: 5px; font-weight: 600; cursor: pointer; }
-        
-        /* Badges de itens adicionados */
-        .badge-container { background: #1e293b; padding: 10px; margin: 8px 0 15px 0; border-radius: 8px; border: 1px dashed #38bdf8; min-height: 45px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .badge-item { background: #0f4c81; color: white; border: 1px solid #38bdf8; padding: 5px 10px; border-radius: 5px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .btn-excluir-item { color: #f87171; font-weight: 900; font-size: 14px; }
-        
-        /* Títulos de seção em cor clara e nítida */
-        .secao-titulo { font-size: 14px; font-weight: bold; color: #94a3b8; margin-top: 15px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        /* CAMPOS DE INPUT: Fundo escuro mais claro que o fundo geral e fontes brancas */
-        input { width: 100%; padding: 15px; margin-top: 8px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: #ffffff; font-size: 16px; box-sizing: border-box; }
-        input::placeholder { color: #94a3b8; } /* Cor do texto de ajuda interna */
-        input:focus { border-color: #38bdf8; outline: none; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
-        
-        /* Área de Assinatura com fundo branco mantido para contraste do traço preto */
-        #assinatura { border: 2px solid #38bdf8; width: 100%; height: 200px; background: white; border-radius: 10px; margin-top: 10px; touch-action: none; }
-        
-        .btnSalvar { background: #22c55e; color: white; margin-top: 30px; font-size: 18px; font-weight: bold; }
-        
-        /* Feedback visual da foto da OS consultada */
-        .box-link-foto { background: #1e293b; padding: 15px; border-radius: 10px; border: 1px solid #475569; margin-top: 12px; text-align: center; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+        /* Implementação do Layout de Link de Visualização Segura */
+        .box-link-foto { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1; margin-top: 12px; text-align: center; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .btn-abrir-foto { display: inline-block; background: #0284c7; color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-top: 8px; box-shadow: 0 2px 5px rgba(2,132,199,0.3); }
-        .loading-foto { font-size: 12px; color: #94a3b8; font-style: italic; margin-top: 5px; display: none; }
+        .loading-foto { font-size: 12px; color: #7f8c8d; font-style: italic; margin-top: 5px; display: none; }
 
         /* ==========================================================================
            LAYOUT: CÂMERA OCUPAR TELA INTEIRA PADRONIZADO
@@ -142,7 +124,7 @@
 
     <label class="secao-titulo">3. Assinatura Digital</label>
     <canvas id="assinatura"></canvas>
-    <button style="background:none; color:#f87171; text-decoration:underline; font-size:12px; width:auto; padding:5px; border:none; cursor:pointer;" onclick="limparAss()">Limpar Assinatura</button>
+    <button style="background:none; color:#e74c3c; text-decoration:underline; font-size:12px; width:auto; padding:5px; border:none; cursor:pointer;" onclick="limparAss()">Limpar Assinatura</button>
 
     <label class="secao-titulo">4. Ordens de Serviço (OS)</label>
     <button class="btn-scan btn-os" onclick="abrirScanner('OS')">📷 ESCANEAR ORDEM SERVIÇO</button>
@@ -151,7 +133,7 @@
 
     <div id="loadingFoto" class="loading-foto">⏳ Verificando imagem no recebimento...</div>
     <div id="boxLinkRecebimento" class="box-link-foto">
-        <span style="font-size: 13px; font-weight: bold; color: #cbd5e1; display: block;">📸 Foto de Entrada Encontrada!</span>
+        <span style="font-size: 13px; font-weight: bold; color: #334155; display: block;">📸 Foto de Entrada Encontrada!</span>
         <a id="btnLinkFoto" href="#" target="_blank" class="btn-abrir-foto">👁️ VER FOTO DO RECEBIMENTO</a>
     </div>
 
@@ -267,7 +249,7 @@ function adicionarValor(val) {
     } else { 
         if (!listaOS.includes(val)) {
             listaOS.push(val);
-            buscarFotoDoRecebimento(val);
+            buscarFotoDoRecebimento(val); // Aciona pesquisa automática ao adicionar OS
         }
     }
     atualizarExibicao();
@@ -281,7 +263,7 @@ function removerItem(tipo, val) {
         if(listaOS.length === 0) {
             ocultarBoxFoto();
         } else {
-            buscarFotoDoRecebimento(listaOS[listaOS.length - 1]);
+            buscarFotoDoRecebimento(listaOS[listaOS.length - 1]); // Busca foto da última OS restante
         }
     }
     atualizarExibicao();
