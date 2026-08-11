@@ -225,8 +225,9 @@ function abrirWhatsRHC() {
         alert("⚠️ Por favor, escaneie ou digite ao menos uma OS antes de abrir o WhatsApp!");
         return;
     }
+    const pesoLiquido = document.getElementById("kgs").value.trim();
     // Texto pré-definido para facilitar a mensagem do operador
-    const texto = encodeURIComponent(`Galvânica Danuta: Registro de Entrada referente à(s) OS: ${listaOS.join(', ')}. Segue imagem em anexo:`);
+    const texto = encodeURIComponent(`Galvânica Danuta: Registro de Entrada referente à(s) OS: ${listaOS.join(', ')} - Peso Líquido ${pesoLiquido}. Segue imagem em anexo:`);
     // Abre o WhatsApp. O operador escolhe o contato/grupo do RHC lá dentro e envia a foto diretamente
     window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
 }
