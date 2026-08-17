@@ -156,7 +156,7 @@
 <div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
 
 <script>
-let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = ""; let modoAtual = "INSERIR"; let salvamentoEmAndamento = false;
+let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = ""; let modoAtual = "INSERIR";
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 window.onload = () => { resetarDataHoje(); };
@@ -227,7 +227,7 @@ function abrirWhatsRHC() {
     }
     const pesoLiquido = document.getElementById("kgs").value.trim();
     // Texto pré-definido para facilitar a mensagem do operador
-    const texto = encodeURIComponent(`Galvânica Danuta: Registro de Entrada referente à OS: ${listaOS.join(', ')} - Peso Líquido ${pesoLiquido} Kgs. Segue imagem em anexo:`);
+    const texto = encodeURIComponent(`Galvânica Danuta: Registro de Entrada referente à(s) OS: ${listaOS.join(', ')} - Peso Líquido ${pesoLiquido}. Segue imagem em anexo:`);
     // Abre o WhatsApp. O operador escolhe o contato/grupo do RHC lá dentro e envia a foto diretamente
     window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
 }
@@ -412,11 +412,6 @@ function capturarFoto(input) {
 }
 
 async function salvar() {
-    if (salvamentoEmAndamento) {
-        alert("⏳ O recebimento já está sendo salvo. Aguarde a confirmação.");
-        return;
-    }
-
     const cliSel = document.getElementById("nomeClienteSel").value;
     const cliOutro = document.getElementById("nomeClienteOutro").value.trim();
     const cliFinal = cliSel === "Outro" ? cliOutro : cliSel;
@@ -447,7 +442,6 @@ async function salvar() {
     if (modoAtual === "INSERIR" && !fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa anexar a Fotografia do lote!"); return; }
     
     const btn = document.getElementById("btnSalvar");
-    salvamentoEmAndamento = true;
     btn.disabled = true;
     btn.innerText = "SALVANDO DADOS...";
 
@@ -470,26 +464,11 @@ async function salvar() {
     };
     
     try {
-        const resposta = await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
-        const resultado = await resposta.json();
-
-        if (!resultado.sucesso) {
-            const erro = new Error(resultado.msg || "O servidor não confirmou o recebimento.");
-            erro.codigo = resultado.codigo;
-            erro.ordens = resultado.ordens || [];
-            throw erro;
-        }
-
+        await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
         alert(modoAtual === "INSERIR" ? "✅ Registro enviado com sucesso!" : "✅ Registro atualizado com sucesso!");
         location.reload();
     } catch (e) {
-        if (e.codigo === "OS_JA_REGISTRADA") {
-            alert(`⚠️ OS já registrada: ${e.ordens.join(", ")}. O recebimento não foi duplicado.`);
-        } else {
-            alert("❌ Não foi possível salvar: " + (e.message || "Verifique a rede e tente novamente."));
-        }
-    } finally {
-        salvamentoEmAndamento = false;
+        alert("❌ Erro ao tentar transmitir os dados. Verifique a rede.");
         btn.disabled = false;
         btn.innerText = modoAtual === "INSERIR" ? "SALVAR RECEBIMENTO" : "SALVAR ALTERAÇÕES";
     }
