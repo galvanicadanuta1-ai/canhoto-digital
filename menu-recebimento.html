@@ -156,7 +156,7 @@
 <div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
 
 <script>
-let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = ""; let modoAtual = "INSERIR";
+let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = ""; let modoAtual = "INSERIR"; let salvamentoEmAndamento = false;
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 window.onload = () => { resetarDataHoje(); };
@@ -412,6 +412,11 @@ function capturarFoto(input) {
 }
 
 async function salvar() {
+    if (salvamentoEmAndamento) {
+        alert("⏳ O recebimento já está sendo salvo. Aguarde a confirmação.");
+        return;
+    }
+
     const cliSel = document.getElementById("nomeClienteSel").value;
     const cliOutro = document.getElementById("nomeClienteOutro").value.trim();
     const cliFinal = cliSel === "Outro" ? cliOutro : cliSel;
@@ -442,6 +447,7 @@ async function salvar() {
     if (modoAtual === "INSERIR" && !fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa anexar a Fotografia do lote!"); return; }
     
     const btn = document.getElementById("btnSalvar");
+    salvamentoEmAndamento = true;
     btn.disabled = true;
     btn.innerText = "SALVANDO DADOS...";
 
@@ -464,11 +470,26 @@ async function salvar() {
     };
     
     try {
-        await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
+        const resposta = await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
+        const resultado = await resposta.json();
+
+        if (!resultado.sucesso) {
+            const erro = new Error(resultado.msg || "O servidor não confirmou o recebimento.");
+            erro.codigo = resultado.codigo;
+            erro.ordens = resultado.ordens || [];
+            throw erro;
+        }
+
         alert(modoAtual === "INSERIR" ? "✅ Registro enviado com sucesso!" : "✅ Registro atualizado com sucesso!");
         location.reload();
     } catch (e) {
-        alert("❌ Erro ao tentar transmitir os dados. Verifique a rede.");
+        if (e.codigo === "OS_JA_REGISTRADA") {
+            alert(`⚠️ OS já registrada: ${e.ordens.join(", ")}. O recebimento não foi duplicado.`);
+        } else {
+            alert("❌ Não foi possível salvar: " + (e.message || "Verifique a rede e tente novamente."));
+        }
+    } finally {
+        salvamentoEmAndamento = false;
         btn.disabled = false;
         btn.innerText = modoAtual === "INSERIR" ? "SALVAR RECEBIMENTO" : "SALVAR ALTERAÇÕES";
     }
