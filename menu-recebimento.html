@@ -71,7 +71,7 @@
         <label class="secao-titulo">Nome do Cliente<span class="obrigatorio">*</span></label>
         <select id="nomeClienteSel" onchange="verificarClienteEspecial(this.value)">
             <option value="">-- Selecione o Cliente --</option>
-            <option value="RHC">RHC</option>
+            <option value="Capo Acessórios">Capo Acessórios</option>
             <option value="Outro">Outro...</option>
         </select>
         <input type="text" id="nomeClienteOutro" placeholder="Digite o nome do cliente*" style="display: none; margin-top: 8px;">
@@ -80,7 +80,7 @@
         <input type="number" inputmode="numeric" pattern="[0-9]*" id="notaFiscal" placeholder="Apenas números">
 
         <label class="secao-titulo">OP do Cliente</label>
-        <input type="number" inputmode="numeric" pattern="[0-9]*" id="opCliente" placeholder="Apenas números">
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="opCliente" placeholder="Apenas números" onblur="verificarOpDuplicada()">
 
         <label class="secao-titulo">Cromato<span class="obrigatorio">*</span></label>
         <select id="cromato" onchange="verificarCromato(this.value)">
@@ -130,8 +130,8 @@
         
         <button type="button" id="btnFotoPadrao" class="btn-scan" style="background: #7f8c8d;" onclick="document.getElementById('fotoInput').click()">📷 REGISTRAR FOTOGRAFIA</button>
         
-        <div id="blocoFotoRHC" style="display: none;">
-            <button type="button" class="btn-whats" onclick="abrirWhatsRHC()">💬 1º ENVIAR FOTO NO WHATSAPP</button>
+        <div id="blocoFotoCapo" style="display: none;">
+            <button type="button" class="btn-whats" onclick="abrirWhatsCapo()">💬 1º ENVIAR FOTO NO WHATSAPP</button>
             <button type="button" class="btn-scan btn-anexo-whats" onclick="document.getElementById('fotoInput').click()">📁 2º CARREGAR ESSA FOTO NA PLANILHA</button>
         </div>
 
@@ -200,7 +200,7 @@ function voltarParaEscolha() {
 function verificarClienteEspecial(val) {
     const campoOutro = document.getElementById("nomeClienteOutro");
     const btnNormal = document.getElementById("btnFotoPadrao");
-    const blocoRHC = document.getElementById("blocoFotoRHC");
+    const blocoCapo = document.getElementById("blocoFotoCapo");
 
     if (val === "Outro") {
         campoOutro.style.display = "block";
@@ -210,17 +210,17 @@ function verificarClienteEspecial(val) {
         campoOutro.value = "";
     }
 
-    // Altera a exibição dos botões de foto caso o cliente seja RHC
-    if (val === "RHC") {
+    // Altera a exibição dos botões de foto caso o cliente seja Capo Acessórios
+    if (val === "Capo Acessórios") {
         btnNormal.style.display = "none";
-        blocoRHC.style.display = "block";
+        blocoCapo.style.display = "block";
     } else {
         btnNormal.style.display = "block";
-        blocoRHC.style.display = "none";
+        blocoCapo.style.display = "none";
     }
 }
 
-function abrirWhatsRHC() {
+function abrirWhatsCapo() {
     if (listaOS.length === 0) {
         alert("⚠️ Por favor, escaneie ou digite ao menos uma OS antes de abrir o WhatsApp!");
         return;
@@ -228,7 +228,7 @@ function abrirWhatsRHC() {
     const pesoLiquido = document.getElementById("kgs").value.trim();
     // Texto pré-definido para facilitar a mensagem do operador
     const texto = encodeURIComponent(`Galvânica Danuta: Registro de Entrada referente à(s) OS: ${listaOS.join(', ')} - Peso Líquido ${pesoLiquido}. Segue imagem em anexo:`);
-    // Abre o WhatsApp. O operador escolhe o contato/grupo do RHC lá dentro e envia a foto diretamente
+    // Abre o WhatsApp. O operador escolhe o contato/grupo da Capo Acessórios lá dentro e envia a foto diretamente
     window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
 }
 
@@ -264,9 +264,9 @@ async function executarConsultaOS() {
             atualizarExibicao();
             
             const cliSel = document.getElementById("nomeClienteSel");
-            if (dados.cliente === "RHC") {
-                cliSel.value = "RHC";
-                verificarClienteEspecial("RHC");
+            if (dados.cliente === "Capo Acessórios" || dados.cliente === "RHC") {
+                cliSel.value = "Capo Acessórios";
+                verificarClienteEspecial("Capo Acessórios");
             } else {
                 cliSel.value = "Outro";
                 verificarClienteEspecial("Outro");
@@ -324,7 +324,7 @@ function limparFormulario() {
     document.getElementById("nomeClienteOutro").value = "";
     document.getElementById("nomeClienteOutro").style.display = "none";
     document.getElementById("btnFotoPadrao").style.display = "block";
-    document.getElementById("blocoFotoRHC").style.display = "none";
+    document.getElementById("blocoFotoCapo").style.display = "none";
     document.getElementById("notaFiscal").value = "";
     document.getElementById("opCliente").value = "";
     document.getElementById("cromato").value = "";
@@ -411,6 +411,36 @@ function capturarFoto(input) {
     }
 }
 
+async function verificarOpDuplicada() {
+    const campo = document.getElementById("opCliente");
+    const op = campo.value.trim();
+    if (!op) return false;
+
+    try {
+        const resposta = await fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify({
+                tipo: "VERIFICAR_OP",
+                opCliente: op,
+                linha: modoAtual === "EDITAR"
+                    ? document.getElementById("linhaPlanilhaEdicao").value
+                    : ""
+            })
+        });
+        const resultado = await resposta.json();
+
+        if (resultado.duplicada) {
+            alert("⚠️ OP já registrada!");
+            campo.focus();
+            campo.select();
+            return true;
+        }
+    } catch (erro) {
+        console.warn("Não foi possível fazer a verificação antecipada da OP.", erro);
+    }
+    return false;
+}
+
 async function salvar() {
     const cliSel = document.getElementById("nomeClienteSel").value;
     const cliOutro = document.getElementById("nomeClienteOutro").value.trim();
@@ -431,6 +461,7 @@ async function salvar() {
     if (!cliFinal) { alert("⚠️ Campo Obrigatório: Selecione ou digite o Nome do Cliente!"); return; }
     if (nf && !/^\d+$/.test(nf)) { alert("⚠️ O campo N° Nota Fiscal deve conter apenas números!"); document.getElementById("notaFiscal").focus(); return; }
     if (op && !/^\d+$/.test(op)) { alert("⚠️ O campo OP do Cliente deve conter apenas números!"); document.getElementById("opCliente").focus(); return; }
+    if (op && await verificarOpDuplicada()) return;
     if (!cromatoSel) { alert("⚠️ Campo Obrigatório: Selecione o Cromato!"); document.getElementById("cromato").focus(); return; }
     if (cromatoSel === "Outro" && !cromatoOutroValor) { alert("⚠️ Campo Obrigatório: Especifique o tipo de Cromato!"); document.getElementById("cromatoOutro").focus(); return; }
     if (!linha) { alert("⚠️ Campo Obrigatório: Selecione a Linha de Banho!"); document.getElementById("linhaBanho").focus(); return; }
@@ -464,11 +495,27 @@ async function salvar() {
     };
     
     try {
-        await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
-        alert(modoAtual === "INSERIR" ? "✅ Registro enviado com sucesso!" : "✅ Registro atualizado com sucesso!");
+        const resposta = await fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+        const resultado = await resposta.json();
+
+        if (!resultado.sucesso) {
+            if (resultado.codigo === "OP_DUPLICADA") {
+                alert("⚠️ OP já registrada! O registro duplicado não foi salvo.");
+                document.getElementById("opCliente").focus();
+                document.getElementById("opCliente").select();
+                return;
+            }
+            throw new Error(resultado.msg || "O servidor não confirmou a gravação.");
+        }
+
+        alert(modoAtual === "INSERIR" ? "✅ Registro salvo na planilha!" : "✅ Registro atualizado com sucesso!");
         location.reload();
     } catch (e) {
-        alert("❌ Erro ao tentar transmitir os dados. Verifique a rede.");
+        alert("❌ Não foi possível salvar: " + e.message);
+    } finally {
         btn.disabled = false;
         btn.innerText = modoAtual === "INSERIR" ? "SALVAR RECEBIMENTO" : "SALVAR ALTERAÇÕES";
     }
@@ -476,3 +523,5 @@ async function salvar() {
 </script>
 </body>
 </html>
+
+
