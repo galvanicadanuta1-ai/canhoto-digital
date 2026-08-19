@@ -17,6 +17,15 @@
         .btn-opcao { width: 100%; padding: 20px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .btn-novo-rec { background: #16a34a; color: white; }
         .btn-consulta-os { background: #0f4c81; color: white; }
+        .btn-historico-os { background: #7c3aed; color: white; }
+        .historico-resumo { margin: 14px 0 8px; color: #475569; font-size: 13px; font-weight: 600; }
+        .historico-tabela-wrap { overflow-x: auto; background: #fff; border-radius: 10px; border: 1px solid #dbe1e8; }
+        .historico-tabela { width: 100%; border-collapse: collapse; min-width: 430px; }
+        .historico-tabela th, .historico-tabela td { padding: 11px 9px; border-bottom: 1px solid #e5e7eb; text-align: left; font-size: 13px; }
+        .historico-tabela th { background: #f8fafc; color: #334155; font-size: 12px; text-transform: uppercase; }
+        .historico-tabela tr:last-child td { border-bottom: none; }
+        .historico-vazio, .historico-carregando, .historico-erro { background: #fff; padding: 18px; margin-top: 12px; border-radius: 10px; text-align: center; color: #64748b; border: 1px solid #e2e8f0; }
+        .historico-erro { color: #b91c1c; border-color: #fecaca; background: #fef2f2; }
         
         .sub-tela { display: none; }
         .secao-titulo { font-size: 13px; font-weight: bold; color: #555; margin-top: 15px; display: block; }
@@ -54,7 +63,8 @@
     
     <div id="telaEscolhaInicial" class="menu-escolha">
         <button class="btn-opcao btn-novo-rec" onclick="abrirSubTela('novoRecebimento')">🟢 + Novo Recebimento</button>
-        <button class="btn-opcao btn-consulta-os" onclick="abrirSubTela('consultaOS')">🔍 Consulta OS</button>
+        <button class="btn-opcao btn-consulta-os" onclick="abrirSubTela('consultaOS')">✏️ Editar OS</button>
+        <button class="btn-opcao btn-historico-os" onclick="abrirSubTela('historicoOS')">📋 Histórico de Lançamentos de OS</button>
     </div>
 
     <div id="telaFormulario" class="sub-tela">
@@ -151,6 +161,12 @@
         <button class="btn-buscar" id="btnEfetuarBusca" onclick="executarConsultaOS()">BUSCAR ORDEM DE SERVIÇO</button>
     </div>
 
+    <div id="telaHistoricoOS" class="sub-tela">
+        <label class="secao-titulo">Data de Entrada</label>
+        <input type="date" id="dataHistoricoOS" onchange="carregarHistoricoOS()">
+        <div id="resultadoHistoricoOS" aria-live="polite"></div>
+    </div>
+
 </div>
 
 <div id="scannerTela"><div id="reader"></div><div style="position:absolute; bottom:40px; width:100%; text-align:center;"><button onclick="fecharScanner()" style="width:80%; background:#e74c3c; color:white; padding:15px; border-radius:10px; border:none; font-weight:bold;">FECHAR</button></div></div>
@@ -161,9 +177,13 @@ const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syH
 
 window.onload = () => { resetarDataHoje(); };
 
-function resetarDataHoje() {
+function obterDataHojeIso() {
     const hoje = new Date();
-    document.getElementById('dataRecebimento').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+    return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+}
+
+function resetarDataHoje() {
+    document.getElementById('dataRecebimento').value = obterDataHojeIso();
 }
 
 function abrirSubTela(tela) {
@@ -183,15 +203,21 @@ function abrirSubTela(tela) {
         limparFormulario();
     } else if (tela === 'consultaOS') {
         document.getElementById("telaConsultaOS").style.display = "block";
-        document.getElementById("textoMenuTopo").innerText = "Consulta OS";
+        document.getElementById("textoMenuTopo").innerText = "Editar OS";
         document.getElementById("osBuscaInput").value = "";
         document.getElementById("osBuscaInput").focus();
+    } else if (tela === 'historicoOS') {
+        document.getElementById("telaHistoricoOS").style.display = "block";
+        document.getElementById("textoMenuTopo").innerText = "Histórico de OS";
+        document.getElementById("dataHistoricoOS").value = obterDataHojeIso();
+        carregarHistoricoOS();
     }
 }
 
 function voltarParaEscolha() {
     document.getElementById("telaFormulario").style.display = "none";
     document.getElementById("telaConsultaOS").style.display = "none";
+    document.getElementById("telaHistoricoOS").style.display = "none";
     document.getElementById("telaEscolhaInicial").style.display = "flex";
     document.getElementById("textoMenuTopo").innerText = "Recebimento";
     document.getElementById("btnNavegacaoVoltar").href = "index.html";
@@ -230,6 +256,74 @@ function abrirWhatsCapo() {
     const texto = encodeURIComponent(`Galvânica Danuta: Registro de Entrada referente à(s) OS: ${listaOS.join(', ')} - Peso Líquido ${pesoLiquido}. Segue imagem em anexo:`);
     // Abre o WhatsApp. O operador escolhe o contato/grupo da Capo Acessórios lá dentro e envia a foto diretamente
     window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+}
+
+function escaparHtml(valor) {
+    return String(valor == null ? "" : valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+async function carregarHistoricoOS() {
+    const data = document.getElementById("dataHistoricoOS").value;
+    const resultado = document.getElementById("resultadoHistoricoOS");
+
+    if (!data) {
+        resultado.innerHTML = '<div class="historico-vazio">Selecione uma data.</div>';
+        return;
+    }
+
+    resultado.innerHTML = '<div class="historico-carregando">Carregando lançamentos...</div>';
+
+    try {
+        const resposta = await fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify({
+                tipo: "HISTORICO_OS",
+                data: data
+            })
+        });
+        const dados = await resposta.json();
+
+        if (!dados.sucesso) {
+            throw new Error(dados.msg || "Não foi possível consultar o histórico.");
+        }
+
+        const registros = Array.isArray(dados.registros) ? dados.registros : [];
+        if (registros.length === 0) {
+            resultado.innerHTML = '<div class="historico-vazio">Nenhum lançamento encontrado para esta data.</div>';
+            return;
+        }
+
+        const linhas = registros.map(registro => `
+            <tr>
+                <td>${escaparHtml(registro.dataEntrada)}</td>
+                <td><strong>${escaparHtml(registro.os)}</strong></td>
+                <td>${escaparHtml(registro.cliente)}</td>
+            </tr>
+        `).join("");
+
+        resultado.innerHTML = `
+            <div class="historico-resumo">${registros.length} lançamento(s) encontrado(s)</div>
+            <div class="historico-tabela-wrap">
+                <table class="historico-tabela">
+                    <thead>
+                        <tr>
+                            <th>Data de Entrada</th>
+                            <th>OS</th>
+                            <th>Nome do Cliente</th>
+                        </tr>
+                    </thead>
+                    <tbody>${linhas}</tbody>
+                </table>
+            </div>
+        `;
+    } catch (erro) {
+        resultado.innerHTML = `<div class="historico-erro">❌ ${escaparHtml(erro.message)}</div>`;
+    }
 }
 
 async function executarConsultaOS() {
@@ -523,5 +617,6 @@ async function salvar() {
 </script>
 </body>
 </html>
+
 
 
