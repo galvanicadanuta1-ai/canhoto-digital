@@ -79,12 +79,15 @@
         <div class="badge-container" id="contOS"></div>
 
         <label class="secao-titulo">Nome do Cliente<span class="obrigatorio">*</span></label>
-        <select id="nomeClienteSel" onchange="verificarClienteEspecial(this.value)">
-            <option value="">-- Selecione o Cliente --</option>
-            <option value="Capo Acessórios">Capo Acessórios</option>
-            <option value="Outro">Outro...</option>
-        </select>
-        <input type="text" id="nomeClienteOutro" placeholder="Digite o nome do cliente*" style="display: none; margin-top: 8px;">
+        <input type="text"
+               id="nomeClienteSel"
+               list="listaClientesHistoricos"
+               autocomplete="off"
+               placeholder="Digite ou selecione o cliente"
+               oninput="verificarClienteEspecial(this.value)"
+               onblur="corrigirNomeClienteExistente()">
+        <datalist id="listaClientesHistoricos"></datalist>
+        <div id="statusClientes" style="font-size:12px; color:#64748b; margin-top:5px;"></div>
 
         <label class="secao-titulo">N° Nota Fiscal</label>
         <input type="number" inputmode="numeric" pattern="[0-9]*" id="notaFiscal" placeholder="Apenas números">
@@ -175,7 +178,12 @@
 let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = ""; let modoAtual = "INSERIR";
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
-window.onload = () => { resetarDataHoje(); };
+let clientesHistoricos = [];
+
+window.onload = () => {
+    resetarDataHoje();
+    carregarClientesHistoricos();
+};
 
 function obterDataHojeIso() {
     const hoje = new Date();
@@ -223,21 +231,69 @@ function voltarParaEscolha() {
     document.getElementById("btnNavegacaoVoltar").href = "index.html";
 }
 
+function normalizarNomeCliente(nome) {
+    return String(nome || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+}
+
+async function carregarClientesHistoricos() {
+    const status = document.getElementById("statusClientes");
+    status.textContent = "Carregando clientes cadastrados...";
+
+    try {
+        const resposta = await fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify({ tipo: "LISTAR_CLIENTES" })
+        });
+        const dados = await resposta.json();
+
+        if (!dados.sucesso) {
+            throw new Error(dados.msg || "Não foi possível carregar os clientes.");
+        }
+
+        clientesHistoricos = Array.isArray(dados.clientes) ? dados.clientes : [];
+        const lista = document.getElementById("listaClientesHistoricos");
+        lista.innerHTML = "";
+
+        clientesHistoricos.forEach(nome => {
+            const opcao = document.createElement("option");
+            opcao.value = nome;
+            lista.appendChild(opcao);
+        });
+
+        status.textContent = clientesHistoricos.length
+            ? clientesHistoricos.length + " cliente(s) disponível(is) para pesquisa."
+            : "Digite normalmente para cadastrar o primeiro cliente.";
+    } catch (erro) {
+        clientesHistoricos = [];
+        status.textContent = "Não foi possível carregar sugestões. Ainda é possível digitar o cliente.";
+    }
+}
+
+function corrigirNomeClienteExistente() {
+    const campo = document.getElementById("nomeClienteSel");
+    const digitadoNormalizado = normalizarNomeCliente(campo.value);
+    if (!digitadoNormalizado) return;
+
+    const nomeOficial = clientesHistoricos.find(nome =>
+        normalizarNomeCliente(nome) === digitadoNormalizado
+    );
+
+    if (nomeOficial) {
+        campo.value = nomeOficial;
+        verificarClienteEspecial(nomeOficial);
+    }
+}
+
 function verificarClienteEspecial(val) {
-    const campoOutro = document.getElementById("nomeClienteOutro");
     const btnNormal = document.getElementById("btnFotoPadrao");
     const blocoCapo = document.getElementById("blocoFotoCapo");
 
-    if (val === "Outro") {
-        campoOutro.style.display = "block";
-        campoOutro.focus();
-    } else {
-        campoOutro.style.display = "none";
-        campoOutro.value = "";
-    }
-
-    // Altera a exibição dos botões de foto caso o cliente seja Capo Acessórios
-    if (val === "Capo Acessórios") {
+    if (normalizarNomeCliente(val) === normalizarNomeCliente("Capo Acessórios")) {
         btnNormal.style.display = "none";
         blocoCapo.style.display = "block";
     } else {
@@ -358,14 +414,8 @@ async function executarConsultaOS() {
             atualizarExibicao();
             
             const cliSel = document.getElementById("nomeClienteSel");
-            if (dados.cliente === "Capo Acessórios" || dados.cliente === "RHC") {
-                cliSel.value = "Capo Acessórios";
-                verificarClienteEspecial("Capo Acessórios");
-            } else {
-                cliSel.value = "Outro";
-                verificarClienteEspecial("Outro");
-                document.getElementById("nomeClienteOutro").value = dados.cliente;
-            }
+            cliSel.value = dados.cliente === "RHC" ? "Capo Acessórios" : dados.cliente;
+            verificarClienteEspecial(cliSel.value);
 
             document.getElementById("notaFiscal").value = dados.notaFiscal;
             document.getElementById("opCliente").value = dados.opCliente;
@@ -415,8 +465,6 @@ function limparFormulario() {
     listaOS = [];
     atualizarExibicao();
     document.getElementById("nomeClienteSel").value = "";
-    document.getElementById("nomeClienteOutro").value = "";
-    document.getElementById("nomeClienteOutro").style.display = "none";
     document.getElementById("btnFotoPadrao").style.display = "block";
     document.getElementById("blocoFotoCapo").style.display = "none";
     document.getElementById("notaFiscal").value = "";
@@ -536,9 +584,8 @@ async function verificarOpDuplicada() {
 }
 
 async function salvar() {
-    const cliSel = document.getElementById("nomeClienteSel").value;
-    const cliOutro = document.getElementById("nomeClienteOutro").value.trim();
-    const cliFinal = cliSel === "Outro" ? cliOutro : cliSel;
+    corrigirNomeClienteExistente();
+    const cliFinal = document.getElementById("nomeClienteSel").value.trim().replace(/\s+/g, " ");
 
     const nf = document.getElementById("notaFiscal").value.trim();
     const op = document.getElementById("opCliente").value.trim();
@@ -617,6 +664,7 @@ async function salvar() {
 </script>
 </body>
 </html>
+
 
 
 
