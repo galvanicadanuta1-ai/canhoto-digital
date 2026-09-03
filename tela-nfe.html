@@ -123,15 +123,7 @@
     <div class="btn-manual" onclick="addManual('NF')">+ Digitar NF Manualmente</div>
     <div class="badge-container" id="contNF"></div>
 
-    <label class="secao-titulo">2. Identificação do Recebedor</label>
-    <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu">
-    <input id="rgcpf" type="tel" placeholder="CPF (Apenas números)" maxlength="14" oninput="mascaraCPF(this)">
-
-    <label class="secao-titulo">3. Assinatura Digital</label>
-    <canvas id="assinatura"></canvas>
-    <button style="background:none; color:#e74c3c; text-decoration:underline; font-size:12px; width:auto; padding:5px; border:none; cursor:pointer;" onclick="limparAss()">Limpar Assinatura</button>
-
-    <label class="secao-titulo">4. Ordens de Serviço (OS)</label>
+    <label class="secao-titulo">2. Ordens de Serviço (OS)</label>
     <button class="btn-scan btn-os" onclick="abrirScanner('OS')">📷 ESCANEAR ORDEM SERVIÇO</button>
     <div class="btn-manual" onclick="addManual('OS')">+ Digitar OS Manualmente</div>
     <div class="badge-container" id="contOS"></div>
@@ -142,15 +134,24 @@
         <a id="btnLinkFoto" href="#" target="_blank" class="btn-abrir-foto">👁️ VER FOTO DO RECEBIMENTO</a>
     </div>
 
-    <label class="secao-titulo">Registrar fotografia <span style="color:#dc2626">*</span></label>
+    <label class="secao-titulo">3. Registrar fotografia <span style="color:#dc2626">*</span></label>
     <div class="foto-registro">
         <button type="button" class="btn-scan btn-foto" id="btnFotoRegistro" onclick="document.getElementById('fotoRegistro').click()">📷 REGISTRAR FOTOGRAFIA</button>
         <input id="fotoRegistro" type="file" accept="image/*" capture="environment" onchange="carregarFotoRegistro(this)">
         <img id="previewFotoRegistro" alt="Pré-visualização da fotografia registrada">
     </div>
 
-    <label class="secao-titulo">5. Expedição</label>
+    <label class="secao-titulo">4. Expedição</label>
     <input id="expedidor" type="text" placeholder="Nome do Expedidor">
+
+    <label class="secao-titulo">5. Identificação do Recebedor</label>
+    <input id="recebedor" type="text" placeholder="Nome Completo de quem recebeu">
+    <input id="rgcpf" type="tel" placeholder="CPF (Apenas números)" maxlength="14" oninput="mascaraCPF(this)">
+
+    <label class="secao-titulo">6. Assinatura Digital</label>
+    <canvas id="assinatura"></canvas>
+    <button style="background:none; color:#e74c3c; text-decoration:underline; font-size:12px; width:auto; padding:5px; border:none; cursor:pointer;" onclick="limparAss()">Limpar Assinatura</button>
+
     <button class="btn-scan btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
 </div>
 
