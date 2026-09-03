@@ -33,7 +33,8 @@
         #fotoRegistro { display: none; }
         .btn-foto { background: #2c3e50; color: white; margin-top: 0; }
         .btn-foto.registrada { background: #16a34a; }
-        #previewFotoRegistro { display: none; width: 100%; max-height: 260px; object-fit: contain; margin-top: 10px; border-radius: 8px; background: #f8fafc; }
+        #previewsFotoRegistro { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+        .preview-foto-registro { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; background: #f8fafc; }
 
         /* ==========================================================================
            LAYOUT: CÂMERA OCUPAR TELA INTEIRA PADRONIZADO
@@ -138,7 +139,7 @@
     <div class="foto-registro">
         <button type="button" class="btn-scan btn-foto" id="btnFotoRegistro" onclick="document.getElementById('fotoRegistro').click()">📷 REGISTRAR FOTOGRAFIA</button>
         <input id="fotoRegistro" type="file" accept="image/*" capture="environment" onchange="carregarFotoRegistro(this)">
-        <img id="previewFotoRegistro" alt="Pré-visualização da fotografia registrada">
+        <div id="previewsFotoRegistro"></div>
     </div>
 
     <label class="secao-titulo">4. Expedição</label>
@@ -167,7 +168,7 @@ let listaNF = [];
 let listaOS = [];
 let destino = 'NF';
 let assinou = false;
-let fotoRegistroBase64 = '';
+let fotosRegistroBase64 = [];
 
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
@@ -350,11 +351,6 @@ function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); assinou
 
 function carregarFotoRegistro(input) {
     const arquivo = input.files && input.files[0];
-    const preview = document.getElementById('previewFotoRegistro');
-    fotoRegistroBase64 = '';
-    preview.style.display = 'none';
-    preview.removeAttribute('src');
-
     if (!arquivo) return;
     if (!arquivo.type.startsWith('image/')) {
         alert('⚠️ Selecione um arquivo de imagem válido.');
@@ -364,12 +360,16 @@ function carregarFotoRegistro(input) {
 
     const leitor = new FileReader();
     leitor.onload = function(evento) {
-        fotoRegistroBase64 = evento.target.result;
-        preview.src = fotoRegistroBase64;
-        preview.style.display = 'block';
+        fotosRegistroBase64.push(evento.target.result);
+        const preview = document.createElement('img');
+        preview.src = evento.target.result;
+        preview.alt = 'Fotografia registrada ' + fotosRegistroBase64.length;
+        preview.className = 'preview-foto-registro';
+        document.getElementById('previewsFotoRegistro').appendChild(preview);
         const botaoFoto = document.getElementById('btnFotoRegistro');
-        botaoFoto.innerText = '✅ FOTOGRAFIA REGISTRADA — TIRAR NOVAMENTE';
+        botaoFoto.innerText = '📷 REGISTRAR OUTRA FOTOGRAFIA (' + fotosRegistroBase64.length + ')';
         botaoFoto.classList.add('registrada');
+        input.value = '';
     };
     leitor.onerror = function() {
         alert('❌ Não foi possível ler a fotografia. Tente novamente.');
@@ -386,7 +386,7 @@ function salvar() {
     if (r.split(' ').filter(word => word.length > 0).length < 2) { alert("⚠️ Digite o NOME COMPLETO de quem recebeu."); return; }
     if (!validarCPF(d)) { alert("⚠️ CPF INVÁLIDO."); return; }
     if (!r || !d || !x || listaNF.length === 0 || listaOS.length === 0 || !assinou) { alert("⚠️ Preencha todos os campos."); return; }
-    if (!fotoRegistroBase64) { alert("⚠️ Registrar fotografia é obrigatório."); return; }
+    if (fotosRegistroBase64.length === 0) { alert("⚠️ Registrar fotografia é obrigatório."); return; }
 
     const btn = document.getElementById("btnSalvar");
     btn.disabled = true;
@@ -399,7 +399,7 @@ function salvar() {
         documento: d,
         expedidor: x,
         assinatura: canvas.toDataURL("image/png"),
-        foto: fotoRegistroBase64
+        fotos: fotosRegistroBase64
     };
 
     fetch(apiUrl, {
