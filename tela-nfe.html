@@ -29,6 +29,11 @@
         .box-link-foto { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1; margin-top: 12px; text-align: center; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .btn-abrir-foto { display: inline-block; background: #0284c7; color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-top: 8px; box-shadow: 0 2px 5px rgba(2,132,199,0.3); }
         .loading-foto { font-size: 12px; color: #7f8c8d; font-style: italic; margin-top: 5px; display: none; }
+        .foto-registro { margin-top: 10px; }
+        #fotoRegistro { display: none; }
+        .btn-foto { background: #2c3e50; color: white; margin-top: 0; }
+        .btn-foto.registrada { background: #16a34a; }
+        #previewFotoRegistro { display: none; width: 100%; max-height: 260px; object-fit: contain; margin-top: 10px; border-radius: 8px; background: #f8fafc; }
 
         /* ==========================================================================
            LAYOUT: CÂMERA OCUPAR TELA INTEIRA PADRONIZADO
@@ -137,6 +142,13 @@
         <a id="btnLinkFoto" href="#" target="_blank" class="btn-abrir-foto">👁️ VER FOTO DO RECEBIMENTO</a>
     </div>
 
+    <label class="secao-titulo">Registrar fotografia <span style="color:#dc2626">*</span></label>
+    <div class="foto-registro">
+        <button type="button" class="btn-scan btn-foto" id="btnFotoRegistro" onclick="document.getElementById('fotoRegistro').click()">📷 REGISTRAR FOTOGRAFIA</button>
+        <input id="fotoRegistro" type="file" accept="image/*" capture="environment" onchange="carregarFotoRegistro(this)">
+        <img id="previewFotoRegistro" alt="Pré-visualização da fotografia registrada">
+    </div>
+
     <label class="secao-titulo">5. Expedição</label>
     <input id="expedidor" type="text" placeholder="Nome do Expedidor">
     <button class="btn-scan btnSalvar" id="btnSalvar" onclick="salvar()">SALVAR</button>
@@ -154,6 +166,7 @@ let listaNF = [];
 let listaOS = [];
 let destino = 'NF';
 let assinou = false;
+let fotoRegistroBase64 = '';
 
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
@@ -334,6 +347,36 @@ window.addEventListener("mouseup", () => desenhando = false);
 
 function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); assinou = false; }
 
+function carregarFotoRegistro(input) {
+    const arquivo = input.files && input.files[0];
+    const preview = document.getElementById('previewFotoRegistro');
+    fotoRegistroBase64 = '';
+    preview.style.display = 'none';
+    preview.removeAttribute('src');
+
+    if (!arquivo) return;
+    if (!arquivo.type.startsWith('image/')) {
+        alert('⚠️ Selecione um arquivo de imagem válido.');
+        input.value = '';
+        return;
+    }
+
+    const leitor = new FileReader();
+    leitor.onload = function(evento) {
+        fotoRegistroBase64 = evento.target.result;
+        preview.src = fotoRegistroBase64;
+        preview.style.display = 'block';
+        const botaoFoto = document.getElementById('btnFotoRegistro');
+        botaoFoto.innerText = '✅ FOTOGRAFIA REGISTRADA — TIRAR NOVAMENTE';
+        botaoFoto.classList.add('registrada');
+    };
+    leitor.onerror = function() {
+        alert('❌ Não foi possível ler a fotografia. Tente novamente.');
+        input.value = '';
+    };
+    leitor.readAsDataURL(arquivo);
+}
+
 function salvar() {
     const r = document.getElementById("recebedor").value.trim();
     const d = document.getElementById("rgcpf").value.trim();
@@ -342,6 +385,7 @@ function salvar() {
     if (r.split(' ').filter(word => word.length > 0).length < 2) { alert("⚠️ Digite o NOME COMPLETO de quem recebeu."); return; }
     if (!validarCPF(d)) { alert("⚠️ CPF INVÁLIDO."); return; }
     if (!r || !d || !x || listaNF.length === 0 || listaOS.length === 0 || !assinou) { alert("⚠️ Preencha todos os campos."); return; }
+    if (!fotoRegistroBase64) { alert("⚠️ Registrar fotografia é obrigatório."); return; }
 
     const btn = document.getElementById("btnSalvar");
     btn.disabled = true;
@@ -353,7 +397,8 @@ function salvar() {
         recebedor: r,
         documento: d,
         expedidor: x,
-        assinatura: canvas.toDataURL("image/png")
+        assinatura: canvas.toDataURL("image/png"),
+        foto: fotoRegistroBase64
     };
 
     fetch(apiUrl, {
