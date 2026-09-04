@@ -93,7 +93,7 @@
         <input type="number" inputmode="numeric" pattern="[0-9]*" id="notaFiscal" placeholder="Apenas números">
 
         <label class="secao-titulo">OP do Cliente</label>
-        <input type="number" inputmode="numeric" pattern="[0-9]*" id="opCliente" placeholder="Apenas números" onblur="verificarOpDuplicada()">
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="opCliente" placeholder="Apenas números">
 
         <label class="secao-titulo">Cromato<span class="obrigatorio">*</span></label>
         <select id="cromato" onchange="verificarCromato(this.value)">
@@ -176,6 +176,7 @@
 
 <script>
 let scanner; let listaOS = []; let statusLote = ""; let fotoBase64 = ""; let modoAtual = "INSERIR";
+let salvamentoEmAndamento = false;
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 let clientesHistoricos = [];
@@ -486,25 +487,53 @@ function limparFormulario() {
     fotoBase64 = "";
 }
 
+function normalizarOsLocal(valor) {
+    let os = String(valor == null ? "" : valor).trim();
+    if (/^\d+$/.test(os)) {
+        os = os.replace(/^0+(?=\d)/, "");
+    }
+    return os;
+}
+
+function adicionarOsNaLista(valor) {
+    const os = normalizarOsLocal(valor);
+    if (!os) return false;
+
+    const jaAdicionada = listaOS.some(item =>
+        normalizarOsLocal(item) === os
+    );
+
+    if (jaAdicionada) {
+        alert("⚠️ Esta OS já foi adicionada neste recebimento: " + os);
+        return false;
+    }
+
+    listaOS.push(os);
+    atualizarExibicao();
+    return true;
+}
+
 function abrirScanner() {
     document.getElementById("scannerTela").style.display = "block";
     scanner = new Html5Qrcode("reader");
-    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (c) => { 
-        if(!listaOS.includes(c)) { listaOS.push(c); atualizarExibicao(); }
+    scanner.start({ facingMode: "environment" }, { fps: 30, qrbox: 250 }, (c) => {
+        adicionarOsNaLista(c);
         fecharScanner();
     });
 }
 
 function fecharScanner() { if (scanner) { scanner.stop().then(() => { document.getElementById("scannerTela").style.display = "none"; }); } }
 
-function addManual() { 
-    let n = prompt("Digite o número da OS (Apenas números):"); 
+function addManual() {
+    let n = prompt("Digite o número da OS (Apenas números):");
     if (n) {
         n = n.trim();
         if (/^\d+$/.test(n)) {
-            if (!listaOS.includes(n)) { listaOS.push(n); atualizarExibicao(); }
-        } else { alert("⚠️ Erro: O número da OS deve conter apenas números!"); }
-    } 
+            adicionarOsNaLista(n);
+        } else {
+            alert("⚠️ Erro: O número da OS deve conter apenas números!");
+        }
+    }
 }
 
 function removerItem(val) { 
@@ -553,37 +582,9 @@ function capturarFoto(input) {
     }
 }
 
-async function verificarOpDuplicada() {
-    const campo = document.getElementById("opCliente");
-    const op = campo.value.trim();
-    if (!op) return false;
-
-    try {
-        const resposta = await fetch(apiUrl, {
-            method: "POST",
-            body: JSON.stringify({
-                tipo: "VERIFICAR_OP",
-                opCliente: op,
-                linha: modoAtual === "EDITAR"
-                    ? document.getElementById("linhaPlanilhaEdicao").value
-                    : ""
-            })
-        });
-        const resultado = await resposta.json();
-
-        if (resultado.duplicada) {
-            alert("⚠️ OP já registrada!");
-            campo.focus();
-            campo.select();
-            return true;
-        }
-    } catch (erro) {
-        console.warn("Não foi possível fazer a verificação antecipada da OP.", erro);
-    }
-    return false;
-}
-
 async function salvar() {
+    if (salvamentoEmAndamento) return;
+
     corrigirNomeClienteExistente();
     const cliFinal = document.getElementById("nomeClienteSel").value.trim().replace(/\s+/g, " ");
 
@@ -602,7 +603,6 @@ async function salvar() {
     if (!cliFinal) { alert("⚠️ Campo Obrigatório: Selecione ou digite o Nome do Cliente!"); return; }
     if (nf && !/^\d+$/.test(nf)) { alert("⚠️ O campo N° Nota Fiscal deve conter apenas números!"); document.getElementById("notaFiscal").focus(); return; }
     if (op && !/^\d+$/.test(op)) { alert("⚠️ O campo OP do Cliente deve conter apenas números!"); document.getElementById("opCliente").focus(); return; }
-    if (op && await verificarOpDuplicada()) return;
     if (!cromatoSel) { alert("⚠️ Campo Obrigatório: Selecione o Cromato!"); document.getElementById("cromato").focus(); return; }
     if (cromatoSel === "Outro" && !cromatoOutroValor) { alert("⚠️ Campo Obrigatório: Especifique o tipo de Cromato!"); document.getElementById("cromatoOutro").focus(); return; }
     if (!linha) { alert("⚠️ Campo Obrigatório: Selecione a Linha de Banho!"); document.getElementById("linhaBanho").focus(); return; }
@@ -614,6 +614,7 @@ async function salvar() {
     if (modoAtual === "INSERIR" && !fotoBase64) { alert("⚠️ Campo Obrigatório: Você precisa anexar a Fotografia do lote!"); return; }
     
     const btn = document.getElementById("btnSalvar");
+    salvamentoEmAndamento = true;
     btn.disabled = true;
     btn.innerText = "SALVANDO DADOS...";
 
@@ -643,10 +644,15 @@ async function salvar() {
         const resultado = await resposta.json();
 
         if (!resultado.sucesso) {
-            if (resultado.codigo === "OP_DUPLICADA") {
-                alert("⚠️ OP já registrada! O registro duplicado não foi salvo.");
-                document.getElementById("opCliente").focus();
-                document.getElementById("opCliente").select();
+            if (resultado.codigo === "OS_DUPLICADA") {
+                const duplicadas = Array.isArray(resultado.ordensDuplicadas)
+                    ? resultado.ordensDuplicadas.join(", ")
+                    : "";
+                alert(
+                    "⚠️ OS já registrada" +
+                    (duplicadas ? ": " + duplicadas : "") +
+                    ". O recebimento não foi salvo."
+                );
                 return;
             }
             throw new Error(resultado.msg || "O servidor não confirmou a gravação.");
@@ -657,6 +663,7 @@ async function salvar() {
     } catch (e) {
         alert("❌ Não foi possível salvar: " + e.message);
     } finally {
+        salvamentoEmAndamento = false;
         btn.disabled = false;
         btn.innerText = modoAtual === "INSERIR" ? "SALVAR RECEBIMENTO" : "SALVAR ALTERAÇÕES";
     }
@@ -664,7 +671,3 @@ async function salvar() {
 </script>
 </body>
 </html>
-
-
-
-
