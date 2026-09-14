@@ -50,6 +50,10 @@
         /* Estilos para o fluxo dinâmico do WhatsApp */
         .btn-whats { background: #25d366 !important; color: white !important; font-weight: bold; text-transform: uppercase; margin-top: 10px; border: none; padding: 15px; width: 100%; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-anexo-whats { background: #34495e !important; color: white !important; }
+        .status-foto { margin-top: 8px; min-height: 18px; font-size: 12px; color: #64748b; text-align: center; }
+        .status-foto.processando { color: #b45309; font-weight: 600; }
+        .status-foto.pronto { color: #15803d; font-weight: 600; }
+        .status-foto.erro { color: #b91c1c; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -149,6 +153,7 @@
         </div>
 
         <input type="file" accept="image/*" capture="environment" id="fotoInput" style="display: none;" onchange="capturarFoto(this)">
+        <div id="statusFoto" class="status-foto"></div>
         
         <div id="previewContainer" style="display: none; text-align: center; margin-top: 10px;">
             <img id="imgPreview" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #ccc;">
@@ -483,6 +488,9 @@ function limparFormulario() {
     document.getElementById("loteNOK").classList.remove("btn-nok-ativo");
     document.getElementById("previewContainer").style.display = "none";
     document.getElementById("linkFotoExistente").innerHTML = "";
+    document.getElementById("statusFoto").className = "status-foto";
+    document.getElementById("statusFoto").textContent = "";
+    document.getElementById("fotoInput").value = "";
     statusLote = "";
     fotoBase64 = "";
 }
@@ -570,15 +578,70 @@ function selecionarLote(opcao) {
     }
 }
 
-function capturarFoto(input) {
-    if (input.files && input.files[0]) {
+function lerArquivoComoDataUrl(arquivo) {
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = function (e) {
-            fotoBase64 = e.target.result;
-            document.getElementById("imgPreview").src = e.target.result;
-            document.getElementById("previewContainer").style.display = "block";
-        };
-        reader.readAsDataURL(input.files[0]);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Não foi possível ler a fotografia."));
+        reader.readAsDataURL(arquivo);
+    });
+}
+
+function carregarImagem(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const imagem = new Image();
+        imagem.onload = () => resolve(imagem);
+        imagem.onerror = () => reject(new Error("Formato de imagem não suportado."));
+        imagem.src = dataUrl;
+    });
+}
+
+async function comprimirFotografia(arquivo) {
+    const original = await lerArquivoComoDataUrl(arquivo);
+    const imagem = await carregarImagem(original);
+    const limite = 1280;
+    const escala = Math.min(1, limite / Math.max(imagem.width, imagem.height));
+    const largura = Math.max(1, Math.round(imagem.width * escala));
+    const altura = Math.max(1, Math.round(imagem.height * escala));
+    const canvas = document.createElement("canvas");
+    canvas.width = largura;
+    canvas.height = altura;
+
+    const contexto = canvas.getContext("2d");
+    contexto.fillStyle = "#ffffff";
+    contexto.fillRect(0, 0, largura, altura);
+    contexto.drawImage(imagem, 0, 0, largura, altura);
+
+    const comprimida = canvas.toDataURL("image/jpeg", 0.72);
+    return comprimida.length < original.length ? comprimida : original;
+}
+
+async function capturarFoto(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const arquivo = input.files[0];
+    const status = document.getElementById("statusFoto");
+    const btnSalvar = document.getElementById("btnSalvar");
+
+    fotoBase64 = "";
+    status.className = "status-foto processando";
+    status.textContent = "Otimizando fotografia...";
+    btnSalvar.disabled = true;
+
+    try {
+        fotoBase64 = await comprimirFotografia(arquivo);
+        document.getElementById("imgPreview").src = fotoBase64;
+        document.getElementById("previewContainer").style.display = "block";
+
+        const tamanhoKb = Math.round((fotoBase64.length * 0.75) / 1024);
+        status.className = "status-foto pronto";
+        status.textContent = "Fotografia otimizada: aproximadamente " + tamanhoKb + " KB";
+    } catch (erro) {
+        status.className = "status-foto erro";
+        status.textContent = "Não foi possível processar a foto. Selecione outra imagem.";
+        alert("❌ " + erro.message);
+    } finally {
+        btnSalvar.disabled = false;
     }
 }
 
@@ -671,3 +734,4 @@ async function salvar() {
 </script>
 </body>
 </html>
+
