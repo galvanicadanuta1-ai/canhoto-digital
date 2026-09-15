@@ -139,6 +139,7 @@
     <div class="foto-registro">
         <button type="button" class="btn-scan btn-foto" id="btnFotoRegistro" onclick="document.getElementById('fotoRegistro').click()">📷 REGISTRAR FOTOGRAFIA</button>
         <input id="fotoRegistro" type="file" accept="image/*" capture="environment" onchange="carregarFotoRegistro(this)">
+        <div id="statusOtimizacaoFotos" style="min-height:18px;margin-top:7px;font-size:12px;color:#64748b;text-align:center;"></div>
         <div id="previewsFotoRegistro"></div>
     </div>
 
@@ -169,6 +170,8 @@ let listaOS = [];
 let destino = 'NF';
 let assinou = false;
 let fotosRegistroBase64 = [];
+let fotosEmProcessamento = 0;
+let envioEmAndamento = false;
 
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
@@ -349,48 +352,120 @@ window.addEventListener("mouseup", () => desenhando = false);
 
 function limparAss() { ctx.clearRect(0, 0, canvas.width, canvas.height); assinou = false; }
 
-function carregarFotoRegistro(input) {
-    const arquivo = input.files && input.files[0];
-    if (!arquivo) return;
-    if (!arquivo.type.startsWith('image/')) {
-        alert('⚠️ Selecione um arquivo de imagem válido.');
-        input.value = '';
+function lerArquivoComoDataUrl(arquivo) {
+    return new Promise((resolve, reject) => {
+        const leitor = new FileReader();
+        leitor.onload = () => resolve(leitor.result);
+        leitor.onerror = () => reject(new Error("Não foi possível ler a fotografia."));
+        leitor.readAsDataURL(arquivo);
+    });
+}
+
+function carregarImagemParaCompressao(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const imagem = new Image();
+        imagem.onload = () => resolve(imagem);
+        imagem.onerror = () => reject(new Error("Formato de imagem não suportado."));
+        imagem.src = dataUrl;
+    });
+}
+
+async function comprimirFotografia(arquivo) {
+    const original = await lerArquivoComoDataUrl(arquivo);
+    const imagem = await carregarImagemParaCompressao(original);
+    const limite = 1280;
+    const escala = Math.min(1, limite / Math.max(imagem.width, imagem.height));
+    const largura = Math.max(1, Math.round(imagem.width * escala));
+    const altura = Math.max(1, Math.round(imagem.height * escala));
+    const canvasFoto = document.createElement("canvas");
+    canvasFoto.width = largura;
+    canvasFoto.height = altura;
+
+    const contextoFoto = canvasFoto.getContext("2d");
+    contextoFoto.fillStyle = "#ffffff";
+    contextoFoto.fillRect(0, 0, largura, altura);
+    contextoFoto.drawImage(imagem, 0, 0, largura, altura);
+
+    const comprimida = canvasFoto.toDataURL("image/jpeg", 0.68);
+    return comprimida.length < original.length ? comprimida : original;
+}
+
+function atualizarStatusFotos() {
+    const status = document.getElementById("statusOtimizacaoFotos");
+    const btn = document.getElementById("btnSalvar");
+
+    if (fotosEmProcessamento > 0) {
+        status.style.color = "#b45309";
+        status.textContent = "⏳ Otimizando fotografia...";
+        btn.disabled = true;
         return;
     }
 
-    const leitor = new FileReader();
-    leitor.onload = function(evento) {
-        fotosRegistroBase64.push(evento.target.result);
-        const preview = document.createElement('img');
-        preview.src = evento.target.result;
-        preview.alt = 'Fotografia registrada ' + fotosRegistroBase64.length;
-        preview.className = 'preview-foto-registro';
-        document.getElementById('previewsFotoRegistro').appendChild(preview);
-        const botaoFoto = document.getElementById('btnFotoRegistro');
-        botaoFoto.innerText = '📷 REGISTRAR OUTRA FOTOGRAFIA (' + fotosRegistroBase64.length + ')';
-        botaoFoto.classList.add('registrada');
-        input.value = '';
-    };
-    leitor.onerror = function() {
-        alert('❌ Não foi possível ler a fotografia. Tente novamente.');
-        input.value = '';
-    };
-    leitor.readAsDataURL(arquivo);
+    const tamanhoTotalKb = Math.round(
+        fotosRegistroBase64.reduce((total, foto) => total + (foto.length * 0.75), 0) / 1024
+    );
+
+    status.style.color = "#15803d";
+    status.textContent = fotosRegistroBase64.length
+        ? fotosRegistroBase64.length + " foto(s) otimizada(s) — carga total aproximada: " + tamanhoTotalKb + " KB"
+        : "";
+    btn.disabled = envioEmAndamento;
 }
 
-function salvar() {
+async function carregarFotoRegistro(input) {
+    const arquivo = input.files && input.files[0];
+    if (!arquivo) return;
+    if (!arquivo.type.startsWith("image/")) {
+        alert("⚠️ Selecione um arquivo de imagem válido.");
+        input.value = "";
+        return;
+    }
+
+    fotosEmProcessamento++;
+    atualizarStatusFotos();
+    input.value = "";
+
+    try {
+        const fotoOtimizada = await comprimirFotografia(arquivo);
+        fotosRegistroBase64.push(fotoOtimizada);
+
+        const preview = document.createElement("img");
+        preview.src = fotoOtimizada;
+        preview.alt = "Fotografia registrada " + fotosRegistroBase64.length;
+        preview.className = "preview-foto-registro";
+        document.getElementById("previewsFotoRegistro").appendChild(preview);
+
+        const botaoFoto = document.getElementById("btnFotoRegistro");
+        botaoFoto.innerText = "📷 REGISTRAR OUTRA FOTOGRAFIA (" + fotosRegistroBase64.length + ")";
+        botaoFoto.classList.add("registrada");
+    } catch (erro) {
+        alert("❌ " + erro.message);
+    } finally {
+        fotosEmProcessamento--;
+        atualizarStatusFotos();
+    }
+}
+
+async function salvar() {
+    if (envioEmAndamento) return;
+    if (fotosEmProcessamento > 0) {
+        alert("⏳ Aguarde a otimização das fotografias.");
+        return;
+    }
+
     const r = document.getElementById("recebedor").value.trim();
     const d = document.getElementById("rgcpf").value.trim();
     const x = document.getElementById("expedidor").value.trim();
 
-    if (r.split(' ').filter(word => word.length > 0).length < 2) { alert("⚠️ Digite o NOME COMPLETO de quem recebeu."); return; }
+    if (r.split(" ").filter(word => word.length > 0).length < 2) { alert("⚠️ Digite o NOME COMPLETO de quem recebeu."); return; }
     if (!validarCPF(d)) { alert("⚠️ CPF INVÁLIDO."); return; }
     if (!r || !d || !x || listaNF.length === 0 || listaOS.length === 0 || !assinou) { alert("⚠️ Preencha todos os campos."); return; }
     if (fotosRegistroBase64.length === 0) { alert("⚠️ Registrar fotografia é obrigatório."); return; }
 
     const btn = document.getElementById("btnSalvar");
+    envioEmAndamento = true;
     btn.disabled = true;
-    btn.innerText = "ENVIANDO...";
+    btn.innerText = "ENVIANDO DADOS OTIMIZADOS...";
 
     const payload = {
         notas: listaNF,
@@ -402,21 +477,34 @@ function salvar() {
         fotos: fotosRegistroBase64
     };
 
-    fetch(apiUrl, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(payload)
-    })
-    .then(() => {
+    try {
+        const resposta = await fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+        const texto = await resposta.text();
+        let resultado = null;
+
+        try {
+            resultado = JSON.parse(texto);
+        } catch (_) {}
+
+        if (resultado && resultado.sucesso === false) {
+            throw new Error(resultado.msg || "O servidor recusou o registro.");
+        }
+        if (!resposta.ok) {
+            throw new Error("Falha HTTP " + resposta.status + ".");
+        }
+
         alert("✅ Canhoto enviado com sucesso!");
-        location.reload(true);
-    })
-    .catch(err => {
-        console.error(err);
-        alert("❌ Erro na conexão.");
+        location.reload();
+    } catch (erro) {
+        console.error(erro);
+        alert("❌ Não foi possível salvar: " + erro.message);
+        envioEmAndamento = false;
         btn.disabled = false;
         btn.innerText = "SALVAR";
-    });
+    }
 }
 </script>
 </body>
