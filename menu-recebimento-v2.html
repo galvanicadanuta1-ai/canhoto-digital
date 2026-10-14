@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<title>Recebimento V2 - Teste</title>
+<script src="js/offline-sync.js"></script>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;margin:0;background:#f0f2f5;color:#1f2937;padding-bottom:40px}.container{max-width:520px;margin:auto;padding:15px;box-sizing:border-box}.topo{display:flex;align-items:center;background:#fff;padding:12px 15px;border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.08);margin-bottom:14px}.topo img{height:30px}.titulo{flex:1;text-align:center;color:#16a34a;font-size:17px;font-weight:800}.teste{font-size:10px;background:#f59e0b;color:#fff;padding:5px 7px;border-radius:999px;font-weight:800}.status{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;justify-content:space-between;gap:8px;font-size:13px}.status strong{color:#475569}.card{background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 5px rgba(0,0,0,.06)}label{display:block;font-size:13px;font-weight:700;color:#475569;margin-top:13px}.req{color:#dc2626}input,select{width:100%;padding:12px;border-radius:8px;border:1px solid #cbd5e1;font-size:16px;box-sizing:border-box;margin-top:5px;background:#fff}.linha{display:flex;gap:10px}.linha>div{flex:1}.osbox{display:flex;gap:8px;margin-top:6px}.osbox input{margin-top:0}.btn-sec{border:none;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer;background:#e2e8f0}.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.badge{background:#dcfce7;color:#166534;border:1px solid #86efac;padding:6px 9px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer}.lote{display:flex;gap:10px;margin-top:6px}.lote button{flex:1;padding:13px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;font-weight:800;cursor:pointer}.lote .ativo-ok{background:#16a34a;color:#fff;border-color:#16a34a}.lote .ativo-nok{background:#dc2626;color:#fff;border-color:#dc2626}.foto{margin-top:7px;padding:12px;border:1px dashed #94a3b8;border-radius:8px;background:#f8fafc}.foto img{display:none;max-width:100%;max-height:190px;border-radius:8px;margin-top:8px}.salvar{width:100%;padding:17px;border:0;border-radius:11px;background:#16a34a;color:#fff;font-size:18px;font-weight:800;margin-top:20px;cursor:pointer}.sync{width:100%;padding:13px;border:0;border-radius:10px;background:#0f4c81;color:#fff;font-weight:800;margin-top:10px;cursor:pointer}.sync:disabled{opacity:.45;cursor:not-allowed}.nota{font-size:12px;color:#64748b;margin-top:8px;line-height:1.45}.okmsg{display:none;background:#dcfce7;border:1px solid #86efac;color:#166534;padding:11px;border-radius:8px;margin-top:12px;font-size:13px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topo">
+    <img src="https://raw.githubusercontent.com/galvanicadanuta1-ai/canhoto-digital/main/logo.png" alt="Danuta">
+    <div class="titulo">Recebimento V2</div>
+    <div class="teste">TESTE</div>
+  </div>
+
+  <div class="status">
+    <span><strong>Conexão:</strong> <span id="statusRede">...</span></span>
+    <span><strong>Pendentes:</strong> <span id="qtdPendentes">0</span></span>
+  </div>
+
+  <div class="card">
+    <label>Data de Recebimento</label>
+    <input type="date" id="dataRecebimento">
+
+    <label>Ordem de Serviço (OS)<span class="req">*</span></label>
+    <div class="osbox">
+      <input type="number" inputmode="numeric" id="osManual" placeholder="Digite a OS">
+      <button class="btn-sec" type="button" onclick="adicionarOS()">Adicionar</button>
+    </div>
+    <div id="listaOS" class="badges"></div>
+
+    <label>Nome do Cliente<span class="req">*</span></label>
+    <input type="text" id="cliente" autocomplete="off" placeholder="Nome do cliente">
+
+    <div class="linha">
+      <div><label>N° Nota Fiscal</label><input type="number" inputmode="numeric" id="notaFiscal"></div>
+      <div><label>OP do Cliente</label><input type="number" inputmode="numeric" id="opCliente"></div>
+    </div>
+
+    <label>Cromato<span class="req">*</span></label>
+    <select id="cromato" onchange="alternarOutroCromato()">
+      <option value="">-- Selecione --</option>
+      <option>Azul Trivalente (Branco)</option>
+      <option>Amarelo Hexavalente</option>
+      <option>Amarelo Trivalente</option>
+      <option>Preto</option>
+      <option>Verde Oliva</option>
+      <option>Outro</option>
+    </select>
+    <input type="text" id="cromatoOutro" placeholder="Digite o tipo de cromato" style="display:none">
+
+    <label>Linha de Banho<span class="req">*</span></label>
+    <select id="linhaBanho"><option value="">-- Selecione --</option><option>Parado</option><option>Rotativo</option></select>
+
+    <div class="linha">
+      <div><label>Qtd. de Peças<span class="req">*</span></label><input type="number" id="quantidade"></div>
+      <div><label>Volumes<span class="req">*</span></label><input type="number" id="volumes"></div>
+    </div>
+
+    <label>Kgs<span class="req">*</span></label>
+    <input type="number" inputmode="decimal" step="0.01" id="kgs">
+
+    <label>Lote Aprovado?<span class="req">*</span></label>
+    <div class="lote"><button id="btnOK" type="button" onclick="selecionarLote('OK')">OK</button><button id="btnNOK" type="button" onclick="selecionarLote('NOK')">NOK</button></div>
+    <div id="boxMotivo" style="display:none"><label>Motivo Reprovação<span class="req">*</span></label><input type="text" id="motivo"></div>
+
+    <label>Fotografia do Recebimento<span class="req">*</span></label>
+    <div class="foto">
+      <input type="file" id="fotoInput" accept="image/*" capture="environment" onchange="processarFoto(this)">
+      <div id="statusFoto" class="nota"></div>
+      <img id="previewFoto" alt="Prévia">
+    </div>
+
+    <button class="salvar" type="button" onclick="salvarLocal()">SALVAR RECEBIMENTO V2</button>
+    <div id="msgSalvo" class="okmsg"></div>
+    <button class="sync" id="btnSync" type="button" onclick="sincronizarAgora()" disabled>SINCRONIZAR AGORA</button>
+    <div class="nota">Nesta etapa de teste, o recebimento é salvo somente no banco local do dispositivo. O botão de sincronização será habilitado quando a API do servidor interno for configurada. A produção atual não é utilizada nem alterada.</div>
+  </div>
+</div>
+<script>
+let ordens=[];let lote='';let fotoBase64='';
+const API_V2='';
+function hoje(){const d=new Date();const p=n=>String(n).padStart(2,'0');document.getElementById('dataRecebimento').value=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
+function adicionarOS(){const c=document.getElementById('osManual');let v=String(c.value||'').trim().replace(/^0+(?=\d)/,'');if(!v)return;if(ordens.includes(v)){alert('⚠️ Esta OS já foi adicionada.');return}ordens.push(v);c.value='';renderOS()}
+function renderOS(){document.getElementById('listaOS').innerHTML=ordens.map(x=>`<span class="badge" onclick="removerOS('${x}')">OS: ${x} ×</span>`).join('')}
+function removerOS(v){ordens=ordens.filter(x=>x!==v);renderOS()}
+function alternarOutroCromato(){const e=document.getElementById('cromato');document.getElementById('cromatoOutro').style.display=e.value==='Outro'?'block':'none'}
+function selecionarLote(v){lote=v;document.getElementById('btnOK').className=v==='OK'?'ativo-ok':'';document.getElementById('btnNOK').className=v==='NOK'?'ativo-nok':'';document.getElementById('boxMotivo').style.display=v==='NOK'?'block':'none'}
+function ler(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(f)})}
+function img(data){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=data})}
+async function processarFoto(input){const f=input.files&&input.files[0];if(!f)return;const st=document.getElementById('statusFoto');st.textContent='Otimizando fotografia...';try{const original=await ler(f);const i=await img(original);const limite=1280;const escala=Math.min(1,limite/Math.max(i.width,i.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(i.width*escala));c.height=Math.max(1,Math.round(i.height*escala));const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(i,0,0,c.width,c.height);const comp=c.toDataURL('image/jpeg',.72);fotoBase64=comp.length<original.length?comp:original;const pv=document.getElementById('previewFoto');pv.src=fotoBase64;pv.style.display='block';st.textContent='Foto pronta para salvamento local.'}catch(e){fotoBase64='';st.textContent='Erro ao processar fotografia.'}}
+function valor(id){return document.getElementById(id).value.trim()}
+async function salvarLocal(){const cromatoSel=valor('cromato'), cromatoFinal=cromatoSel==='Outro'?valor('cromatoOutro'):cromatoSel;if(!ordens.length)return alert('⚠️ Defina ao menos uma OS.');if(!valor('cliente'))return alert('⚠️ Informe o cliente.');if(!cromatoFinal)return alert('⚠️ Informe o cromato.');if(!valor('linhaBanho'))return alert('⚠️ Informe a linha de banho.');if(!valor('quantidade')||!valor('volumes')||!valor('kgs'))return alert('⚠️ Preencha quantidade, volumes e peso.');if(!lote)return alert('⚠️ Informe se o lote foi aprovado.');if(lote==='NOK'&&!valor('motivo'))return alert('⚠️ Informe o motivo da reprovação.');if(!fotoBase64)return alert('⚠️ A fotografia é obrigatória.');const payload={tipo:'RECEBIMENTO',data:valor('dataRecebimento'),cliente:valor('cliente').replace(/\s+/g,' '),notaFiscal:valor('notaFiscal'),opCliente:valor('opCliente'),cromato:cromatoFinal,linhaBanho:valor('linhaBanho'),quantidade:valor('quantidade'),volumes:valor('volumes'),kgs:valor('kgs'),loteAprovado:lote,motivoReprovacao:lote==='NOK'?valor('motivo'):'',ordens:[...ordens],foto:fotoBase64};try{const reg=await DanutaOffline.adicionar('RECEBIMENTO',payload);document.getElementById('msgSalvo').style.display='block';document.getElementById('msgSalvo').textContent='✅ Salvo localmente. ID: '+reg.id+' — o operador já pode continuar.';limpar();await atualizarStatus()}catch(e){alert('❌ Não foi possível salvar localmente: '+e.message)}}
+function limpar(){ordens=[];lote='';fotoBase64='';renderOS();['osManual','cliente','notaFiscal','opCliente','cromatoOutro','quantidade','volumes','kgs','motivo'].forEach(id=>document.getElementById(id).value='');document.getElementById('cromato').value='';document.getElementById('linhaBanho').value='';document.getElementById('cromatoOutro').style.display='none';document.getElementById('boxMotivo').style.display='none';document.getElementById('btnOK').className='';document.getElementById('btnNOK').className='';document.getElementById('previewFoto').style.display='none';document.getElementById('fotoInput').value='';document.getElementById('statusFoto').textContent='';hoje()}
+async function atualizarStatus(){document.getElementById('statusRede').textContent=navigator.onLine?'🟢 Online':'🔴 Offline';try{document.getElementById('qtdPendentes').textContent=await DanutaOffline.contarPendentes()}catch(e){document.getElementById('qtdPendentes').textContent='?'}document.getElementById('btnSync').disabled=!API_V2}
+async function sincronizarAgora(){if(!API_V2)return;await DanutaOffline.sincronizarPendentes(API_V2);await atualizarStatus()}
+window.addEventListener('online',atualizarStatus);window.addEventListener('offline',atualizarStatus);window.addEventListener('load',()=>{hoje();atualizarStatus()});
+</script>
+</body>
+</html>
