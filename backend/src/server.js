@@ -5,8 +5,9 @@ import { pool } from './db.js';
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
+const host = process.env.HOST || '127.0.0.1';
 
-app.use(cors({ origin: true }));
+app.use(cors({ origin: process.env.CORS_ORIGIN === 'file://' ? true : (process.env.CORS_ORIGIN || 'http://localhost:3000') }));
 app.use(express.json({ limit: '20mb' }));
 
 app.get('/api/v2/health', async (_req, res) => {
@@ -24,6 +25,12 @@ app.post('/api/v2/recebimentos', async (req, res) => {
   const ordens = Array.isArray(dados.ordens) ? dados.ordens.map(v => String(v).trim()).filter(Boolean) : [];
   const cliente = String(dados.cliente || '').trim().replace(/\s+/g, ' ');
 
+  if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id)) return res.status(400).json({ sucesso: false, msg: 'ID UUID inválido.' });
+  if (!dados.data || !/^\d{4}-\d{2}-\d{2}$/.test(String(dados.data))) return res.status(400).json({ sucesso: false, msg: 'Data inválida.' });
+  if (!dados.cromato || !dados.linhaBanho || !dados.foto || !['OK','NOK'].includes(dados.loteAprovado)) return res.status(400).json({ sucesso: false, msg: 'Campos obrigatórios incompletos.' });
+  if (dados.loteAprovado === 'NOK' && !String(dados.motivoReprovacao || '').trim()) return res.status(400).json({ sucesso: false, msg: 'Motivo NOK obrigatório.' });
+  if (![dados.quantidade,dados.volumes,dados.kgs].every(v => Number.isFinite(Number(v)) && Number(v)>0)) return res.status(400).json({ sucesso: false, msg: 'Quantidade, volumes e kgs devem ser positivos.' });
+  if (new Set(ordens).size !== ordens.length) return res.status(400).json({ sucesso: false, msg: 'OS duplicada no envio.' });
   if (!id) return res.status(400).json({ sucesso: false, msg: 'ID do dispositivo é obrigatório.' });
   if (!ordens.length) return res.status(400).json({ sucesso: false, msg: 'Ao menos uma OS é obrigatória.' });
   if (!cliente) return res.status(400).json({ sucesso: false, msg: 'Cliente é obrigatório.' });
@@ -87,7 +94,7 @@ app.post('/api/v2/recebimentos', async (req, res) => {
     res.status(201).json({ sucesso: true, id, googleStatus: 'PENDENTE' });
   } catch (erro) {
     await client.query('ROLLBACK');
-    res.status(500).json({ sucesso: false, msg: erro.message });
+    res.status(erro.code === '23505' ? 409 : 500).json({ sucesso: false, codigo: erro.code === '23505' ? 'OS_DUPLICADA' : 'ERRO_INTERNO', msg: erro.code === '23505' ? 'OS já registrada no ambiente V2.' : 'Falha no banco V2.' });
   } finally {
     client.release();
   }
@@ -121,6 +128,6 @@ app.post('/api/v2/recebimentos/:id/whatsapp/confirmar', async (req, res) => {
   }
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Danuta V2 API ouvindo na porta ${port}`);
+app.listen(port, host, () => {
+  console.log(`Danuta V2 API ouvindo em ${host}:${port} (ambiente isolado)`);
 });
