@@ -115,7 +115,21 @@
         <a id="btnLinkFoto" href="#" target="_blank" class="btn-abrir-foto">👁️ VER FOTO DO RECEBIMENTO</a>
     </div>
 
-    <label class="secao-titulo">2. Registrar fotografia <span style="color:#dc2626">*</span></label>
+    <label class="secao-titulo">2. Qualidade Status <span style="color:#dc2626;">*</span></label>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+        <button type="button" id="qualidadeSaidaOK" onclick="DanutaQualidadeSaida.selecionar('OK')" style="flex:1;padding:13px;background:#fff;color:#16a34a;border:1px solid #ccc;border-radius:8px;font-weight:bold;cursor:pointer;">OK</button>
+        <button type="button" id="qualidadeSaidaNOK" onclick="DanutaQualidadeSaida.selecionar('NOK')" style="flex:1;padding:13px;background:#fff;color:#dc2626;border:1px solid #ccc;border-radius:8px;font-weight:bold;cursor:pointer;">NOK</button>
+    </div>
+    <div id="qualidadeSaidaAviso" role="alert" style="display:none;background:#fff1f2;border:1px solid #fca5a5;padding:12px;margin-top:10px;border-radius:8px;">
+        <strong>Material não conforme, deseja fazer Registro de retrabalho?</strong>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+            <button type="button" onclick="DanutaQualidadeSaida.encaminharRetrabalho()" style="flex:1;padding:12px;background:#16a34a;color:#fff;border:0;border-radius:8px;font-weight:bold;">Sim</button>
+            <button type="button" onclick="DanutaQualidadeSaida.naoRegistrar()" style="flex:1;padding:12px;background:#fff;color:#dc2626;border:1px solid #dc2626;border-radius:8px;font-weight:bold;">Não</button>
+        </div>
+        <div style="margin-top:8px;color:#991b1b;font-size:12px;">Material NOK não pode sair. O registro de saída será encerrado após confirmar o retrabalho.</div>
+    </div>
+
+    <label class="secao-titulo">3. Registrar fotografia <span style="color:#dc2626">*</span></label>
     <div class="foto-registro">
         <button type="button" class="btn-scan btn-foto" id="btnFotoRegistro" onclick="document.getElementById('fotoRegistro').click()">📷 REGISTRAR FOTOGRAFIA</button>
         <input id="fotoRegistro" type="file" accept="image/*" capture="environment" onchange="carregarFotoRegistro(this)">
@@ -123,10 +137,10 @@
         <div id="previewsFotoRegistro"></div>
     </div>
 
-    <label class="secao-titulo">3. Expedidor</label>
+    <label class="secao-titulo">4. Expedidor</label>
     <input type="text" id="expedidor" placeholder="Nome de quem entregou">
 
-    <label class="secao-titulo">4. Recebedor</label>
+    <label class="secao-titulo">5. Recebedor</label>
     <input type="text" id="recebedor" placeholder="Nome de quem recebeu">
 
     <button class="btnSalvar" id="btnSalvar" onclick="salvar()">REGISTRAR SAÍDA</button>
@@ -137,13 +151,15 @@
     <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
 </div>
 
+<script src="js/saida-qualidade.js"></script>
 <script>
 let scanner; let listaOS = []; let fotosRegistroBase64 = [];
 let fotosEmProcessamento = 0;
 let envioEmAndamento = false;
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
-window.onload = () => { 
+window.onload = () => {
+    DanutaQualidadeSaida.iniciar({origem:"SAIDA_OS",obterOS:()=>listaOS,restaurar:ctx=>{listaOS=ctx.ordens;atualizarExibicao();}}); 
     const now = new Date(); 
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
     document.getElementById('dataHora').value = now.toISOString().slice(0, 16); 
@@ -339,6 +355,7 @@ async function salvar() {
         return;
     }
 
+    if (!DanutaQualidadeSaida.validar()) return;
     const rec = document.getElementById("recebedor").value.trim();
     const exp = document.getElementById("expedidor").value.trim();
 
@@ -356,7 +373,10 @@ async function salvar() {
         recebedor: rec,
         expedidor: exp,
         ordens: listaOS,
-        fotos: fotosRegistroBase64
+        fotos: fotosRegistroBase64,
+        qualidadeStatus: "OK",
+        registroRetrabalho: "NAO_APLICAVEL",
+        referenciaRetrabalho: ""
     };
 
     try {
