@@ -159,7 +159,7 @@ let envioEmAndamento = false;
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
 window.onload = () => {
-    DanutaQualidadeSaida.iniciar({origem:"SAIDA_OS",obterOS:()=>listaOS}); 
+    DanutaQualidadeSaida.iniciar({origem:"SAIDA_OS",obterOS:()=>listaOS,restaurar:ctx=>{listaOS=ctx.ordens;atualizarExibicao();}}); 
     const now = new Date(); 
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); 
     document.getElementById('dataHora').value = now.toISOString().slice(0, 16); 
