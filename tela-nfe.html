@@ -177,6 +177,7 @@
     <button onclick="fecharScanner()" class="btn-fechar-camera-suspensa">FECHAR</button>
 </div>
 
+<script src="js/saida-qualidade.js"></script>
 <script>
 let scanner;
 let listaNF = [];
@@ -469,6 +470,7 @@ async function salvar() {
     }
 
     if (!DanutaQualidadeSaida.validar()) return;
+    if (!DanutaQualidadeSaida.validar()) return;
     const r = document.getElementById("recebedor").value.trim();
     const d = document.getElementById("rgcpf").value.trim();
     const x = document.getElementById("expedidor").value.trim();
@@ -490,7 +492,10 @@ async function salvar() {
         documento: d,
         expedidor: x,
         assinatura: canvas.toDataURL("image/png"),
-        fotos: fotosRegistroBase64
+        fotos: fotosRegistroBase64,
+        qualidadeStatus: "OK",
+        registroRetrabalho: "NAO_APLICAVEL",
+        referenciaRetrabalho: ""
     };
 
     try {
