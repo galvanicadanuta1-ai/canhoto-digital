@@ -29,6 +29,22 @@
     // Não reaproveitar status de outra operação ou de outra saída.
     status = "";
     houveNok = false;
+    if (new URLSearchParams(window.location.search).get("retornoNok") === "1") {
+      try {
+        const contexto = JSON.parse(sessionStorage.getItem(CHAVE) || "null");
+        const tempo = contexto ? Date.parse(contexto.criadoEm) : NaN;
+        if (contexto && contexto.origem === origem && Array.isArray(contexto.ordens) &&
+            Number.isFinite(tempo) && Date.now() - tempo < 7200000) {
+          opcoes.restaurar && opcoes.restaurar(contexto);
+          status = "NOK";
+          houveNok = true;
+        }
+      } catch (_) {
+        // Falha de recuperação não autoriza saída.
+        status = "NOK";
+        houveNok = true;
+      }
+    }
     pintar();
   }
 
