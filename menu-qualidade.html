@@ -165,7 +165,38 @@
 let scanner; let listaOS = []; let statusQualidade = ""; let moduloAtual = ""; let fotoBase64 = "";
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
-window.onload = () => { resetarDataHoje(); };
+window.onload = () => { resetarDataHoje(); iniciarRetrabalhoDeSaidaNok(); };
+
+let retrabalhoOriginadoNaSaida = false;
+function iniciarRetrabalhoDeSaidaNok() {
+    const origemUrl = new URLSearchParams(window.location.search).get("origemSaidaNok");
+    if (!["SAIDA_OS", "SAIDA_NFE"].includes(origemUrl)) return;
+    try {
+        const texto = sessionStorage.getItem("danuta_nok_saida_contexto_v1");
+        const contexto = JSON.parse(texto || "null");
+        if (!contexto || contexto.origem !== origemUrl || !Array.isArray(contexto.ordens) ||
+            !contexto.ordens.length || Date.now() - Date.parse(contexto.criadoEm) > 7200000) return;
+        abrirSubTela("registroRetrabalho");
+        listaOS = [...new Set(contexto.ordens.map(String).filter(v => /^\\d+$/.test(v)))];
+        if (!listaOS.length) return;
+        atualizarExibicao();
+        retrabalhoOriginadoNaSaida = true;
+        document.getElementById("btnNavegacaoVoltar").href = origemUrl === "SAIDA_OS" ? "tela-os.html" : "tela-nfe.html";
+        // Procura nome do cliente no Recebimento, quando houver dados suficientes.
+        fetch(apiUrl, { method:"POST", body:JSON.stringify({ tipo:"BUSCAR_OS", os:listaOS[0] }) })
+            .then(res=>res.json()).then(dados=>{
+                if (!dados.sucesso || !dados.cliente) return;
+                const select = document.getElementById("retClienteSel");
+                const nome = String(dados.cliente).trim();
+                const opcao = [...select.options].find(o => o.value.toLocaleLowerCase("pt-BR") === nome.toLocaleLowerCase("pt-BR"));
+                select.value = opcao ? opcao.value : "Outro";
+                verificarOutroCliente(select.value);
+                if (!opcao) document.getElementById("retClienteOutro").value = nome;
+            }).catch(()=>{});
+    } catch (_) {
+        // Não há confirmação de retrabalho; operador permanece responsável por completar o registro.
+    }
+}
 
 function resetarDataHoje() {
     const hoje = new Date();
@@ -388,13 +419,28 @@ async function salvarRetrabalho() {
 
 async function enviarDados(payload, btnComponente) {
     try {
-        await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
+        const resposta = await fetch(apiUrl, { method: "POST", body: JSON.stringify(payload) });
+        if (!resposta.ok) throw new Error("Falha HTTP " + resposta.status);
+        let resultado;
+        try { resultado = await resposta.json(); }
+        catch (_) { throw new Error("Não foi possível confirmar a gravação no Apps Script."); }
+        if (!resultado || resultado.sucesso !== true) {
+            throw new Error(resultado && resultado.msg || "Apps Script não confirmou a gravação.");
+        }
+
+        if (payload.tipo === "RETRABALHO" && retrabalhoOriginadoNaSaida) {
+            sessionStorage.removeItem("danuta_nok_saida_contexto_v1");
+            alert("✅ Retrabalho registrado! Saída encerrada; material retorna à produção.");
+            window.location.replace("menu-expedicao.html");
+            return;
+        }
+
         alert("✅ Registro enviado com sucesso!");
         location.reload();
     } catch (e) {
-        alert("❌ Erro ao tentar transmitir os dados. Verifique a rede.");
-        btnComponente.disabled = false; 
-        btnComponente.innerText = "SALVAR REGISTRO";
+        alert("❌ Não foi possível confirmar o registro: " + e.message + "\nConfira a aba Retrabalho antes de tentar novamente, para evitar duplicidade.");
+        btnComponente.disabled = false;
+        btnComponente.innerText = payload.tipo === "RETRABALHO" ? "SALVAR RETRABALHO" : "SALVAR REGISTRO";
     }
 }
 </script>
