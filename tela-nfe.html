@@ -187,7 +187,7 @@ let assinou = false;
 let fotosRegistroBase64 = [];
 let fotosEmProcessamento = 0;
 let envioEmAndamento = false;
-window.addEventListener("DOMContentLoaded", () => DanutaQualidadeSaida.iniciar({origem:"SAIDA_NFE",obterOS:()=>listaOS,obterNF:()=>listaNF}));
+window.addEventListener("DOMContentLoaded", () => DanutaQualidadeSaida.iniciar({origem:"SAIDA_NFE",obterOS:()=>listaOS,obterNF:()=>listaNF,restaurar:ctx=>{listaOS=ctx.ordens;listaNF=ctx.notas||[];atualizarExibicao();}}));
 
 const apiUrl = "https://script.google.com/macros/s/AKfycbxw42iHfUghqkeunSGbU5syHFXJGsTHHvNT5GXm56jXOV-UPdlnebvxjxPvsIsbwcccxA/exec";
 
