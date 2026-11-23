@@ -30,6 +30,9 @@
     status = "";
     houveNok = false;
     if (new URLSearchParams(window.location.search).get("retornoNok") === "1") {
+      // Retorno de NOK nunca deve reabilitar a saída, mesmo se o rascunho expirou.
+      status = "NOK";
+      houveNok = true;
       try {
         const contexto = JSON.parse(sessionStorage.getItem(CHAVE) || "null");
         const tempo = contexto ? Date.parse(contexto.criadoEm) : NaN;
