@@ -124,7 +124,12 @@
     <div class="btn-manual" onclick="addManual('NF')">+ Digitar NF Manualmente</div>
     <div class="badge-container" id="contNF"></div>
 
-    <label class="secao-titulo">2. Qualidade Status <span style="color:#dc2626;">*</span></label>
+    <label class="secao-titulo">2. Ordens de Serviço (OS)</label>
+    <button class="btn-scan btn-os" onclick="abrirScanner('OS')">📷 ESCANEAR ORDEM SERVIÇO</button>
+    <div class="btn-manual" onclick="addManual('OS')">+ Digitar OS Manualmente</div>
+    <div class="badge-container" id="contOS"></div>
+
+    <label class="secao-titulo">3. Qualidade Status <span style="color:#dc2626;">*</span></label>
     <div style="display:flex;gap:8px;margin-top:8px;">
         <button type="button" id="qualidadeSaidaOK" onclick="DanutaQualidadeSaida.selecionar('OK')" style="flex:1;padding:13px;background:#fff;color:#16a34a;border:1px solid #ccc;border-radius:8px;font-weight:bold;cursor:pointer;">OK</button>
         <button type="button" id="qualidadeSaidaNOK" onclick="DanutaQualidadeSaida.selecionar('NOK')" style="flex:1;padding:13px;background:#fff;color:#dc2626;border:1px solid #ccc;border-radius:8px;font-weight:bold;cursor:pointer;">NOK</button>
@@ -137,11 +142,6 @@
         </div>
         <div style="margin-top:8px;color:#991b1b;font-size:12px;">Material NOK não pode sair. O registro de saída será encerrado após confirmar o retrabalho.</div>
     </div>
-
-    <label class="secao-titulo">3. Ordens de Serviço (OS)</label>
-    <button class="btn-scan btn-os" onclick="abrirScanner('OS')">📷 ESCANEAR ORDEM SERVIÇO</button>
-    <div class="btn-manual" onclick="addManual('OS')">+ Digitar OS Manualmente</div>
-    <div class="badge-container" id="contOS"></div>
 
     <div id="loadingFoto" class="loading-foto">⏳ Verificando imagem no recebimento...</div>
     <div id="boxLinkRecebimento" class="box-link-foto">
